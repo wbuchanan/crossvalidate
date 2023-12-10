@@ -15,6 +15,7 @@
 - [x] Handling if/in conditions in the estiamtion command
 - [ ] Allowing arbitrary validation/test metrics
 - [ ] Consideration for how this could be used for hyperparameter tuning in the future
+- [ ] Determine how multiclass predictions will be handled
 
 ## Example:
 `ttsplit 0.8, metric(mse): reg price mpg length if foreign != 1`
@@ -45,6 +46,9 @@ about the state of the
 - [ ] splitter - a program that handles defining the splits of the dataset for the 
 main end user facing commands also needs to handle potential persistence of group membership (e.g., folds or train/validation/test splits)
 - [ ] fitter - a program that handles fitting the statistical model to the data, also needs to handle storage of results
+- [ ] validate - a 
+- [ ] classify - a program that can return the predicted class from classification based models (e.g., logit, ologit, mlogit, etc...)
+
 
 ## Mata Stuff
 - [x] `getifin` function to handle parsing if/in expressions in the estimation command
@@ -70,17 +74,19 @@ main end user facing commands also needs to handle potential persistence of grou
 * monitors (? potentially a list of things to monitor that don't resolve in a scalar (metrics would be used for hyperparameter tuning); should this only be used for train/validation/test splits?)
 * uid (used to determine whether the sample needs to split based on clusters of observations)
 * tpoint (time point used to identify the splitting for panel/time series data only)
-* retain (option to create a permanent variable that identifies the groups for the splits)
+* retain (option to create a permanent variable that identifies the groups for the splits) this will be a string asis parameter and if a value is passed that will be the name of the variable storing the split groups otherwise we'll use a generic name
 * kfold (to use k-fold cross validation will define the number of folds to use)
 * state (? potentially a way to bind additional metadata to the dataset for replication purposes; see `c(rng_current)` to determine which pseudo-random number generator is used and `c(rngstate)` for the current state of the pseudo-random number generator)
 * results (to store intermediate estimation results via est sto or potentially another method)
 * grid (reserved for future to support hyperparameter tuning)
 * params (reserved for future to support hyperparameter tuning; these will be options passed to the estimation command that would be tuned via grid or a result set for regression based tunning methods)
 * tuner (reserved for future to support hyperparameter tuning; will take name of method for the tuning)
+* classes an option that signals that the number of predicted classes; 0 indicates not categorical outcome
 
 ## Rules
 * time point only allowed for xt prefixes
 * metric is a required option
 * xt prefixes can only be called on xtset or tsset datasets
 * uid should not be isid
+* splitter.ado will use the variable name \_splitter as the default if no value is passed to the retain parameter and should be dropped before the execution of any of the cv commands finishes executing. 
 

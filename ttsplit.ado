@@ -14,7 +14,7 @@ cap prog drop ttsplit
 // Defines the program; properties lists the applicable options for this prefix 
 // The tpoint option is only valid for panel/time-series cross-validation
 prog def ttsplit, eclass properties(prefix metric uid retain kfold state 	 ///   
-									monitors results grid params tuner)
+									monitors results grid params tuner classes)
 
 	// Stata version statement, can check for backwards compatibility later
 	version 18
@@ -34,10 +34,6 @@ prog def ttsplit, eclass properties(prefix metric uid retain kfold state 	 ///
 	
 	// If the seed option is populated set the seed value to the seed that the 
 	// user specified
-	
-	// If uid, identify the groups/clusters that will be randomly split into the
-	// train and test sets
-	
 	
 	// Check for if/in conditions
 	mata: getifin(`"`cmd'"')
@@ -66,15 +62,24 @@ prog def ttsplit, eclass properties(prefix metric uid retain kfold state 	 ///
 	
 	}
 	
+	// If uid, identify the groups/clusters that will be randomly split into the
+	// train and test sets; egen something = tag(`uid') `ifin'
+	// this will get encapsulated in a standalone program splitter which should 
+	// also include options for kfold and tpoint as well.
+	
+	
+
+	
 	// If state, call separate program that will get and bind all of the state 
 	// information with the dataset
 	
-	// This will be the execution block for a single fitting of the model to the 
-	// data.  This should also likely be refactored into a separate/standalone 
-	// function or program since this can be standardized for each command type
+	// This will be the execution block for a single fitting of the model and 
+	// estimating the validation/testing values
 	{
 	
 	// Fitt the statistical model in `cmd'
+	fitter `cmd' `opts'
+	
 	
 	// store the estimation results w/est sto
 	
