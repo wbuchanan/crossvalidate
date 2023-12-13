@@ -21,13 +21,13 @@ void function getifin(string scalar x) {
 	string scalar strexp
 	
 	// Tests if there is an if/in expression in the estimation command
-	matched = ustrregexm(x, "(i[fn]{1}\s+[^,]+),")
+	matched = regexmatch(x, "i[fn]{1}\s+.*?(?=, *[a-zA-Z]|\$)")
 	
 	// If there is an expression in the estimation command
 	if (matched) {
 		
 		// Stores the expression in strexp
-		strexp = ustrregexs(1)
+		strexp = regexcapture(0)
 		
 	// If there isn't a match	
 	} else {
@@ -67,8 +67,8 @@ void function cvparse(string scalar cv) {
 	real scalar i, nopts
 	
 	// Stores the name of all the potential options
-	opts = [ "metric", "monitors", "uid", "tpoint", "retain", "kfold", 		 ///   
-			 "state", "results", "grid", "params", "tuner", "seed", "classes" ]
+	opts = ("metric", "monitors", "uid", "tpoint", "retain", "kfold", 		 ///   
+			 "state", "results", "grid", "params", "tuner", "seed", "classes" )
 	
 	// Gets the number of options so we don't need to track it manually and 
 	// avoid the minor performance penalty of using cols(opts) in the loop below
@@ -127,6 +127,7 @@ void function getarg(string scalar param, | string scalar pname) {
 // in the Stata matrix for further manipulation.  If we do that, then we can 
 // pass two column names and it would have the same signature that all of the 
 // metrics and monitors should have.
+/*
 real matrix confusion(real colvector pred, real colvector obs) {
 	
 	// Initialize matrix to store results
@@ -154,7 +155,7 @@ real matrix confusion(real colvector pred, real colvector obs) {
 	
 	
 } // End function definition for confusion matrix
-
+*/
 // End mata interpreter
 end
 
