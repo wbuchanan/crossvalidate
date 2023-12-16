@@ -4,16 +4,16 @@
 *                                                                              *
 *******************************************************************************/
 
-*! ttsplit
+*! cvtt
 *! v 0.0.1
 *! 24NOV2023
 
 // Drop program from memory if already loaded
-cap prog drop ttsplit
+cap prog drop cvtt
 
 // Defines the program; properties lists the applicable options for this prefix 
 // The tpoint option is only valid for panel/time-series cross-validation
-prog def ttsplit, eclass properties(prefix metric uid retain kfold state 	 ///   
+prog def cvtt, eclass properties(prefix metric uid retain kfold state 	 ///   
 									monitors results grid params tuner classes)
 
 	// Stata version statement, can check for backwards compatibility later
