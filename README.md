@@ -33,20 +33,19 @@
 10. ensure results stored in appropriate e() locations
 
 ## Commands to write for this package
-- [ ] ttsplit - Cross-Sectional train/test split 
-- [ ] tvtsplit - Cross-Sectional train/validation/test split
-- [ ] xttsplit - Panel/Time-Series train/test split (need to cap xtset this)
-- [ ] xtvtsplit - Panel/Time-Series train/validation/test split
-- [ ] loo - Leave One Out cross-validation (effectively a jackknife-esque procedure)
-- [ ] xtloo - Leave One Out for panel/time-series 
-- [ ] verify - a Command/function to check the validity of options used and the values of 
-the arguments passed to those options/parameters (_it may be feasible/reasonable to handle this with syntax for the separate subroutines instead_)
+- [ ] cvtt - Cross-Sectional train/test split 
+- [ ] cvtvt - Cross-Sectional train/validation/test split
+- [ ] xtcvtt - Panel/Time-Series train/test split (need to cap xtset this)
+- [ ] xtcvtvt - Panel/Time-Series train/validation/test split
+- [ ] cvloo - Leave One Out cross-validation (effectively a jackknife-esque procedure)
+- [ ] xtcvloo - Leave One Out for panel/time-series 
 - [ ] state - a program that will handle getting and writing important information 
-about the state of the 
+about the state of the software when starting up for replication purposes.  It 
+should either add dataset characteristics or notes.
 - [ ] splitter - a program that handles defining the splits of the dataset for the 
 main end user facing commands also needs to handle potential persistence of group membership (e.g., folds or train/validation/test splits)
 - [ ] fitter - a program that handles fitting the statistical model to the data, also needs to handle storage of results
-- [ ] validate - a 
+- [ ] validate - a program that will handled the validation portion of the training loop (e.g., computing monitors and/or test metrics and returning those values as well)
 - [ ] classify - a program that can return the predicted class from classification based models (e.g., logit, ologit, mlogit, etc...)
 
 
@@ -74,7 +73,8 @@ main end user facing commands also needs to handle potential persistence of grou
 * monitors (? potentially a list of things to monitor that don't resolve in a scalar (metrics would be used for hyperparameter tuning); should this only be used for train/validation/test splits?)
 * uid (used to determine whether the sample needs to split based on clusters of observations)
 * tpoint (time point used to identify the splitting for panel/time series data only)
-* retain (option to create a permanent variable that identifies the groups for the splits) this will be a string asis parameter and if a value is passed that will be the name of the variable storing the split groups otherwise we'll use a generic name
+* retain (option to create a permanent variable that identifies the groups for the splits) by itself will just keep the \_splitter variable following execution, otherwise will remove it at conclusion.
+* retain2 this will be a string asis parameter and if a value is passed that will be the name of the variable storing the split groups otherwise we'll use a generic name
 * kfold (to use k-fold cross validation will define the number of folds to use)
 * state (? potentially a way to bind additional metadata to the dataset for replication purposes; see `c(rng_current)` to determine which pseudo-random number generator is used and `c(rngstate)` for the current state of the pseudo-random number generator)
 * results (to store intermediate estimation results via est sto or potentially another method)
@@ -89,4 +89,9 @@ main end user facing commands also needs to handle potential persistence of grou
 * xt prefixes can only be called on xtset or tsset datasets
 * uid should not be isid
 * splitter.ado will use the variable name \_splitter as the default if no value is passed to the retain parameter and should be dropped before the execution of any of the cv commands finishes executing. 
+* splitter assumes that the first threshold is the upper bound for the split.  In other words the random uniform will be <= threshold to define the training set.  For TVT splits, the validation set is > threshold 1 and <= threshold 2.  
+* TT split can be used for KFold with the enter dataset using a value of 1
+* KFold will currently create a similar number of folds in the validation set at the moment in the case of a TVT split
+* xt splits will use information from xtset/tsset to identify the time variable corresponding to the time point cut off; time point threshold works the same way as the first threshold passed to the command (e.g., times that are <= tpoint will be included in the training/validation sets), but time points beyond that are excluded and are assumed to be used for testing outside of this package (e.g., forecasting)
+
 

@@ -6,7 +6,7 @@
 
 *! splitter
 *! v 0.0.1
-*! 10DEC2023
+*! 17DEC2023
 
 // Drop program from memory if already loaded
 cap prog drop splitter
@@ -35,6 +35,12 @@ prog def splitter, rclass properties(kfold uid tpoint retain)
 	
 	// If there are two thresholds it is tvt
 	if `: word count `props'' == 2 loc stype "Train/Validate/Test Split"
+	
+	// Define the flavor of the splits based on how the units are allocated
+	if !mi(`"`uid'"') & `tpoint' != -999 loc flavor "Clustered & Panel Sampling"
+	else if !mi(`"`uid'"') & `tpoint' == -999 loc flavor "Clustered Sampling"
+	else if mi(`"`uid'"') & `tpoint' != -999 loc flavor "Panel Unit Sampling"
+	else loc flavor "Simple Random Sample"
 	
 	// Allocate tempname for xt/group splitting
 	tempvar tag sgrp sgrp2 uni
@@ -109,7 +115,33 @@ prog def splitter, rclass properties(kfold uid tpoint retain)
 		loc ivar `r(panelvar)'
 		loc tvar `r(timevar)'
 		
+		// Test if the `uid' parameter has an argument and if so if it includes 
+		// the panel variable, when there is a panel variable
+		if !mi(`"`uid'"') & !`: list ivar in uid' & !mi(`"`ivar'"') {
+			
+			// Could handle this in a couple of ways.  We could either add the 
+			// panel variable to the `uid' value, or could issue an error to 
+			// tell the users to include that variable in the variable list 
+			// passed to uid.  I'd go with the error to make sure that it is 
+			// clear to them instead of adding it under the hood.
+			di as err "When passing variables to uid with panel/timeseries " ///   
+			"data, you must include the panel identifier in uid to ensure "  ///   
+			"valid splits of the panel data."
+			
+			// Return error code
+			error 100
+			
+		} // End IF Block for missing panel var in uid 
+		
 	} // End IF Block to check for the time point option
+	
+	/***************************************************************************
+	* This is the section where we create a marker to identify how we will     *
+	* split the records.  For hierarchical/panel data, we need to assign whole *
+	* clusters of observations, while cross-sectional data can split the all   *
+	* of the records.  The temporary variable `tag' is used to mark the obs in *
+	* conjunction with any if/in expressions passed by the user.               *
+	***************************************************************************/
 	
 	// Test for presence of sampling unit id if provided
 	if !mi(`"`uid'"') {
@@ -119,7 +151,7 @@ prog def splitter, rclass properties(kfold uid tpoint retain)
 		
 		// Test if time point is also listed to determine how to tag records
 		// If there is a time point, that should be included in the if condition
-		if `tpoint' != -999 egen byte `tag' = tag(`uid') if `touse' & `tvar' < `tpoint'
+		if `tpoint' != -999 egen byte `tag' = tag(`uid') if `touse' & `tvar' <= `tpoint'
 		
 		// This will handle hierarchical cases as well
 		else byte egen `tag' = tag(`uid') if `touse'
@@ -131,9 +163,9 @@ prog def splitter, rclass properties(kfold uid tpoint retain)
 		
 		// Create the tag variable using the panel var if panel data
 		if !mi(`"`ivar'"') egen byte `tag' = tag(`ivar') if `touse' & 		 ///   
-															`tvar' < `tpoint'
+															`tvar' <= `tpoint'
 
-		// Otherwise, create the tag for the timeseries
+		// Otherwise, create the tag for the timeseries including all obs 
 		else g byte `tag' = 1 if `touse' & `tvar' < `tpoint'
 		
 	} // End IF block for xtset based splits
@@ -143,7 +175,12 @@ prog def splitter, rclass properties(kfold uid tpoint retain)
 	
 	// Generate a random uniform in [0, 1] for the tagged observations
 	g double `uni' = runiform() if `touse' & `tag' == 1
-		   
+	
+	/***************************************************************************
+	* This is the section where the splits get defined now that we've ID'd the *
+	* way we will allocate the observations/clusters.                          *
+	***************************************************************************/
+	
 	// For the kfold case, we'll use xtile on the random uniform to create the 
 	// groups
 	if `kfold' != 0 {
@@ -182,22 +219,28 @@ prog def splitter, rclass properties(kfold uid tpoint retain)
 		xtile `sgrp2' = `uni' if `touse' & `tag' == 1 & (`uni' > `train' &	 ///   
 		`uni' <= `valid') n(`kfold')
 		
-		// Add the value of `kfold' to `sgrp2' in order to store the splits in 
-		// a single variable that are distinct from the training set
-		qui: replace `sgrp' = `sgrp2' + `kfold' if `touse' & `tag' == 1 & 	 ///   
-		mi(`sgrp') & !mi(`sgrp2')
+		// Update these values to occur sequentially after the training IDs
+		qui: replace `sgrp2' = `sgrp2' + `kfold'
+		
+		// Summarize this variable to get min/max values
+		qui: su `sgrp2'
 		
 		// Set starting value for the sequence
-		loc sval `= 1 + `kfold''
+		loc sval `r(min)'
 		
 		// Set the ending value for the sequence
-		loc eval `= `kfold' * 2 + 1'
+		loc eval `r(max)'
 		
 		// Create a macro with the validation splits
 		loc validsplit `sval'(1)`eval'
 		
 		// Set the value for the test set
 		loc testsplit `= `eval' + 1'
+		
+		// Add the value of `kfold' to `sgrp2' in order to store the splits in 
+		// a single variable that are distinct from the training set
+		qui: replace `sgrp' = `sgrp2' if `touse' & `tag' == 1 & mi(`sgrp') & ///   
+										 !mi(`sgrp2')
 		
 		// Add the test split ID to the sgrp temp variable
 		qui: replace `sgrp' = `testsplit' if `touse' & `tag' == 1 & mi(`sgrp')
@@ -247,19 +290,55 @@ prog def splitter, rclass properties(kfold uid tpoint retain)
 		deflabs, val(2) t(Test)
 							 
 	} // End ELSE Block for train/test split
+		
+	/***************************************************************************
+	* This is the section where we will handle populating the split ID record  *
+	* for cases involving hierarchical/custered sampling, panel/timeseries, &  *
+	* combinations of the two cases, since we only assigned split IDs to a     *
+	* single record per cluster/group above.                                   *
+	***************************************************************************/
+	
+	// Handle populating the split ID for hierarchical cases/clustered splits
+	if !mi(`uid') & `tpoint' == -999 {
+
+		// This should fill in the split group ID assignment for the case of 
+		// hierarchical splitting
+		bys `uid' (`sgrp'): replace `sgrp' = `sgrp'[_n - 1] if `touse' &	 ///   
+							mi(`sgrp'[_n]) & !mi(`sgrp'[_n - 1]) 
+										
+	} // End IF Block to fill things in for hierarchical splits
+	
+	// Handle the case where these is timeseries/panel data without `uid' passed
+	else if !mi(`uid') & `tpoint' != -999 {
+		
+		// This should fill in the split group ID assignment for the case of 
+		// hierarchical splitting
+		bys `uid' (`sgrp'): replace `sgrp' = `sgrp'[_n - 1] if `touse' &	 ///   
+							mi(`sgrp'[_n]) & !mi(`sgrp'[_n - 1]) & 		 	 ///   
+							`tvar' <= `tpoint'
+												
+	} // End ELSEIF block for timeseries/panel with specified clustering
+	
+	// Handle timeseries/panel case without additional hierarchy specified
+	else if mi(`uid') & `tpoint' != -999 & !mi(`"`ivar'"') {
+		
+		// This should fill in the split group ID assignment for the case of 
+		// hierarchical splitting
+		bys `ivar' (`sgrp'): replace `sgrp' = `sgrp'[_n - 1] if `touse' &	 ///   
+							mi(`sgrp'[_n]) & !mi(`sgrp'[_n - 1]) & 		 	 ///   
+							`tvar' <= `tpoint'
+
+	} // End ELSEIF Block for panel/timeseries data with a specified panel var
 	
 	// Create a variable label for the split IDs
 	la var `sgrp' `"`stype' Identifiers"'
 	
-	// TODO: now we need to fillin all of the missing values for the indicator
-	// to handle the xt and/or hierarchical cases appropriately. For xt, we need 
-	// to make sure to sort on `tvar' when replacing the values to make sure 
-	// that we do not tag records beyond the `tpoint' value.  
-	
-	
 	// For the last step we'll move the values from the tempvar into the 
 	// permanent variable (which could have happened earlier)
 	clonevar `retain' = `sgrp' if `touse'
+	
+	// Apply the value label to the split group variable
+	la val `retain' _splitter
 	
 	// Set an r macro with the variable name with the split variable to make 
 	// sure it can be cleaned up by the calling command later in the process
