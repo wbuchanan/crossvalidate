@@ -122,40 +122,97 @@ void function getarg(string scalar param, | string scalar pname) {
 	
 } // End of function definition to get argument value from a parameter
 
-// Create a function to return a confusion matrix from predicted/actual values
-// This may be better to refactor using tabulate and retrieving the cells stored
-// in the Stata matrix for further manipulation.  If we do that, then we can 
-// pass two column names and it would have the same signature that all of the 
-// metrics and monitors should have.
-/*
-real matrix confusion(real colvector pred, real colvector obs) {
+// Create a function to return a confusion matrix from the predicted/observed 
+// value variables and a third variable to identify which records to subset.  
+// We'll use this same signature for all metrics and monitors to make it easier 
+// for others to create their own metrics/monitors as well.  The difference is 
+// that metrics and monitors should generally return a scalar.
+real matrix confusion(string scalar pred, string scalar obs, 				 ///   
+					  string scalar touse) {
 	
-	// Initialize matrix to store results
-	real matrix conf
+	// Initialize matrix to store the confusion matrix, a temp matrix that will 
+	// store the raw data in sorted order, and the unique combinations of 
+	// predicted and observed outcomes
+	real matrix conf, temp, urows
 	
-	// Initialize vector to store unique values from pred/obs and a null column
-	real colvector uvals, zcol
+	// Initialize vector to store unique values of predicted/observed values
+	real colvector uvals, idx
 	
-	// Initializes a vector to represent a null row
-	real rowvector zrow
+	// Real scalar to iterate over values, number of observations, a scalar for 
+	// the cell size, and matrix indices to populate the confusion matrix using 
+	// the values of the predicted and observed values
+	real scalar i, nobs, cell, m, n
 	
-	// Real scalar to iterate over values
-	real scalar i
+	// Create the temp matrix by selecting the predicted and observed variables
+	// that satisfy the condition encoded in the variable touse.  Sorts the data
+	// in order of predicted then observed values, and then adds a row ID to the 
+	// resulting matrix.
+	temp = (sort(st_data(., (pred + " " + obs), touse), (1, 2)), 			 ///   
+			J(1, 1, (1::nobs)))
 	
-	// Identifies all unique values across predicted and observed
-	uvals = uniqrows(pred \ obs)
+	// Identifies all unique values across predicted and observed; this will 
+	// ensure we always return a square matrix since we will define the 
+	// dimension of the confusion matrix based on the combination of unique 
+	// values that are predicted/observed.  If a model performs poorly and 
+	// collapses to a single state, this will make it easier to return 0 cells 
+	// in the appropriate locations.
+	uvals = uniqrows(temp[., 1] \ temp[., 2])
 	
-	// Initializes null row and column vectors
-	zcol = J(length(uvals), 1, 0)
-	zrow = J(1, length(uvals), 0)
+	// Create a null matrix for the confusion matrix using dimensions based on 
+	// the combination of unique predicted/observed variable values.
+	conf = J(rows(uvals), rows(uvals), 0)
 	
-	// Is there a simpler way than using two loops to test values?
-	// Test if 
-	// missing cell intersections should return 0
+	// Get number of observations in the data; not doing anything now, but could
+	// be useful if we decide to return a struct with other information later
+	// instead of just the confusion matrix with cell counts.
+	nobs = rows(temp)
 	
+	// Get the unique combinations of predicted and observed values to iterate
+	// over to get the min/max boundaries for the cell frequencies
+	urows = uniqrows(temp[., (1, 2)])
+	
+	// Iterate over the urows to start selecting the min/max row indices for 
+	// each combination
+	for(i = 1; i <= rows(urows); i++) {
+		
+		// Gets the row indices for the ith combination of unique predicted and 
+		// observed values.  The select function returns a matrix since it is 
+		// comparing two columns, so we need to pass that to the rowsum function
+		// and test whether both columns match by looking for a rowsum of 2.  
+		// The : before the equality operator is used to perform elementwise 
+		// operations instead of set/matrix operations.
+		idx = select(temp[., 3], rowsum(temp[., (1, 2)] :== urows[i, .]) :== 2)
+		
+		// If a single row is returned the cell size is 1
+		if(rows(idx) == 1) cell = 1
+		
+		// If there is more than a single row, take the difference between the 
+		// first and last indices and add 1 to it for the cell size
+		else cell = max(idx) - min(idx) + 1
+		
+		// Get the row index
+		m = urows[i, 1]
+		
+		// Get the column index
+		n = urows[i, 2]
+		
+		// Populate the cell in the confusion matrix with the cell size that 
+		// corresponds with the predicted (row) and observed (column) locations
+		conf[m, n] = cell
+		
+	} // End Loop over unique combinations of predicted and observed values
+	
+	// Return the confusion matrix
+	return(conf)
 	
 } // End function definition for confusion matrix
-*/
+
+// Can define each of the common metrics/monitors for binary prediction, based 
+// on passing the arguments for the confusion matrix.  There will be additional 
+// computational overhead this way, but we could also consider coding around 
+// this so we would return the confusion matrix to a Mata object and then do the 
+// subsequent computations on the single confusion matrix.
+
 // End mata interpreter
 end
 
