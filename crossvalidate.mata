@@ -213,6 +213,281 @@ real matrix confusion(string scalar pred, string scalar obs, 				 ///
 // this so we would return the confusion matrix to a Mata object and then do the 
 // subsequent computations on the single confusion matrix.
 
+// For sensitivity, specificity, prevalence, ppv, and npv see:
+// https://yardstick.tidymodels.org/reference/ppv.html	
+// For others in this section see other pages from above			
+real scalar sensitivity(string scalar pred, string scalar obs, 				 ///   
+					  string scalar touse) {
+	
+	// Declares a matrix to store the confusion matrix
+	real matrix conf
+	
+	// Declares a scalar to store the resulting metric
+	real scalar result
+	
+	// Creates the confusion matrix
+	conf = confusion(pred, obs, touse)
+	
+	// For now, at least, we'll restrict these metrics to only the binary case
+	// so this assertion will make sure that we have a binary confusion matrix
+	assert(rows(conf) == 2 & cols(conf) == 2)
+	
+	// Computes the metric from the confusion matrix
+	result = conf[1, 1] / colsum(conf[, 1])
+	
+	// Returns the metric as a scalar
+	return(result)
+	
+} // End of function definition for sensitivity
+					  
+real scalar precision(string scalar pred, string scalar obs, 				 ///   
+					  string scalar touse) {
+	
+	// Declares a matrix to store the confusion matrix
+	real matrix conf
+	
+	// Declares a scalar to store the resulting metric
+	real scalar result
+	
+	// Creates the confusion matrix
+	conf = confusion(pred, obs, touse)
+	
+	// For now, at least, we'll restrict these metrics to only the binary case
+	// so this assertion will make sure that we have a binary confusion matrix
+	assert(rows(conf) == 2 & cols(conf) == 2)
+	
+	// Computes the metric from the confusion matrix
+	result = conf[1, 1] / rowsum(conf[1, ])
+
+	// Returns the metric
+	return(result)
+	
+} // End of function definition for precision
+					  
+real scalar recall(string scalar pred, string scalar obs, string scalar touse) {
+		
+	// Declares a scalar to store the result
+	real scalar result
+	
+	// Recall is a synonym for sensitivity, so it just calls that function
+	result = sensitivity(pred, obs, touse)
+	
+	// Returns the metric
+	return(result)
+	
+} // End of function definition for recall
+				
+real scalar specificity(string scalar pred, string scalar obs, 				 ///   
+					  string scalar touse) {
+	
+	// Declares a matrix to store the confusion matrix
+	real matrix conf
+	
+	// Declares a scalar to store the resulting metric
+	real scalar result
+	
+	// Creates the confusion matrix
+	conf = confusion(pred, obs, touse)
+	
+	// For now, at least, we'll restrict these metrics to only the binary case
+	// so this assertion will make sure that we have a binary confusion matrix
+	assert(rows(conf) == 2 & cols(conf) == 2)
+	
+	// Computes the metric from the confusion matrix
+	result = conf[2, 2] / colsum(conf[, 2])
+	
+	// Returns the metric
+	return(result)
+	
+} // End of function definition for specificity
+
+real scalar prevalence(string scalar pred, string scalar obs, 				 ///   
+					  string scalar touse) {
+	
+	// Declares a matrix to store the confusion matrix
+	real matrix conf
+	
+	// Declares a scalar to store the resulting metric
+	real scalar result
+	
+	// Creates the confusion matrix
+	conf = confusion(pred, obs, touse)
+	
+	// For now, at least, we'll restrict these metrics to only the binary case
+	// so this assertion will make sure that we have a binary confusion matrix
+	assert(rows(conf) == 2 & cols(conf) == 2)
+	
+	// Computes the metric from the confusion matrix
+	result = colsum(conf[, 1]) / sum(conf)
+
+	// Returns the metric
+	return(result)
+	
+} // End of function definition for prevalence
+
+real scalar ppv(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Declares a matrix to store the confusion matrix
+	real matrix conf
+	
+	// Declares a scalar to store the resulting metric, sensitivity, 
+	// specificity, and prevalence (used to compute the metric)
+	real scalar result, sens, spec, prev
+	
+	// Computes sensitivity 
+	sens = sensitivity(pred, obs, touse)
+	
+	// Computes prevalence
+	prev = prevalence(pred, obs, touse)
+	
+	// Computes specificity
+	spec = specificity(pred, obs, touse)
+	
+	// Computes positive predictive value
+	result = (sens * prev) / ((sens * prev) + ((1 - spec) * (1 - prev)))
+	
+	// Returns the metric
+	return(result)
+	
+} // End of function definition for positive predictive value
+
+real scalar npv(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Declares a matrix to store the confusion matrix
+	real matrix conf
+	
+	// Declares a scalar to store the resulting metric, sensitivity, 
+	// specificity, and prevalence (used to compute the metric)
+	real scalar result, sens, spec, prev
+	
+	// Computes sensitivity 
+	sens = sensitivity(pred, obs, touse)
+	
+	// Computes prevalence
+	prev = prevalence(pred, obs, touse)
+	
+	// Computes specificity
+	spec = specificity(pred, obs, touse)
+	
+	// Computes negative predictive value
+	result = (spec * (1 - prev)) / (((1 - sens) * prev) + (spec * (1 - prev)))
+	
+	// Returns the metric
+	return(result)
+	
+} // End of function definition for negative predictive value
+
+real scalar accuracy(string scalar pred, string scalar obs, 				 ///   
+					  string scalar touse) {
+	
+	// Declares a matrix to store the confusion matrix
+	real matrix conf
+	
+	// Declares a scalar to store the resulting metric
+	real scalar result
+	
+	// Creates the confusion matrix
+	conf = confusion(pred, obs, touse)
+	
+	// For now, at least, we'll restrict these metrics to only the binary case
+	// so this assertion will make sure that we have a binary confusion matrix
+	assert(rows(conf) == 2 & cols(conf) == 2)
+	
+	// Computes the metric from the confusion matrix
+	result = sum(diagonal(conf)) / sum(conf)
+
+	// Returns the metric
+	return(result)
+	
+} // End of function definition for accuracy
+
+real scalar bal_accuracy(string scalar pred, string scalar obs, 			 ///   
+					  string scalar touse) {
+	
+	// Declares a matrix to store the confusion matrix
+	real matrix conf
+	
+	// Declares a scalar to store the resulting metric, sensitivity, 
+	// specificity, and prevalence (used to compute the metric)
+	real scalar result, sens, spec, prev
+	
+	// Computes sensitivity 
+	sens = sensitivity(pred, obs, touse)
+	
+	// Computes specificity
+	spec = specificity(pred, obs, touse)
+	
+	// Computes "balanced" accuracy as the average of sensitivity and specificity
+	result = (sens + spec) / 2
+	
+	// Returns the metric
+	return(result)
+	
+} // End of function definition for balanced accuracy
+
+// Based on second equation here: https://www.v7labs.com/blog/f1-score-guide
+real scalar f1(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Declares a matrix to store the confusion matrix
+	real matrix conf
+	
+	// Declares a scalar to store the resulting metric, precision, and recall
+	real scalar result, prec, rec
+
+	// Computes precision
+	prec = precision(pred, obs, touse)
+
+	// Computes recall
+	rec = recall(pred, obs, touse)
+	
+	// Computes the f1 score 
+	result = (2 * prec * rec) / (prec + rec)
+	
+	// Returns the metric
+	return(result)
+	
+} // End of function definition for f1score
+
+real scalar mse(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Column vector to store the squared difference of pred - obs
+	real colvector sqdiff
+	
+	// Declares a scalar to store the resulting metric
+	real scalar result
+	
+	// Computes squared differences
+	sqdiff = (st_data(., pred, touse) - st_data(., obs, touse)) :^2
+	
+	// Computes the average of the squared differences
+	result = sum(sqdiff) / rows(sqdiff)
+	
+	// Returns the mean squared error
+	return(result)
+
+} // End of function definition for MSE
+
+real scalar mae(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Column vector to store the absolute difference of pred - obs
+	real colvector absdiff
+	
+	// Declares a scalar to store the resulting metric
+	real scalar result
+	
+	// Computes absolute differences
+	absdiff = abs(st_data(., pred, touse) - st_data(., obs, touse)) :^2
+	
+	// Computes the average of the squared differences
+	result = sum(absdiff) / rows(absdiff)
+	
+	// Returns the mean absolute error
+	return(result)
+
+} // End of function definition for MAE
+
+
+
 // End mata interpreter
 end
 
