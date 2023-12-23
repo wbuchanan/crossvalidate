@@ -239,7 +239,9 @@ real scalar sensitivity(string scalar pred, string scalar obs, 				 ///
 	return(result)
 	
 } // End of function definition for sensitivity
-					  
+					
+// Function to compute precision from a confusion matrix.  See:
+// https://yardstick.tidymodels.org/reference/precision.html for the formula
 real scalar precision(string scalar pred, string scalar obs, 				 ///   
 					  string scalar touse) {
 	
@@ -263,7 +265,9 @@ real scalar precision(string scalar pred, string scalar obs, 				 ///
 	return(result)
 	
 } // End of function definition for precision
-					  
+
+// Function to compute recall, which appears to be a synonym for sensitivity.  
+// See https://yardstick.tidymodels.org/reference/precision.html for formula					  
 real scalar recall(string scalar pred, string scalar obs, string scalar touse) {
 		
 	// Declares a scalar to store the result
@@ -277,6 +281,8 @@ real scalar recall(string scalar pred, string scalar obs, string scalar touse) {
 	
 } // End of function definition for recall
 				
+// Defines function to compute specificity from a confusion matrix.  
+// See: https://yardstick.tidymodels.org/reference/ppv.html for the formula
 real scalar specificity(string scalar pred, string scalar obs, 				 ///   
 					  string scalar touse) {
 	
@@ -301,6 +307,8 @@ real scalar specificity(string scalar pred, string scalar obs, 				 ///
 	
 } // End of function definition for specificity
 
+// Defines a function to compute prevalence.  
+// See: https://yardstick.tidymodels.org/reference/ppv.html for the formula
 real scalar prevalence(string scalar pred, string scalar obs, 				 ///   
 					  string scalar touse) {
 	
@@ -325,6 +333,8 @@ real scalar prevalence(string scalar pred, string scalar obs, 				 ///
 	
 } // End of function definition for prevalence
 
+// Defines a function to compute positive predictive value.
+// See: https://yardstick.tidymodels.org/reference/ppv.html for the formula
 real scalar ppv(string scalar pred, string scalar obs, string scalar touse) {
 	
 	// Declares a matrix to store the confusion matrix
@@ -351,6 +361,8 @@ real scalar ppv(string scalar pred, string scalar obs, string scalar touse) {
 	
 } // End of function definition for positive predictive value
 
+// Defines a function to compute negative predictive value.
+// See: https://yardstick.tidymodels.org/reference/ppv.html for the formula
 real scalar npv(string scalar pred, string scalar obs, string scalar touse) {
 	
 	// Declares a matrix to store the confusion matrix
@@ -377,6 +389,7 @@ real scalar npv(string scalar pred, string scalar obs, string scalar touse) {
 	
 } // End of function definition for negative predictive value
 
+// Defines a function to compute accuracy.
 real scalar accuracy(string scalar pred, string scalar obs, 				 ///   
 					  string scalar touse) {
 	
@@ -401,6 +414,8 @@ real scalar accuracy(string scalar pred, string scalar obs, 				 ///
 	
 } // End of function definition for accuracy
 
+// Defines a function to compute "balanced" accuracy.  
+// See https://yardstick.tidymodels.org/reference/bal_accuracy.html for more info
 real scalar bal_accuracy(string scalar pred, string scalar obs, 			 ///   
 					  string scalar touse) {
 	
@@ -425,6 +440,7 @@ real scalar bal_accuracy(string scalar pred, string scalar obs, 			 ///
 	
 } // End of function definition for balanced accuracy
 
+// Defines function to compute the F1 statistic
 // Based on second equation here: https://www.v7labs.com/blog/f1-score-guide
 real scalar f1(string scalar pred, string scalar obs, string scalar touse) {
 	
@@ -448,6 +464,8 @@ real scalar f1(string scalar pred, string scalar obs, string scalar touse) {
 	
 } // End of function definition for f1score
 
+// Defines function to compute mean squared error from predicted and observed 
+// outcomes
 real scalar mse(string scalar pred, string scalar obs, string scalar touse) {
 	
 	// Column vector to store the squared difference of pred - obs
@@ -467,6 +485,8 @@ real scalar mse(string scalar pred, string scalar obs, string scalar touse) {
 
 } // End of function definition for MSE
 
+// Defines function to compute mean absolute error from predicted and observed 
+// outcomes
 real scalar mae(string scalar pred, string scalar obs, string scalar touse) {
 	
 	// Column vector to store the absolute difference of pred - obs
