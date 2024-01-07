@@ -46,7 +46,7 @@ should either add dataset characteristics or notes.
 main end user facing commands also needs to handle potential persistence of group membership (e.g., folds or train/validation/test splits)
 - [ ] fitter - a program that handles fitting the statistical model to the data, also needs to handle storage of results
 - [ ] validate - a program that will handled the validation portion of the training loop (e.g., computing monitors and/or test metrics and returning those values as well)
-- [ ] classify - a program that can return the predicted class from classification based models (e.g., logit, ologit, mlogit, etc...)
+- [x] classify - a program that can return the predicted class from classification based models (e.g., logit, ologit, mlogit, etc...)
 
 
 ## Mata Stuff
