@@ -13,9 +13,9 @@
 - [x] Parsing and defining the API for the prefix command consistently
 - [ ] Returning results in ereturn in a reasonable way
 - [x] Handling if/in conditions in the estiamtion command
-- [ ] Allowing arbitrary validation/test metrics
+- [x] Allowing arbitrary validation/test metrics
 - [ ] Consideration for how this could be used for hyperparameter tuning in the future
-- [ ] Determine how multiclass predictions will be handled
+- [x] Determine how multiclass predictions will be handled
 
 ## Example:
 `ttsplit 0.8, metric(mse): reg price mpg length if foreign != 1`
@@ -42,7 +42,7 @@
 - [ ] state - a program that will handle getting and writing important information 
 about the state of the software when starting up for replication purposes.  It 
 should either add dataset characteristics or notes.
-- [ ] splitter - a program that handles defining the splits of the dataset for the 
+- [x] splitter - a program that handles defining the splits of the dataset for the 
 main end user facing commands also needs to handle potential persistence of group membership (e.g., folds or train/validation/test splits)
 - [ ] fitter - a program that handles fitting the statistical model to the data, also needs to handle storage of results
 - [ ] validate - a program that will handled the validation portion of the training loop (e.g., computing monitors and/or test metrics and returning those values as well)
