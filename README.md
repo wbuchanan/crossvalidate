@@ -54,8 +54,8 @@ main end user facing commands also needs to handle potential persistence of grou
 - [x] `repifin` function to handle replacing user if/in w/exp that includes training set
 - [x] `cvparse` function to handle parsing the options for the prefix commands
 - [x] `getarg` function to handle retrieving the argument value from options
-- [ ] metric specification 
-- [ ] monitor specification
+- [x] metric specification 
+- [x] monitor specification
 
 # Syntax
 `prefixcmd` numlist(min = 1 max = 2 default = 0.8) [, options]
