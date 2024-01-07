@@ -475,7 +475,7 @@ real scalar mse(string scalar pred, string scalar obs, string scalar touse) {
 	real scalar result
 	
 	// Computes squared differences
-	sqdiff = (st_data(., pred, touse) - st_data(., obs, touse)) :^2
+	sqdiff = (st_data(., obs, touse) - st_data(., pred, touse)) :^2
 	
 	// Computes the average of the squared differences
 	result = sum(sqdiff) / rows(sqdiff)
@@ -496,7 +496,7 @@ real scalar mae(string scalar pred, string scalar obs, string scalar touse) {
 	real scalar result
 	
 	// Computes absolute differences
-	absdiff = abs(st_data(., pred, touse) - st_data(., obs, touse)) :^2
+	absdiff = abs(st_data(., obs, touse) - st_data(., pred, touse)) :^2
 	
 	// Computes the average of the squared differences
 	result = sum(absdiff) / rows(absdiff)
@@ -506,7 +506,123 @@ real scalar mae(string scalar pred, string scalar obs, string scalar touse) {
 
 } // End of function definition for MAE
 
+// Metric based on definition here:
+// https://developer.nvidia.com/blog/a-comprehensive-overview-of-regression-evaluation-metrics/
+real scalar bias(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Returns the sum of residuals
+	return(sum(st_data(., obs, touse) - st_data(., pred, touse)))
+	
+} // End of function definition for bias
 
+// Metric based on definition here:
+// https://developer.nvidia.com/blog/a-comprehensive-overview-of-regression-evaluation-metrics/
+real scalar mbe(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Returns the sum of residuals
+	return(sum(st_data(., obs, touse) - st_data(., pred, touse)) /			 ///   
+		   rows(st_data(., obs, touse)))
+	 
+} // End of function definition for mean bias error
+
+// Metric based on definition here:
+// https://developer.nvidia.com/blog/a-comprehensive-overview-of-regression-evaluation-metrics/
+real scalar r2(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Declares a scalar to store the residual sum of squares, total 
+	// sum of squares, and mean of the observed outcome.
+	real scalar rss, tss, muob
+	
+	// Computes squared differences
+	rss = sum((st_data(., obs, touse) - st_data(., pred, touse)) :^2)
+	
+	// Computes the mean of the observed outcome
+	muob = sum(st_data(., obs, touse)) / rows(st_data(., obs, touse))
+	
+	// Computes the total sum of squares
+	tss = sum((st_data(., obs, touse) :- muob) :^2)
+	
+	// Returns 1 - RSS / TSS
+	return(1 - (rss / tss))
+	
+} // End of function definition for R^2
+
+// Creates function for root mean squared error
+real scalar rmse(string scalar pred, string scalar obs, string scalar touse) {
+
+	// Returns the square root of the mean squared error
+	return(sqrt(mse(pred, obs, touse)))
+
+} // End of function definition for RMSE
+
+// Metric based on definition of mean absolute percentage error here:
+// https://developer.nvidia.com/blog/a-comprehensive-overview-of-regression-evaluation-metrics/
+real scalar mape(string scalar pred, string scalar obs, string scalar touse) {
+
+	// Allocates a column vector to store the differences
+	real colvector diff
+	
+	// Computes the residuals
+	diff = st_data(., obs, touse) - st_data(., pred, touse)
+	
+	// Returns the sum of the absolute value of the residual divided by observed 
+	// value, which is then divided by the number of observations
+	return(sum(abs(diff :/ st_data(., obs, touse))) / rows(st_data(., obs, touse)))
+	
+} // End of function definition for mean absolute percentage error
+
+
+// Metric based on definition of symmetric mean absolute percentage error here:
+// https://developer.nvidia.com/blog/a-comprehensive-overview-of-regression-evaluation-metrics/
+real scalar smape(string scalar pred, string scalar obs, string scalar touse) {
+
+	// Allocates a column vector to store the differences
+	real colvector diff, obd
+	
+	// Creates a column vector with the observed outcome data
+	obd = st_data(., obs, touse)
+	
+	// Computes the residuals
+	diff = obd - st_data(., pred, touse)
+	
+	// Returns the sum of the absolute value of the residual divided by observed 
+	// value, which is then divided by the number of observations
+	return(sum(abs(diff :/ obd) / 0.5 * (obd + st_data(., pred, touse))) / 	 ///   
+			rows(obd))
+	
+} // End of function definition for mean absolute percentage error
+
+// Defines function to compute mean squared log error from predicted and observed 
+// outcomes.  Based on definition here:
+// https://developer.nvidia.com/blog/a-comprehensive-overview-of-regression-evaluation-metrics/
+real scalar msle(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Column vector to store the squared difference of pred - obs
+	real colvector sqdiff
+	
+	// Declares a scalar to store the resulting metric
+	real scalar result
+	
+	// Computes squared differences
+	sqdiff = (log(st_data(., obs, touse)) - log(st_data(., pred, touse))) :^2
+	
+	// Computes the average of the squared differences
+	result = sum(sqdiff) / rows(sqdiff)
+	
+	// Returns the mean squared error
+	return(result)
+
+} // End of function definition for mean squared log error
+
+// Defines function to compute the root mean squared log error.  Based on 
+// definition here:
+// https://developer.nvidia.com/blog/a-comprehensive-overview-of-regression-evaluation-metrics/
+real scalar rmsle(string scalar pred, string scalar obs, string scalar touse) {
+
+	// Returns the square root of the mean squared log error
+	return(sqrt(msle(pred, obs, touse)))
+	
+} // End of function definition for root mean squared log error
 
 // End mata interpreter
 end
