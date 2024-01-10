@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! splitter
-*! v 0.0.1
-*! 17DEC2023
+*! v 0.0.2
+*! 09JAN2024
 
 // Drop program from memory if already loaded
 cap prog drop splitter
@@ -19,7 +19,7 @@ prog def splitter, rclass properties(kfold uid tpoint retain)
 	
 	// Syntax for the splitter subroutine
 	syntax anything(name = props id = "Split proportion(s)") [if] [in] [, 	 ///   
-		   Uid(varname) TPoint(real -999) KFold(integer 0) RETain(string asis) ]
+		   Uid(varlist) TPoint(real -999) KFold(integer 0) RETain(string asis) ]
 	
 	// Mark the sample to handle any if/in arguments (can now pass if `touse') 
 	// for the downstream work to handle user specified if/in conditions.

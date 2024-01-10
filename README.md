@@ -45,7 +45,7 @@ should either add dataset characteristics or notes.
 - [x] splitter - a program that handles defining the splits of the dataset for the 
 main end user facing commands also needs to handle potential persistence of group membership (e.g., folds or train/validation/test splits)
 - [ ] fitter - a program that handles fitting the statistical model to the data, also needs to handle storage of results
-- [ ] validate - a program that will handled the validation portion of the training loop (e.g., computing monitors and/or test metrics and returning those values as well)
+- [ ] validate - a program that will handle the validation portion of the training loop (e.g., computing monitors and/or test metrics and returning those values as well)
 - [x] classify - a program that can return the predicted class from classification based models (e.g., logit, ologit, mlogit, etc...)
 
 
@@ -94,4 +94,89 @@ main end user facing commands also needs to handle potential persistence of grou
 * KFold will currently create a similar number of folds in the validation set at the moment in the case of a TVT split
 * xt splits will use information from xtset/tsset to identify the time variable corresponding to the time point cut off; time point threshold works the same way as the first threshold passed to the command (e.g., times that are <= tpoint will be included in the training/validation sets), but time points beyond that are excluded and are assumed to be used for testing outside of this package (e.g., forecasting)
 
+# Metrics/Monitors
 
+## Method Signature
+The program will allow users to define their own metrics/monitors that are not 
+contained in libcrossvalidate.  In order to do this, users must implement a 
+specific method/function signature:
+
+`real scalar metric(string scalar pred, string scalar obs, string scalar touse)`
+
+The function must return a real valued scalar and take three arguments.  The 
+three arguments are used to access the data that would be used to compute the 
+metrics/monitors.  
+
+## Data access
+Within the function body, we recommend using the following pattern to access 
+the data needed to compute any metrics/monitors:
+
+`real colvector yhat, y`
+`yhat = st_data(., pred, touse)`
+`y = st_data(., obs, touse)`
+
+The programs in the cross validate package will handle the construction of the 
+variables and passing them to the function name that users pass to the programs. 
+ 
+
+# Commands 
+
+## splitter
+`splitter # [#] [if] [in] [, Uid(varlist) TPoint(real -999) KFold(integer 0) RETain(string asis)]`
+
+### Syntax and options
+* # \[#] - At least one numeric value in [0, 1].  A single value is used for 
+train/test splits.  Two values are used for train/validate/test splits.  The sum
+of the two values must be <= 1.
+* <ins>u</ins>id(_varlist_) - A user specified varlist used to identify units 
+when splitting the data.  When this is populated all records associated with the 
+unit identifier will be added to the train/validate/test split.  If a time point 
+is also specified, the time point threshold should retain only cases up to the 
+specified time.
+* <ins>tp</ins>oint(_real -999_) - A user specified time value that will be used 
+to split the data into train/validation/test sets.  Requires the data to be 
+-xtset-.  If a panel variable is defined in -xtset- it will be used to ensure the 
+split includes entire records prior to the time period used for the split.  If 
+-uid- is also specified, it must include the panel variable.
+* <ins>kf</ins>old(_integer 0_) - An optional parameter to trigger the use of 
+K-Fold crossvalidation.  The number of folds specified will be used to generate 
+the splits.  
+* <ins>ret</ins>ain(_string asis_) - An optional parameter to specify the name 
+to use for the split identifiers.  If a user specified value is passed to this 
+parameter it will prevent the wrapper programs from dropping the variable with 
+the splits at the end of execution.  This would allow users to test multiple 
+models with the same training set, for example.
+
+### Decisions
+- [ ] Should the kfold option cause the splitting to generate K-Folds in the 
+validation set?  Should this be an option?
+- [ ] Are we handling time-series/panel train/test splits in the best/most common way?
+
+### Testing
+Here are things that we need to test for this program:
+- [ ] Standard train/test split functions correctly (e.g., requested proportions)
+- [ ] Standard tt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
+- [ ] Standard train/validation/test split functions correctly (e.g., requested proportions)
+- [ ] Standard tvt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
+- [ ] 
+
+
+## classify
+`classify # [if] [in] [, THReshold(real 0.5) PStub(string asis) ]`
+
+### Syntax and options
+* # - This is the number of classes of the outcome variable being modeled.  This 
+value must be integer valued.
+* <ins>thr</ins>eshold(_real 0.5_) - Specifies the threshold to use for classification 
+of predicted probabilities in the case of binary outcome models.  The value of 
+the threshold must be in (0, 1).
+* <ins>ps</ins>tub(_string asis_) - Specifies a stub name to use to store the 
+predicted classes from the model.
+
+### Testing
+Here are things that we need to test for this program:
+- [ ] Binary classification works correctly with user specified or default threshold
+- [ ] Multi-class classification works correctly (e.g., highest probability class is predicted)
+- [ ] The prediction is returned in the variable specified by pstub
+- [ ] Mutli-class probabilities are not returned, but the predicted class is returned in pstub
+- [ ] Make sure numbers attached to pstub* for multiclass cases are consistent with the value being predicted
