@@ -82,6 +82,7 @@ main end user facing commands also needs to handle potential persistence of grou
 * params (reserved for future to support hyperparameter tuning; these will be options passed to the estimation command that would be tuned via grid or a result set for regression based tunning methods)
 * tuner (reserved for future to support hyperparameter tuning; will take name of method for the tuning)
 * classes an option that signals that the number of predicted classes; 0 indicates not categorical outcome
+* restitle an option to add titles to stored estimation results
 
 ## Rules
 * time point only allowed for xt prefixes
@@ -117,6 +118,10 @@ the data needed to compute any metrics/monitors:
 
 The programs in the cross validate package will handle the construction of the 
 variables and passing them to the function name that users pass to the programs. 
+
+## Testing/QA
+- [ ] Check that all functions are defined correctly based on the mathematical definitions
+- [ ] Create unit tests for each of the metrics 
  
 
 # Commands 
@@ -151,6 +156,7 @@ models with the same training set, for example.
 - [ ] Should the kfold option cause the splitting to generate K-Folds in the 
 validation set?  Should this be an option?
 - [ ] Are we handling time-series/panel train/test splits in the best/most common way?
+- [ ] Should the type for tpoint be changed to string asis so we can test for no value instead of -999 to avoid any potential clashes with dates?
 
 ### Testing
 Here are things that we need to test for this program:
@@ -180,3 +186,80 @@ Here are things that we need to test for this program:
 - [ ] The prediction is returned in the variable specified by pstub
 - [ ] Mutli-class probabilities are not returned, but the predicted class is returned in pstub
 - [ ] Make sure numbers attached to pstub* for multiclass cases are consistent with the value being predicted
+
+
+## state
+`state `
+
+### Syntax and options
+
+
+### Testing
+
+
+
+## fitter
+`fitter `
+
+### Syntax and options
+
+
+### Testing
+
+
+## validate
+
+### Syntax and options
+
+
+### Testing
+
+
+
+## cvtt
+
+### Syntax and options
+
+
+### Testing
+
+
+## cvtvt
+
+### Syntax and options
+
+
+### Testing
+
+
+## xtcvtt
+
+### Syntax and options
+
+
+### Testing
+
+
+## xtcvtvt
+
+### Syntax and options
+
+
+### Testing
+
+
+## cvloo
+
+### Syntax and options
+
+
+### Testing
+
+
+## xtcvloo
+
+### Syntax and options
+
+
+### Testing
+
