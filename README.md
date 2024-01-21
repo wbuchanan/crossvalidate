@@ -45,7 +45,7 @@ should either add dataset characteristics or notes.
 - [x] splitter - a program that handles defining the splits of the dataset for the 
 main end user facing commands also needs to handle potential persistence of group membership (e.g., folds or train/validation/test splits)
 - [ ] fitter - a program that handles fitting the statistical model to the data, also needs to handle storage of results
-- [ ] validate - a program that will handle the validation portion of the training loop (e.g., computing monitors and/or test metrics and returning those values as well)
+- [x] validate - a program that will handle the validation portion of the training loop (e.g., computing monitors and/or test metrics and returning those values as well)
 - [x] classify - a program that can return the predicted class from classification based models (e.g., logit, ologit, mlogit, etc...)
 
 
@@ -113,7 +113,9 @@ Within the function body, we recommend using the following pattern to access
 the data needed to compute any metrics/monitors:
 
 `real colvector yhat, y`
+
 `yhat = st_data(., pred, touse)`
+
 `y = st_data(., obs, touse)`
 
 The programs in the cross validate package will handle the construction of the 
@@ -130,7 +132,7 @@ variables and passing them to the function name that users pass to the programs.
 `splitter # [#] [if] [in] [, Uid(varlist) TPoint(real -999) KFold(integer 0) RETain(string asis)]`
 
 ### Syntax and options
-* # \[#] - At least one numeric value in [0, 1].  A single value is used for 
+* # [\#] - At least one numeric value in [0, 1].  A single value is used for 
 train/test splits.  Two values are used for train/validate/test splits.  The sum
 of the two values must be <= 1.
 * <ins>u</ins>id(_varlist_) - A user specified varlist used to identify units 
@@ -173,7 +175,7 @@ Here are things that we need to test for this program:
 `classify # [if] [in] [, THReshold(real 0.5) PStub(string asis) ]`
 
 ### Syntax and options
-* # - This is the number of classes of the outcome variable being modeled.  This 
+* \# - This is the number of classes of the outcome variable being modeled.  This 
 value must be integer valued.
 * <ins>thr</ins>eshold(_real 0.5_) - Specifies the threshold to use for classification 
 of predicted probabilities in the case of binary outcome models.  The value of 
@@ -201,7 +203,7 @@ Here are things that we need to test for this program:
 
 
 ## fitter
-`fitter `
+`fitter anything(name = cmd) [, Classes(integer)`
 
 ### Syntax and options
 
