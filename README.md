@@ -11,14 +11,14 @@
 
 ## Known challenges
 - [x] Parsing and defining the API for the prefix command consistently
-- [ ] Returning results in ereturn in a reasonable way
+- [x] Returning results in ereturn in a reasonable way
 - [x] Handling if/in conditions in the estiamtion command
 - [x] Allowing arbitrary validation/test metrics
-- [ ] Consideration for how this could be used for hyperparameter tuning in the future
+- [x] Consideration for how this could be used for hyperparameter tuning in the future
 - [x] Determine how multiclass predictions will be handled
 
 ## Example:
-`ttsplit 0.8, metric(mse): reg price mpg length if foreign != 1`
+`cvtt 0.8, metric(mse): reg price mpg length if foreign != 1`
 
 # How to handle 
 1. parse the if/in statement from the estimation command if it exists
@@ -156,7 +156,9 @@ models with the same training set, for example.
 - [ ] Should the kfold option cause the splitting to generate K-Folds in the 
 validation set?  Should this be an option?
 - [ ] Are we handling time-series/panel train/test splits in the best/most common way?
-- [ ] Should the type for tpoint be changed to string asis so we can test for no value instead of -999 to avoid any potential clashes with dates?
+- [ ] Change the type for tpoint to string asis so we can test for no value instead of -999 to avoid any potential clashes with dates and to allow users to specify values like `td(01jan2024)`.
+- [ ] Update handling for xt cases to check : char \_dta[iis] and : char \_dta[tis] 
+for the panel and time variables instead of handling an error from a call to `xtset`.
 
 ### Testing
 Here are things that we need to test for this program:
@@ -208,12 +210,27 @@ Here are things that we need to test for this program:
 
 
 ## validate
+`validate [if] [in], MEtric(string asis) [MOnitors(string asis) Pred(string asis) Obs(string asis) DISplay`
 
 ### Syntax and options
-
+* [if] [in] used to ensure that we are only computing the metrics/monitors on 
+the validation sample.
+* <ins>me</ins>tric(string asis) - specifies the name of the Mata function to 
+use as the validation metric.  In the future this would be the value that would 
+be optimized by any hyperparameter tuning capabilities.
+* <ins>mo</ins>nitors(string asis) - this can be a list of functions used to 
+evaluate the model performance on the out of sample data.   There can be any 
+number of monitors since they are not involved in hyperparameter tuning.
+* <ins>p</ins>red(string asis) - the name of the variable containing the 
+predicted values from the model.
+* <ins>o</ins>bs(string asis) - the name of the dependent variable from the model.
+* <ins>dis</ins>play - an option to print the monitor and metric values to the 
+console.
 
 ### Testing
-
+- [ ] Need to ensure that the return scalars are correctly populated
+- [ ] Test that the display option works correctly and that output is easy to read
+- [ ] Test that approach to calling the Mata functions works as intended
 
 
 ## cvtt
