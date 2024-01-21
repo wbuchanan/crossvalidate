@@ -132,7 +132,7 @@ variables and passing them to the function name that users pass to the programs.
 `splitter # [#] [if] [in] [, Uid(varlist) TPoint(real -999) KFold(integer 0) RETain(string asis)]`
 
 ### Syntax and options
-* # [\#] - At least one numeric value in [0, 1].  A single value is used for 
+* \# [\#] - At least one numeric value in [0, 1].  A single value is used for 
 train/test splits.  Two values are used for train/validate/test splits.  The sum
 of the two values must be <= 1.
 * <ins>u</ins>id(_varlist_) - A user specified varlist used to identify units 
