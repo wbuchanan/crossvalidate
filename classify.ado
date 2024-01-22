@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! classify
-*! v 0.0.1
-*! 07JAN2024
+*! v 0.0.2
+*! 22JAN2024
 
 // Drop program from memory if already loaded
 cap prog drop classify
@@ -63,7 +63,7 @@ prog def classify,
 	if `classes' == 2 {
 		
 		// Generate predicted values
-		predict `pstub' if `touse', pr
+		predict double `pstub' if `touse', pr
 		
 		// Replace predicted values with classes
 		replace `pstub' = cond(`pstub' <= `threshold' & !mi(`pstub'), 0,	 ///   
@@ -75,7 +75,7 @@ prog def classify,
 	else {
 		
 		// Generate predicted values
-		predict `pstub'* if `touse', pr
+		predict double `pstub'* if `touse', pr
 		
 		// Get the names of the variables that were just generated
 		ds `pstub'*
@@ -102,6 +102,9 @@ prog def classify,
 		drop `pvars'
 		
 	} // End ELSE Block for multinomial/ordinal classification problems
+	
+	// Compress the classification variable
+	qui: compress `pstub'
 	
 // End definition of the command
 end

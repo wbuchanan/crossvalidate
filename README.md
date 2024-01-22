@@ -203,13 +203,22 @@ Here are things that we need to test for this program:
 
 
 ## fitter
-`fitter anything(name = cmd) [, Classes(integer)`
+`fitter anything(name = cmd) , PStub(string asis) [ Classes(integer 0) RESults(string asis) Kfold(integer 1) RESTItle(string asis) THReshold(passthru)`
 
 ### Syntax and options
+* cmd is the estimation command the user wishes to fit to the data
+* <ins>ps</ins>tub(string asis) - A variable name to use to store the predicted values following model fitting.
+* <ins>c</ins>lasses(integer 0) - An option used to determine whether the model is a regression or classification task.  This is subsequently passed to the classify program.
+* <ins>res</ins>ults(string asis) - A name to use to store estimation results persistently using `estimates store`.
+* <ins>k</ins>fold(integer 1) - An option used to determine if the model needs to be fitted over k subsets of the data.
+* <ins>resti</ins>tle(string asis) - An option to add a title to the stored estimation results.  Only used in conjunction with the `results` option.
+* <ins>thr</ins>eshold(passthru) - An option that is passed to the classify program for predicting class membership in classification tasks.
 
+### TODO
+- [ ] Determine how we will handle updating and substituting the if/in statements for estimation and prediction respectively
 
 ### Testing
-
+- [ ] Biggest test will be ensuring that the if/in statements are handled appropriately for estimation and prediction.
 
 ## validate
 `validate [if] [in], MEtric(string asis) [MOnitors(string asis) Pred(string asis) Obs(string asis) DISplay`
