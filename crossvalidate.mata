@@ -12,7 +12,7 @@ mata:
 // A function to retrieve an if/in expression from an estimation command.  The 
 // value is returned in a Stata local macro named `ifin' and will be missing if 
 // no if or in conditions were included in the command passed to the function.
-void function getifin(string scalar x) {
+string scalar getifin(string scalar x) {
 	
 	// Used to store the result from testing the match for the regular expression
 	real scalar matched
@@ -40,7 +40,47 @@ void function getifin(string scalar x) {
 	// Stores the if/in expression in the local macro ifin
 	st_local("ifin", strexp)
 	
+	// Returns the matched string
+	return(strexp)
+	
 } // End of Mata function definition to retrieve if/in expressions from command
+
+// Defines a function to parse and return the command string up to the comma 
+// that starts specification of options.  This is needed for cases where no if 
+// or in statements are included in the estimation command to insert the 
+// appropriate if statement to fit the model to the training data only.
+string scalar getnoifin(string scalar x) {
+	
+	// Used to store the result from testing the match for the regular expression
+	real scalar matched
+	
+	// Contains the if/in expression from the command that will be modified
+	string scalar strexp
+	
+	// Tests the regular expression that will capture everything up to options
+	matched = regexmatch(x, "^(.*?)(?![^()]*\)),")
+	
+	// If there is a comma not enclosed in parentheses
+	if (matched) {
+		
+		// Return the syntax up to the comma that starts the options
+		strexp = regexcapture(1)
+
+	// If this doesn't result in a match
+	} else {
+		
+		// We'll assume no options are specified and return the string 
+		strexp = x
+		
+	} // End ELSE Block for cmd string w/o options
+	
+	// Returns the string upto
+	st_local("noifin", strexp)
+	
+	// Returns the matched string
+	return(strexp)
+	
+} // End of function definition to return the cmd string up to the options
 
 // Defines a function used to replace the if/in expression in the command with 
 // the version that would be used to identify the training set
