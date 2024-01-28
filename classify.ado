@@ -18,8 +18,8 @@ prog def classify,
 	version 18
 	
 	// Syntax
-	syntax anything(name = classes id = "Number of Classes") [if] [in] [,	 ///   
-			THReshold(real 0.5) PStub(string asis) ]
+	syntax anything(name = classes id = "Number of Classes") [if] ,			 ///   
+			PStub(string asis) [ THReshold(real 0.5) ]
 
 	// Mark the sample that will be used
 	marksample touse, strok
@@ -47,8 +47,8 @@ prog def classify,
 		
 	} // End IF Block for invalid number of classes
 	
-	// Test that the threshold value is value
-	if `threshold' >= 1 | `threshold' =< 0 {
+	// Test that the threshold value is valid
+	if (`threshold' >= 1 | `threshold' <= 0) {
 		
 		// Display an error message
 		di as err "The classification threshold must be in (0, 1).  You "	 ///   
@@ -84,7 +84,7 @@ prog def classify,
 		loc pvars `r(varlist)'
 		
 		// Identifies the highest probability value
-		egen `pstub' = rowmax(`pvars')
+		egen double `pstub' = rowmax(`pvars')
 		
 		// Loop over the predicted variable names
 		foreach v in `pvars' {

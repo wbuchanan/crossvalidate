@@ -19,7 +19,7 @@ prog def cmdmod, rclass
 	version 18
 
 	// Defines the syntax for this program
-	syntax anything(name = cmd id="estimation command name"), 				 ///   
+	syntax anything(name = cmd id="estimation command"), 					 ///   
 			SPLit(varlist min = 1 max = 1) [ KFold(integer 1) ]
 
 	// This should all get refactored into a new program/function
