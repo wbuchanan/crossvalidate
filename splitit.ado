@@ -4,22 +4,22 @@
 *                                                                              *
 *******************************************************************************/
 
-*! splitter
-*! v 0.0.2
-*! 09JAN2024
+*! splitit
+*! v 0.0.3
+*! 29JAN2024
 
 // Drop program from memory if already loaded
-cap prog drop splitter
+cap prog drop splitit
 
 // Define program
-prog def splitter, rclass properties(kfold uid tpoint retain) 
+prog def splitit, rclass properties(kfold uid tpoint retain) 
 
 	// Version statement 
 	version 18
 	
 	// Syntax for the splitter subroutine
 	syntax anything(name = props id = "Split proportion(s)") [if] [in] [, 	 ///   
-		   Uid(varlist) TPoint(real -999) KFold(integer 0) RETain(string asis) ]
+		   Uid(varlist) TPoint(real -999) KFold(integer 1) RETain(string asis) ]
 	
 	// Mark the sample to handle any if/in arguments (can now pass if `touse') 
 	// for the downstream work to handle user specified if/in conditions.
@@ -28,14 +28,22 @@ prog def splitter, rclass properties(kfold uid tpoint retain)
 	// First we'll check/verify that appropriate arguments are passed to the 
 	// parameters and handle as much defensive stuff up front as possible.
 	// Tokenize the first argument
-	gettoken train valid: props
+	gettoken train validate: props
 	
 	// Set a macro for label use later to define the type of splitting
 	if `: word count `props'' == 1 loc stype "Train/Test Split"
 	
 	// If there are two thresholds it is tvt
-	if `: word count `props'' == 2 loc stype "Train/Validate/Test Split"
-	
+	if `: word count `props'' == 2 {
+		
+		// Set the split type macro to indicate train, validation, test split
+		loc stype "Train/Validate/Test Split"
+		
+		// Replace the validate macro with the sum of train and validate
+		loc validate `= `train' + `validate''
+
+	} // End IF Block for train, validation, test split	
+		
 	// Define the flavor of the splits based on how the units are allocated
 	if !mi(`"`uid'"') & `tpoint' != -999 loc flavor "Clustered & Panel Sampling"
 	else if !mi(`"`uid'"') & `tpoint' == -999 loc flavor "Clustered Sampling"
@@ -46,7 +54,7 @@ prog def splitter, rclass properties(kfold uid tpoint retain)
 	tempvar tag sgrp sgrp2 uni
 	
 	// Determine if the values are not proportions
-	if `train' > 1 | (!mi(`valid') & `valid' > 1) {
+	if `train' > 1 {
 		
 		// If not a proportion issue an error message
 		di as err "Splits must be specified as proportions of the sample."
@@ -57,7 +65,7 @@ prog def splitter, rclass properties(kfold uid tpoint retain)
 	} // End of IF Block for non-proportion splits
 	
 	// Now test for invalid combination of splits
-	if !mi(`valid') & `= `valid' + `train'' > 1 {
+	if !mi("`validate'") & `validate' > 1 {
 		
 		// Display error message
 		di as err "Invalid validation/test split.  The proportion is > 1."
@@ -67,24 +75,9 @@ prog def splitter, rclass properties(kfold uid tpoint retain)
 		
 	} // End IF Block for proportions that sum to greater than unity
 
-	// Test if there is a _splitter variable already defined
-	cap confirm v _splitter
-	
-	// If the variable exists make sure a value is passed to retain
-	if _rc != 0 & mi(`"`retain'"') {
-		
-		// Display error message 
-		di as err "The _splitter variable is already defined and no varname" ///   
-		" was provided to the retain option."
-		
-		// Return an error code
-		error 110
-		
-	} // End IF Block to verify requirement for new varname if _splitter defined
-		   
 	// Require an argument for retain if the user wants a validation and test 
 	// split
-	if !mi(`valid') & mi(`"`retain'"') {
+	if !mi("`validate'") & mi(`"`retain'"') {
 		
 		// If no varname is passed to retain
 		di as err "New varname required in retain for validation/test splits."
@@ -94,10 +87,27 @@ prog def splitter, rclass properties(kfold uid tpoint retain)
 		
 	} // End IF Block for new varname requirement for tvt splits
 	
+	// Test if there is a _splitvar variable already defined
+	cap confirm v _splitvar
+	
+	// If the variable exists make sure a value is passed to retain
+	if _rc != 0 & mi(`"`retain'"') {
+		
+		// Display error message 
+		di as err "The _splitvar variable is already defined and no varname" ///   
+		" was provided to the retain option."
+		
+		// Return an error code
+		error 110
+		
+	} // End IF Block to verify requirement for new varname if _splitvar defined
+		   
 	// If tpoint is used expect that the data are xt/tsset
 	if `tpoint' != -999 {
 		
 		// Check whether the data are xt/tsset or not
+		// This should look for named dataset characteristics instead of this 
+		// method.
 		cap xtset
 		
 		// If not xtset
@@ -183,7 +193,7 @@ prog def splitter, rclass properties(kfold uid tpoint retain)
 	
 	// For the kfold case, we'll use xtile on the random uniform to create the 
 	// groups
-	if `kfold' != 0 {
+	if `kfold' != 1 {
 		
 		// Generate the split group tempvar to create `kfold' equal groups
 		xtile `sgrp' = `uni' if `touse' & `tag' == 1 & `uni' <= `train', 	 ///   
@@ -196,7 +206,7 @@ prog def splitter, rclass properties(kfold uid tpoint retain)
 		deflabs, val(`trainsplit') t(Training)
 		
 		// If there is no validation split 
-		if mi(`valid') {
+		if mi("`validate'") {
 			
 			// Define the test split
 			loc testsplit `= `kfold' + 1'
@@ -213,11 +223,11 @@ prog def splitter, rclass properties(kfold uid tpoint retain)
 	} // End IF block to handle splitting the training set
 	
 	// If the user also wants to use kfold for a validation set as well:
-	if `kfold' != 0 & !mi(`valid') {
+	if `kfold' != 1 & !mi("`validate'") {
 		
 		// Generate the split group tempvar to create `kfold' equal groups
 		xtile `sgrp2' = `uni' if `touse' & `tag' == 1 & (`uni' > `train' &	 ///   
-		`uni' <= `valid') n(`kfold')
+		`uni' <= `validate') n(`kfold')
 		
 		// Update these values to occur sequentially after the training IDs
 		qui: replace `sgrp2' = `sgrp2' + `kfold'
@@ -255,13 +265,13 @@ prog def splitter, rclass properties(kfold uid tpoint retain)
 	
 	// For the other cases we can generate the train and validation splits 
 	// collectively
-	if !mi(`valid') {
+	if !mi(`train') & !mi("`validate'") {
 		
 		// Create the split indicator for the training, validation, and test set
 		g byte `sgrp' = cond(`touse' & `tag' == 1 & `uni' <= `train', 1, 	 ///   
 						cond(`touse' & `tag' == 1 & `uni' > `train' & 		 ///   
-							 `uni' <= `valid' & !mi(`uni'), 2, 				 ///   
-						cond(`touse' & `tag' == 1 & `uni' > `valid' & 		 ///   
+							 `uni' <= `validate' & !mi(`uni'), 2, 			 ///   
+						cond(`touse' & `tag' == 1 & `uni' > `validate' & 	 ///   
 							 !mi(`uni'), 3, .)))
 		
 		// Generate value labels for the training set ID					 
@@ -271,7 +281,7 @@ prog def splitter, rclass properties(kfold uid tpoint retain)
 		deflabs, val(2) t(Validation)
 		
 		// Generate value labels for the test set ID
-		deflabs, val(2) t(Test)
+		deflabs, val(3) t(Test)
 							 						
 	} // End IF block for train/validation/test splits
 	
@@ -299,7 +309,7 @@ prog def splitter, rclass properties(kfold uid tpoint retain)
 	***************************************************************************/
 	
 	// Handle populating the split ID for hierarchical cases/clustered splits
-	if !mi(`uid') & `tpoint' == -999 {
+	if !mi("`uid'") & `tpoint' == -999 {
 
 		// This should fill in the split group ID assignment for the case of 
 		// hierarchical splitting
@@ -309,7 +319,7 @@ prog def splitter, rclass properties(kfold uid tpoint retain)
 	} // End IF Block to fill things in for hierarchical splits
 	
 	// Handle the case where these is timeseries/panel data without `uid' passed
-	else if !mi(`uid') & `tpoint' != -999 {
+	else if !mi("`uid'") & `tpoint' != -999 {
 		
 		// This should fill in the split group ID assignment for the case of 
 		// hierarchical splitting
@@ -320,7 +330,7 @@ prog def splitter, rclass properties(kfold uid tpoint retain)
 	} // End ELSEIF block for timeseries/panel with specified clustering
 	
 	// Handle timeseries/panel case without additional hierarchy specified
-	else if mi(`uid') & `tpoint' != -999 & !mi(`"`ivar'"') {
+	else if mi("`uid'") & `tpoint' != -999 & !mi(`"`ivar'"') {
 		
 		// This should fill in the split group ID assignment for the case of 
 		// hierarchical splitting
@@ -338,26 +348,26 @@ prog def splitter, rclass properties(kfold uid tpoint retain)
 	clonevar `retain' = `sgrp' if `touse'
 	
 	// Apply the value label to the split group variable
-	la val `retain' _splitter
+	la val `retain' _splitvar
 	
 	// Set an r macro with the variable name with the split variable to make 
 	// sure it can be cleaned up by the calling command later in the process
 	ret loc splitter = `retain'
 	
 	// Return the IDs that identifies the training splits
-	ret loc training = `trainsplit'
+	// ret loc training = `trainsplit'
 	
 	// Return the IDs that identifies the validation splits
-	ret loc validation = `validsplit'
+	// ret loc validation = `validsplit'
 	
 	// Return the ID that identifies the test split
-	ret loc testing = `testsplit'
+	// ret loc testing = `testsplit'
 	
 	// Return the type of split
-	ret loc stype = `stype'
+	ret loc stype = `"`stype'"'
 	
 	// Return the flavor of the split
-	ret loc flavor = `flavor'
+	ret loc flavor = `"`flavor'"'
 	
 // End of program definitions	
 end
@@ -371,7 +381,7 @@ prog def deflabs
 	
 	// If there is only a single ID passed to the command generate this style of 
 	// value label for that split type
-	if `: word count `values'' == 1 la def _splitter `values' "`type' Split", modify
+	if `: word count `values'' == 1 la def _splitvar `values' "`type' Split", modify
 	
 	// If multiple ID values are passed loop over them and construct the split 
 	// labels like this
@@ -381,7 +391,7 @@ prog def deflabs
 		foreach i in `values' {
 			
 			// Generate a new value label with the split IDs
-			la def _splitter `i' "`type' Split #`i'", modify
+			la def _splitvar `i' "`type' Split #`i'", modify
 			
 		} // End Loop over the range
 		
