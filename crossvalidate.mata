@@ -170,77 +170,14 @@ void function getarg(string scalar param, | string scalar pname) {
 real matrix confusion(string scalar pred, string scalar obs, 				 ///   
 					  string scalar touse) {
 	
-	// Initialize matrix to store the confusion matrix, a temp matrix that will 
-	// store the raw data in sorted order, and the unique combinations of 
-	// predicted and observed outcomes
-	real matrix conf, temp, urows
+	// Initialize matrix to store the confusion matrix
+	real matrix conf
 	
-	// Initialize vector to store unique values of predicted/observed values
-	real colvector uvals, idx
-	
-	// Real scalar to iterate over values, number of observations, a scalar for 
-	// the cell size, and matrix indices to populate the confusion matrix using 
-	// the values of the predicted and observed values
-	real scalar i, nobs, cell, m, n
-	
-	// Create the temp matrix by selecting the predicted and observed variables
-	// that satisfy the condition encoded in the variable touse.  Sorts the data
-	// in order of predicted then observed values, and then adds a row ID to the 
-	// resulting matrix.
-	temp = (sort(st_data(., (pred + " " + obs), touse), (1, 2)), 			 ///   
-			J(1, 1, (1::nobs)))
-	
-	// Identifies all unique values across predicted and observed; this will 
-	// ensure we always return a square matrix since we will define the 
-	// dimension of the confusion matrix based on the combination of unique 
-	// values that are predicted/observed.  If a model performs poorly and 
-	// collapses to a single state, this will make it easier to return 0 cells 
-	// in the appropriate locations.
-	uvals = uniqrows(temp[., 1] \ temp[., 2])
-	
-	// Create a null matrix for the confusion matrix using dimensions based on 
-	// the combination of unique predicted/observed variable values.
-	conf = J(rows(uvals), rows(uvals), 0)
-	
-	// Get number of observations in the data; not doing anything now, but could
-	// be useful if we decide to return a struct with other information later
-	// instead of just the confusion matrix with cell counts.
-	nobs = rows(temp)
-	
-	// Get the unique combinations of predicted and observed values to iterate
-	// over to get the min/max boundaries for the cell frequencies
-	urows = uniqrows(temp[., (1, 2)])
-	
-	// Iterate over the urows to start selecting the min/max row indices for 
-	// each combination
-	for(i = 1; i <= rows(urows); i++) {
-		
-		// Gets the row indices for the ith combination of unique predicted and 
-		// observed values.  The select function returns a matrix since it is 
-		// comparing two columns, so we need to pass that to the rowsum function
-		// and test whether both columns match by looking for a rowsum of 2.  
-		// The : before the equality operator is used to perform elementwise 
-		// operations instead of set/matrix operations.
-		idx = select(temp[., 3], rowsum(temp[., (1, 2)] :== urows[i, .]) :== 2)
-		
-		// If a single row is returned the cell size is 1
-		if(rows(idx) == 1) cell = 1
-		
-		// If there is more than a single row, take the difference between the 
-		// first and last indices and add 1 to it for the cell size
-		else cell = max(idx) - min(idx) + 1
-		
-		// Get the row index
-		m = urows[i, 1]
-		
-		// Get the column index
-		n = urows[i, 2]
-		
-		// Populate the cell in the confusion matrix with the cell size that 
-		// corresponds with the predicted (row) and observed (column) locations
-		conf[m, n] = cell
-		
-	} // End Loop over unique combinations of predicted and observed values
+	// Create and call the tabulation command
+	stata("ta " + pred + " " + obs + " if " + touse + ", matcell(c)", 1)
+
+	// Access the Stata matrix with the confusion matrix
+	conf = st_matrix("c")
 	
 	// Return the confusion matrix
 	return(conf)
