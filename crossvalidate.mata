@@ -38,7 +38,7 @@ string scalar getifin(string scalar x) {
 	} // End ELSE block from testing for presence of if/in expression
 	
 	// Stores the if/in expression in the local macro ifin
-	st_local("ifin", strtrim(strexp))
+	st_local("ifin", strexp)
 	
 	// Returns the matched string
 	return(strexp)
