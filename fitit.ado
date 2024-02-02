@@ -5,14 +5,14 @@
 *******************************************************************************/
 
 *! fitter
-*! v 0.0.2
-*! 27JAN2024
+*! v 0.0.3
+*! 02FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop fitter
 
 // Define program
-prog def fitter, eclass properties(kfold)
+prog def fitter, eclass 
 
 	// Version statement 
 	version 18
@@ -20,8 +20,10 @@ prog def fitter, eclass properties(kfold)
 	// Syntax
 	syntax anything(name = cmd id="estimation command name"),				 ///   
 			PStub(string asis) SPLit(passthru) [ Classes(integer 0) 		 ///   
-			RESults(string asis) Kfold(integer 1) RESTItle(string asis) 	 ///   
-			THReshold(passthru) ]
+			RESults(string asis) Kfold(integer 1) THReshold(passthru) ]
+			
+	// Create a macro to store the names of all the estimation results
+	loc estres 
 
 	// Call the command to generate the modified estimation command string
 	cmdmod `"`cmd'"', `split' kf(`kfold')
@@ -35,11 +37,20 @@ prog def fitter, eclass properties(kfold)
 		// Check if results should be stored
 		if `"`results'"' != "" {
 			
+			// Add a title for standard cases
+			if `kfold' == 1 est title: Model Fit on Training Sample
+			
+			// Add a title for K-Fold cases
+			else est title: Model fit on Fold #`i'
+			
 			// Stores the estimation results in a more persistent way
 			est sto `results'`i'
 			
-			// Test if user wants title added
-			if !mi(`"`restitle'"') est title: `restitle' 
+			// Return the estimation result name in a macro
+			eret loc estres`i' "`results'`i'"
+			
+			// Add the name of the estimation results to the estres macro
+			loc estres "`estres' `results'`i'"
 			
 		} // End of IF Block for persistent storage of estimation results
 		
@@ -80,11 +91,17 @@ prog def fitter, eclass properties(kfold)
 		// Check if results should be stored
 		if `"`results'"' != "" {
 			
+			// Test if user wants title added
+			if !mi(`"`restitle'"') est title: Model Fitted on All Training Folds 
+			
 			// Stores the estimation results in a more persistent way
 			est sto `results'all
 			
-			// Test if user wants title added
-			if !mi(`"`restitle'"') est title: `restitle' 
+			// Return the estimation result name in a macro
+			eret loc estresall "`results'all"
+			
+			// Add the name of the estimation results to the estres macro
+			loc estres "`estres' `results'all"
 			
 		} // End of IF Block for persistent storage of estimation results
 
@@ -106,6 +123,9 @@ prog def fitter, eclass properties(kfold)
 		} // End ELSE Block for classifcation tasks
 		
 	} // End IF Block for K-Fold CV fitting to all training data
+	
+	// Return the names of all the stored estimation results
+	eret loc estresnames "`estres'"
 	
 	// Repost the estimation results to return them to users
 	ereturn repost

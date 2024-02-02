@@ -134,7 +134,7 @@ variables and passing them to the function name that users pass to the programs.
 # Commands 
 
 ## splitit
-`splitit # [#] [if] [in] [, Uid(varlist) TPoint(real -999) KFold(integer 0) RETain(string asis)]`
+`splitit # [#] [if] [in] [, Uid(varlist) TPoint(string asis) KFold(integer 0) RETain(string asis)]`
 
 ### Syntax and options
 * \# [\#] - At least one numeric value in [0, 1].  A single value is used for 
@@ -145,9 +145,9 @@ when splitting the data.  When this is populated all records associated with the
 unit identifier will be added to the train/validate/test split.  If a time point 
 is also specified, the time point threshold should retain only cases up to the 
 specified time.
-* <ins>tp</ins>oint(_real -999_) - A user specified time value that will be used 
+* <ins>tp</ins>oint(_string asis_) - A user specified time value that will be used 
 to split the data into train/validation/test sets.  Requires the data to be 
--xtset-.  If a panel variable is defined in -xtset- it will be used to ensure the 
+-xt/tsset-.  If a panel variable is defined in -xtset- it will be used to ensure the 
 split includes entire records prior to the time period used for the split.  If 
 -uid- is also specified, it must include the panel variable.
 * <ins>kf</ins>old(_integer 0_) - An optional parameter to trigger the use of 
@@ -160,20 +160,33 @@ the splits at the end of execution.  This would allow users to test multiple
 models with the same training set, for example.
 
 ### Decisions
-- [ ] Should the kfold option cause the splitting to generate K-Folds in the 
-validation set?  Should this be an option?
-- [ ] Are we handling time-series/panel train/test splits in the best/most common way?
-- [ ] Change the type for tpoint to string asis so we can test for no value instead of -999 to avoid any potential clashes with dates and to allow users to specify values like `td(01jan2024)`.
-- [ ] Update handling for xt cases to check : char \_dta[iis] and : char \_dta[tis] 
-for the panel and time variables instead of handling an error from a call to `xtset`.
+- [x] Should the kfold option cause the splitting to generate K-Folds in the 
+validation set?  _Changed so the validation and test sets do not have any folds._
+- [x] Are we handling time-series/panel train/test splits in the best/most common way? _This is tricky since most of the literature I've seen related to this is done in the context of forecasting.  So, now the data will be split, and an additional variable will be created to indicate the records that should be used to test subsequent forecasting (e.g., the timepoints > `tpoint')._
+- [x] Change the type for tpoint to string asis so we can test for no value instead of -999 to avoid any potential clashes with dates and to allow users to specify values like `td(01jan2024)`. _updated to allow arbitrary values to be passed.  need to include an additional validation test on the tpoint input along the lines of "(t[dcC].*)|([\d\.]+)" to allow all potential date, datetime, and numeric representations of time to be passed._
+- [x] Update handling for xt cases to check : char \_dta[iis] and : char \_dta[tis] 
+for the panel and time variables instead of handling an error from a call to `xtset`. _the program now gets the xt/ts set information from these characteristics instead of capturing a call to xtset._
 
 ### Testing
 Here are things that we need to test for this program:
-- [ ] Standard train/test split functions correctly (e.g., requested proportions)
-- [ ] Standard tt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
-- [ ] Standard train/validation/test split functions correctly (e.g., requested proportions)
-- [ ] Standard tvt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
-- [ ] 
+- [x] Standard train/test split functions correctly (e.g., requested proportions)
+- [x] Standard tt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
+- [x] Standard train/validation/test split functions correctly (e.g., requested proportions)
+- [x] Standard tvt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
+- [x] K-Fold train/test split functions correctly (e.g., requested proportions)
+- [x] K-Fold tt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
+- [x] K-Fold train/validation/test split functions correctly (e.g., requested proportions)
+- [x] K-Fold tvt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
+- [x] XT/Panel train/test split functions correctly (e.g., requested proportions)
+- [ ] XT/Panel tt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
+- [x] XT/Panel train/validation/test split functions correctly (e.g., requested proportions)
+- [ ] XT/Panel tvt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
+- [x] XT/Panel K-Fold train/test split functions correctly (e.g., requested proportions)
+- [ ] XT/Panel K-Fold tt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
+- [x] XT/Panel K-Fold train/validation/test split functions correctly (e.g., requested proportions)
+- [ ] XT/Panel K-Fold tvt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
+- [ ] Test all cases that should throw an error
+- [ ] Test all of the above scenarios with if expressions
 
 
 ## classify
@@ -221,7 +234,7 @@ Here are things that we need to test for this program:
 * <ins>thr</ins>eshold(passthru) - An option that is passed to the classify program for predicting class membership in classification tasks.
 
 ### TODO
-- [ ] Determine how we will handle updating and substituting the if/in statements for estimation and prediction respectively
+- [x] Determine how we will handle updating and substituting the if/in statements for estimation and prediction respectively
 
 ### Testing
 - [ ] Biggest test will be ensuring that the if/in statements are handled appropriately for estimation and prediction.

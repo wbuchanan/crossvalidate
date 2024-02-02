@@ -95,12 +95,20 @@ prog def splitit, rclass properties(kfold uid tpoint retain)
 	// split
 	if !mi("`validate'") & mi(`"`retain'"') {
 		
-		// If no varname is passed to retain
-		di as err "New varname required in retain for validation/test splits."
+		// Check to see if _splitvar is already defined
+		cap confirm v _splitvar
+
+		// If the variable exists
+		if _rc == 0 {
+			
+			// If no varname is passed to retain
+			di as err "New varname required for validation/test splits if _splitvar already exists."
+			
+			// Return error code
+			error 100	
 		
-		// Return error code
-		error 100
-		
+		} // End IF Block for existing split variable defined
+
 	} // End IF Block for new varname requirement for tvt splits
 	
 	// If no variable name is passed to retain use _splitvar
@@ -162,30 +170,45 @@ prog def splitit, rclass properties(kfold uid tpoint retain)
 		
 		// Test if time point is also listed to determine how to tag records
 		// If there is a time point, that should be included in the if condition
-		if !mi("`tpoint'") egen byte `tag' = tag(`uid') if `touse' //& `tvar' <= `tpoint'
+		if !mi("`tpoint'") qui: egen byte `tag' = tag(`uid') if `touse' //& `tvar' <= `tpoint'
 		
 		// This will handle hierarchical cases as well
-		else egen byte `tag' = tag(`uid') if `touse'
+		else qui: egen byte `tag' = tag(`uid') if `touse'
 		
 	} // End IF Block to verify variable in uid if specified
 	
 	// Handle the case where we use the xtset info for the xt case
 	else if mi(`"`uid'"') & !mi("`tpoint'") {
 		
-		// Create the tag variable using the panel var if panel data
-		if !mi(`"`ivar'"') egen byte `tag' = tag(`ivar') if `touse'  		 ///   
-															// `tvar' <= `tpoint'
+		// If a panel ID variable is defined by xtset
+		if !mi(`"`ivar'"') {
+			
+			// If the panel variable exists, flag an individual case per panel
+			// unit
+			qui: egen byte `tag' = tag(`ivar') if `touse' // & `tvar' <= `tpoint'
+			
+		} // End IF Block for panel data
 
-		// Otherwise, create the tag for the timeseries including all obs 
-		else g byte `tag' = 1 if `touse' & `tvar' < `tpoint'
+		// If this is a timeseries instead of a panel data set:
+		else {
+			
+			// Create the tag for the timeseries including all obs 
+			qui: g byte `tag' = 1 if `touse' & `tvar' < `tpoint'
+
+		} // End ELSE Block for time series
 		
 	} // End IF block for xtset based splits
 	
 	// Create the tag variable for non xt/hierarchical cases
-	else g byte `tag' = 1 if `touse' 
+	else {
+		
+		// Create the tag for cases that don't involve clustering or panels
+		qui: g byte `tag' = 1 if `touse' 
+		
+	} // End ELSE Block for non-clustered/panel/timeseries sampling
 	
 	// Generate a random uniform in [0, 1] for the tagged observations
-	g double `uni' = runiform() if `touse' & `tag' == 1
+	qui: g double `uni' = runiform() if `touse' & `tag' == 1
 	
 	/***************************************************************************
 	* This is the section where the splits get defined now that we've ID'd the *
@@ -331,7 +354,7 @@ prog def splitit, rclass properties(kfold uid tpoint retain)
 			la var `retain'xv4 "Forecasting sample for the corresponding split"
 		
 			// Then unflag those records from the main sample
-			qui: replace `sgrp' = . if `touse' & `tvar' <= `tpoint'
+			qui: replace `sgrp' = . if `touse' & `tvar' > `tpoint'
 
 		} // End IF Block for timeseries/panel cases
 										
@@ -353,7 +376,7 @@ prog def splitit, rclass properties(kfold uid tpoint retain)
 		
 		// And now replace the split variables with missings for the forecast 
 		// sample
-		qui: replace `sgrp' = . if `touse' & `tvar' <= `tpoint'
+		qui: replace `sgrp' = . if `touse' & `tvar' > `tpoint'
 
 	} // End ELSEIF Block for panel/timeseries data with a specified panel var
 	

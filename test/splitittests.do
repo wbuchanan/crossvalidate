@@ -1,5 +1,6 @@
 cscript "train, validation, and/or test " adofile splitit
 
+**# TT Splits
 /*******************************************************************************
 *                                                                              *
 *                          Simple Train Test Split Case                        *
@@ -54,7 +55,7 @@ assert abs((100 * (`r(N)' / `c(N)')) - 40) <= 5
 // defined
 rcof "splitit .8, ret(splitvar)" == 110
 
-
+**# TVT Splits
 /*******************************************************************************
 *                                                                              *
 *                    Simple Train, Validate, Test Split Case                   *
@@ -134,10 +135,7 @@ assert abs((100 * (`r(N)' / `c(N)')) - 10) <= 5
 // defined
 rcof "splitit .6 .2, ret(splitvar)" == 110
 
-// Verify that the command throws error code 100 if the user requests a train, 
-// validation, test split but doesn't provide a variable name to store the result
-rcof "splitit .6 .2" == 100
-
+**# K-Fold TT Splits
 /*******************************************************************************
 *                                                                              *
 *                          K-Fold Train Test Split Case                        *
@@ -195,6 +193,7 @@ forv i = 1/5 {
 
 } // End loop over the splits
 
+**# K-Fold TVT Splits
 /*******************************************************************************
 *                                                                              *
 *                    K-Fold Train, Validate, Test Split Case                   *
@@ -252,6 +251,7 @@ forv i = 1/5 {
 
 } // End loop over the splits
 
+**# Clustered TT Splits
 /*******************************************************************************
 *                                                                              *
 *                       Clustered Train Test Split Case                        *
@@ -326,7 +326,7 @@ egen ifsplits = nvals(newsplit), by(id)
 // are assigned to the same split)
 assert ifsplits == 1 if !mi(ifsplits)
 
-
+**# Clustered TVT Splits
 /*******************************************************************************
 *                                                                              *
 *                 Clustered Train, Validate, Test Split Case                   *
@@ -426,11 +426,7 @@ assert ifsplits == 1 if !mi(ifsplits)
 // defined
 rcof "splitit .6 .2, uid(id) ret(splitvar)" == 110
 
-// Verify that the command throws error code 100 if the user requests a train, 
-// validation, test split but doesn't provide a variable name to store the result
-rcof "splitit .6 .2, uid(id)" == 100
-
-
+**# Clustered K-Fold TT Splits
 /*******************************************************************************
 *                                                                              *
 *                      Clustered K-Fold Train Test Split Case                  *
@@ -508,6 +504,7 @@ egen ifsplits = nvals(newsplit), by(id)
 // are assigned to the same split)
 assert ifsplits == 1 if !mi(ifsplits)
 
+**# Clustered K-Fold TVT Splits
 /*******************************************************************************
 *                                                                              *
 *                 Clustered K-Fold Train, Validate, Test Split Case            *
@@ -585,6 +582,7 @@ egen ifsplits = nvals(newsplit), by(id)
 // are assigned to the same split)
 assert ifsplits == 1 if !mi(ifsplits)
 
+**# XT/TS TT Splits
 /*******************************************************************************
 *                                                                              *
 *                         XT/TS Train Test Split Case                          *
@@ -633,6 +631,11 @@ assert "`r(validation)'" == ""
 assert "`r(testing)'" == "2"
 assert "`r(forecastset)'" == "splitvarxv4"
 
+******   
+******   This should be 0.5 * the size of the splits defined due to the value 
+******   of the time point used.
+******   
+
 // Count the number of records with a value of 1 for splitvar (train sample)
 count if splitvar == 1
 
@@ -653,11 +656,395 @@ rcof "splitit .8, uid(id) ret(splitvar)" == 110
 // Create a training split with a 20% test sample
 splitit .8 if touse == 1, ret(newsplit) tp(td("04feb2024"))
 
+******   
+******   This should be 0.25 * the size of the splits defined due to the value 
+******   of the time point used combined with the if statement.
+******   
+
 // Count the number of records with a value of 1 for splitvar (train sample)
 count if newsplit == 1
 
 // Test the percentage of the training set
 assert abs((100 * (`r(N)' / `c(N)')) - 20) <= 5
+
+// Create an indicator for the number of splitvar values per id
+egen ifsplits = nvals(newsplit), by(id)
+
+// Verify that there is only a single split value per ID (that entire clusters 
+// are assigned to the same split)
+assert ifsplits == 1 if !mi(ifsplits)
+
+**# XT/TS TVT Splits
+/*******************************************************************************
+*                                                                              *
+*                   XT/TS Train, Validate, Test Split Case                     *
+*                                                                              *
+*******************************************************************************/
+
+// Clear all data from memory
+clear
+
+// Set the pseudorandom number seed
+set seed 7779311
+
+// Create a dataset with 100 observations
+set obs 1000
+
+// Create an id variable
+g int id = _n
+
+// Create an indicator for if expression testing
+g byte touse = rbinomial(1, 0.5)
+
+// Duplicate the ids twice
+expand 6
+
+// Create a time period value based on 01feb2024
+bys id: g int time = _n + 23407
+
+// Format the time variable
+format %td time
+
+// Test for unspecified splitvar name
+rcof `"splitit .6 .2, tp(td("04feb2024"))"' == 459
+
+// xtset the data
+xtset id time
+
+// Create a training split with a 20% test sample
+splitit .6 .2, ret(splitvar) tp(td("04feb2024"))
+
+// Check the return values
+assert "`r(flavor)'" == "Panel Unit Sample"
+assert "`r(stype)'" == "Train/Validate/Test Split"
+assert "`r(splitter)'" == "splitvar"
+assert "`r(training)'" == "1"
+assert "`r(validation)'" == "2"
+assert "`r(testing)'" == "3"
+assert "`r(forecastset)'" == "splitvarxv4"
+
+// Count the number of records with a value of 1 for splitvar (train sample)
+count if splitvar == 1
+
+******   
+******   These should be 0.5 * the size of the splits defined due to the value 
+******   of the time point used.
+******   
+
+// Test the percentage of the training set
+assert abs((100 * (`r(N)' / `c(N)')) - 30) <= 5
+
+// Count the number of records with a value of 2 for splitvar (validation sample)
+count if splitvar == 2
+
+// Test the percentage of the training set
+assert abs((100 * (`r(N)' / `c(N)')) - 10) <= 5
+
+// Count the number of records with a value of 3 for splitvar (test sample)
+count if splitvar == 3
+
+// Test the percentage of the training set
+assert abs((100 * (`r(N)' / `c(N)')) - 10) <= 5
+
+// Create an indicator for the number of splitvar values per id
+egen splits = nvals(splitvar), by(id)
+
+// Verify that there is only a single split value per ID (that entire clusters 
+// are assigned to the same split)
+assert splits == 1 if !mi(splits)
+
+// Create a training split with a 20% test sample
+splitit .6 .2 if touse == 1, ret(newsplit) tp(td("04feb2024"))
+
+******   
+******   These should be 0.25 * the size of the splits defined due to the value 
+******   of the time point used combined with the if statement.
+******   
+
+// Count the number of records with a value of 1 for splitvar (train sample)
+count if newsplit == 1
+
+// Test the percentage of the training set
+assert abs((100 * (`r(N)' / `c(N)')) - 15) <= 5
+
+// Count the number of records with a value of 2 for splitvar (validation sample)
+count if newsplit == 2
+
+// Test the percentage of the training set
+assert abs((100 * (`r(N)' / `c(N)')) - 5) <= 5
+
+// Count the number of records with a value of 3 for splitvar (test sample)
+count if newsplit == 3
+
+// Test the percentage of the training set
+assert abs((100 * (`r(N)' / `c(N)')) - 5) <= 5
+
+// Create an indicator for the number of splitvar values per id
+egen ifsplits = nvals(newsplit), by(id)
+
+// Verify that there is only a single split value per ID (that entire clusters 
+// are assigned to the same split)
+assert ifsplits == 1 if !mi(ifsplits)
+
+**# XT/TS K-Fold TT Splits
+/*******************************************************************************
+*                                                                              *
+*                   K-Fold XT/TS Train Test Split Case                         *
+*                                                                              *
+*******************************************************************************/
+
+// Clear all data from memory
+clear
+
+// Set the pseudorandom number seed
+set seed 7779311
+
+// Create a dataset with 100 observations
+set obs 1000
+
+// Create an id variable
+g int id = _n
+
+// Create an indicator for if expression testing
+g byte touse = rbinomial(1, 0.5)
+
+// Duplicate the ids twice
+expand 6
+
+// Create a time period value based on 01feb2024
+bys id: g int time = _n + 23407
+
+// Format the time variable
+format %td time
+
+// Test for case where the user doesn't have the data xt or ts set
+rcof `"splitit .8, tp(td("04feb2024"))"' == 459
+
+// xtset the data
+xtset id time
+
+// Create a training split with a 20% test sample 
+// This date should retain five time periods in the training sample
+splitit .8, kf(4) ret(splitvar) tp(td("06feb2024"))
+
+// Check the return values
+assert "`r(flavor)'" == "Panel Unit Sample"
+assert "`r(stype)'" == "K-Fold Train/Test Split"
+assert "`r(splitter)'" == "splitvar"
+assert "`r(training)'" == "1 2 3 4"
+assert "`r(validation)'" == ""
+assert "`r(testing)'" == "5"
+assert "`r(forecastset)'" == "splitvarxv4"
+
+******   
+******   Each split should have 20% of the respective time sample or 1/6th of  
+******   the total sample.
+******   
+
+// Loop over the values of the split var
+forv i = 1/5 {
+
+	// Count the number of cases in each split
+	count if splitvar == `i' & time <= td("06feb2024")
+
+	// Store the split sample size
+	loc splitn `r(N)'
+	
+	// Count the number of cases prior to the tpoint
+	count if time <= td("06feb2024")
+	
+	// Test the percentage of each fold/split
+	assert abs((100 * (`splitn' / `r(N)')) - 20) <= 5
+	
+	// Count the number of cases in the forcast sample
+	count if splitvarxv4 == `i' & time > td("06feb2024")
+	
+	// Store the split sample size
+	loc splitn `r(N)'
+	
+	// Count the number of cases after the tpoint
+	count if time > td("06feb2024")
+	
+	// Test the percentage of the forecast sample of each fold/split
+	assert abs((100 * (`splitn' / `r(N)')) - 20) <= 5
+
+} // End loop over the splits
+
+// Create an indicator for the number of splitvar values per id
+egen splits = nvals(splitvar), by(id)
+
+// Verify that there is only a single split value per ID (that entire clusters 
+// are assigned to the same split)
+assert splits == 1 if !mi(splits)
+
+// Create a training split with a 20% test sample on half of the data
+splitit .8 if touse == 1, kf(4) ret(newsplit) tp(td("06feb2024"))
+
+******   
+******   Each split should have 10% of the respective time sample or 1/12th of  
+******   the total sample due to the if expression.
+******   
+
+// Loop over the values of the split var
+forv i = 1/5 {
+
+	// Count the number of cases in each split
+	count if newsplit == `i' & time <= td("06feb2024")
+
+	// Store the split sample size
+	loc splitn `r(N)'
+	
+	// Count the number of cases prior to the tpoint
+	count if time <= td("06feb2024")
+	
+	// Test the percentage of each fold/split
+	assert abs((100 * (`splitn' / `r(N)')) - 10) <= 5
+	
+	// Count the number of cases in the forcast sample
+	count if newsplitxv4 == `i' & time > td("06feb2024")
+	
+	// Store the split sample size
+	loc splitn `r(N)'
+	
+	// Count the number of cases after the tpoint
+	count if time > td("06feb2024")
+	
+	// Test the percentage of the forecast sample of each fold/split
+	assert abs((100 * (`splitn' / `r(N)')) - 10) <= 5
+
+} // End loop over the splits
+
+// Create an indicator for the number of splitvar values per id
+egen ifsplits = nvals(newsplit), by(id)
+
+// Verify that there is only a single split value per ID (that entire clusters 
+// are assigned to the same split)
+assert ifsplits == 1 if !mi(ifsplits)
+
+**# XT/TS K-Fold TVT Splits
+/*******************************************************************************
+*                                                                              *
+*             K-Fold XT/TS Train, Validation, Test Split Case                  *
+*                                                                              *
+*******************************************************************************/
+
+// Clear all data from memory
+clear
+
+// Set the pseudorandom number seed
+set seed 7779311
+
+// Create a dataset with 100 observations
+set obs 1000
+
+// Create an id variable
+g int id = _n
+
+// Create an indicator for if expression testing
+g byte touse = rbinomial(1, 0.5)
+
+// Duplicate the ids twice
+expand 6
+
+// Create a time period value based on 01feb2024
+bys id: g int time = _n + 23407
+
+// Format the time variable
+format %td time
+
+// xtset the data
+xtset id time
+
+// Create a training split with a 20% test sample and 20% validation sample
+// This date should retain five time periods in the training sample
+splitit .6 .2, kf(3) ret(splitvar) tp(td("06feb2024"))
+
+// Check the return values
+assert "`r(flavor)'" == "Panel Unit Sample"
+assert "`r(stype)'" == "K-Fold Train/Validate/Test Split"
+assert "`r(splitter)'" == "splitvar"
+assert "`r(training)'" == "1 2 3"
+assert "`r(validation)'" == "4"
+assert "`r(testing)'" == "5"
+assert "`r(forecastset)'" == "splitvarxv4"
+
+******   
+******   Each split should have 20% of the respective time sample or 1/6th of  
+******   the total sample.
+******   
+
+// Loop over the values of the split var
+forv i = 1/5 {
+
+	// Count the number of cases in each split
+	count if splitvar == `i' & time <= td("06feb2024")
+
+	// Store the split sample size
+	loc splitn `r(N)'
+	
+	// Count the number of cases prior to the tpoint
+	count if time <= td("06feb2024")
+	
+	// Test the percentage of each fold/split
+	assert abs((100 * (`splitn' / `r(N)')) - 20) <= 5
+	
+	// Count the number of cases in the forcast sample
+	count if splitvarxv4 == `i' & time > td("06feb2024")
+	
+	// Store the split sample size
+	loc splitn `r(N)'
+	
+	// Count the number of cases after the tpoint
+	count if time > td("06feb2024")
+	
+	// Test the percentage of the forecast sample of each fold/split
+	assert abs((100 * (`splitn' / `r(N)')) - 20) <= 5
+
+} // End loop over the splits
+
+// Create an indicator for the number of splitvar values per id
+egen splits = nvals(splitvar), by(id)
+
+// Verify that there is only a single split value per ID (that entire clusters 
+// are assigned to the same split)
+assert splits == 1 if !mi(splits)
+
+// Create a training split with a 20% test sample on half of the data
+splitit .8 if touse == 1, kf(4) ret(newsplit) tp(td("06feb2024"))
+
+******   
+******   Each split should have 10% of the respective time sample or 1/12th of  
+******   the total sample due to the if expression.
+******   
+
+// Loop over the values of the split var
+forv i = 1/5 {
+
+	// Count the number of cases in each split
+	count if newsplit == `i' & time <= td("06feb2024")
+
+	// Store the split sample size
+	loc splitn `r(N)'
+	
+	// Count the number of cases prior to the tpoint
+	count if time <= td("06feb2024")
+	
+	// Test the percentage of each fold/split
+	assert abs((100 * (`splitn' / `r(N)')) - 10) <= 5
+	
+	// Count the number of cases in the forcast sample
+	count if newsplitxv4 == `i' & time > td("06feb2024")
+	
+	// Store the split sample size
+	loc splitn `r(N)'
+	
+	// Count the number of cases after the tpoint
+	count if time > td("06feb2024")
+	
+	// Test the percentage of the forecast sample of each fold/split
+	assert abs((100 * (`splitn' / `r(N)')) - 10) <= 5
+
+} // End loop over the splits
 
 // Create an indicator for the number of splitvar values per id
 egen ifsplits = nvals(newsplit), by(id)

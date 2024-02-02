@@ -1,20 +1,19 @@
 /*******************************************************************************
 *                                                                              *
-*                 Train test splits for cross-sectional models                 *
+*                Cross-Validation for Stata Estimation Commands                *
 *                                                                              *
 *******************************************************************************/
 
-*! cvtt
+*! xv
 *! v 0.0.1
-*! 24NOV2023
+*! 02FEB2023
 
 // Drop program from memory if already loaded
-cap prog drop cvtt
+cap prog drop xv
 
 // Defines the program; properties lists the applicable options for this prefix 
 // The tpoint option is only valid for panel/time-series cross-validation
-prog def cvtt, eclass properties(prefix metric uid retain kfold state 	 ///   
-									monitors results grid params tuner classes)
+prog def xv, eclass properties(prefix xv)
 
 	// Stata version statement, can check for backwards compatibility later
 	version 18
@@ -46,9 +45,15 @@ prog def cvtt, eclass properties(prefix metric uid retain kfold state 	 ///
 	// If there is an if/in expression 
 	if `"`ifin'"' != "" {
 		
-		// Modify the if/in expression to include the conditioning on train set
-		// If using kfold, the expression needs to include a macro placeholder
-		// for the looping over the kfolds
+		/*
+			Test to see if this is an `in` expression.  If it is generate a 
+			tempvar called xvifin like: qui: g byte xvifin = 1 `ifin'.
+			Next substitute "if xvifin == 1" into the estimation command to 
+			replace the `in` expression.  This should make all subsequent stuff 
+			only see an `if` expression instead of trying to manage combining 
+			if and in logic in multiple places.
+		
+		*/
 		
 		
 	}

@@ -5,14 +5,14 @@
 *******************************************************************************/
 
 *! validate
-*! v 0.0.1
-*! 21JAN2024
+*! v 0.0.2
+*! 02FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop validate
 
 // Define program
-prog def validate, rclass properties(kfold)
+prog def validate, rclass 
 
 	// Version statement 
 	version 18
