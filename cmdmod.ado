@@ -6,8 +6,8 @@
 *******************************************************************************/
 
 *! cmdmod
-*! v 0.0.1
-*! 27JAN2024
+*! v 0.0.2
+*! 03FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop cmdmod
@@ -97,7 +97,7 @@ prog def cmdmod, rclass
 			
 			// Creates the new command string with the substituted value stored 
 			// in the local cmdmod
-			mata: st_local("cmdmod", subinstr(`cmd', `"`ifin'"', "`macval(modifin)'"))
+			mata: st_local("cmdmod", subinstr(`cmd', `"`ifin'"', `"`macval(modifin)'"'))
 						
 			// Create the if/in statement for predictions
 			ret loc predifin " `ifin' & !e(sample) & `split' == \`i'"
@@ -111,7 +111,7 @@ prog def cmdmod, rclass
 			
 			// Creates the modified command string for fitting all training data 
 			// following the k-folds.
-			mata: st_local("kfcmdmod", subinstr(`cmd', `"`ifin'"', "`kfifin'"))			
+			mata: st_local("kfcmdmod", subinstr(`cmd', `"`ifin'"', `"`kfifin'"'))			
 
 		} // End IF Block for KFold if/in statements
 		
@@ -126,7 +126,7 @@ prog def cmdmod, rclass
 			
 			// Creates the new command string with the substituted value stored 
 			// in the local cmdmod
-			mata: st_local("cmdmod", subinstr(`cmd', `"`ifin'"', "`modifin'"))
+			mata: st_local("cmdmod", subinstr(`cmd', `"`ifin'"', `"`modifin'"'))
 						
 		} // End ELSE Block for non-KFold if/in statements
 				

@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! splitit
-*! v 0.0.5
-*! 01FEB2024
+*! v 0.0.6
+*! 03FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop splitit
@@ -138,18 +138,25 @@ prog def splitit, rclass properties(kfold uid tpoint retain)
 		// the panel variable, when there is a panel variable
 		if !mi(`"`uid'"') & !`: list ivar in uid' & !mi(`"`ivar'"') {
 			
-			// Could handle this in a couple of ways.  We could either add the 
-			// panel variable to the `uid' value, or could issue an error to 
-			// tell the users to include that variable in the variable list 
-			// passed to uid.  I'd go with the error to make sure that it is 
-			// clear to them instead of adding it under the hood.
-			di as err "When passing variables to uid with panel/timeseries " ///   
-			"data, you must include the panel identifier in uid to ensure "  ///   
-			"valid splits of the panel data."
+			// Test to see if the panel variable is nested within the clusters
+			cap: assertnested `ivar', within(`uid')
 			
-			// Return error code
-			error 100
+			// If the panel variable is not nested within the user defined 
+			// clusters
+			if _rc != 0 {
+				
+				// Return an error message
+				di as err "The panel variable must be nested within the " 	 ///   
+				"clustered identified in: `uid'."
+				
+				// Return an error code and exit
+				error 459
+				
+			} // End IF Block for non-nested panel vars within clusters
 			
+			// If the panel variable is nested, add it to the cluster ID macro
+			else loc uid `uid' `ivar'
+				
 		} // End IF Block for missing panel var in uid 
 		
 	} // End IF Block to check for the time point option
@@ -170,7 +177,7 @@ prog def splitit, rclass properties(kfold uid tpoint retain)
 		
 		// Test if time point is also listed to determine how to tag records
 		// If there is a time point, that should be included in the if condition
-		if !mi("`tpoint'") qui: egen byte `tag' = tag(`uid') if `touse' //& `tvar' <= `tpoint'
+		if !mi("`tpoint'") qui: egen byte `tag' = tag(`uid') if `touse' 
 		
 		// This will handle hierarchical cases as well
 		else qui: egen byte `tag' = tag(`uid') if `touse'
@@ -185,7 +192,7 @@ prog def splitit, rclass properties(kfold uid tpoint retain)
 			
 			// If the panel variable exists, flag an individual case per panel
 			// unit
-			qui: egen byte `tag' = tag(`ivar') if `touse' // & `tvar' <= `tpoint'
+			qui: egen byte `tag' = tag(`ivar') if `touse' 
 			
 		} // End IF Block for panel data
 
@@ -341,7 +348,7 @@ prog def splitit, rclass properties(kfold uid tpoint retain)
 
 		// This should fill in the split group ID assignment for the case of 
 		// hierarchical splitting
-		qui: bys `uid' (`sgrp'): replace `sgrp' = `sgrp'[_n - 1] if `touse'  ///   
+		bys `uid' (`sgrp'): replace `sgrp' = `sgrp'[_n - 1] if `touse'  ///   
 							& mi(`sgrp'[_n]) & !mi(`sgrp'[_n - 1]) 
 							
 		// For clustered sampling with panel/timeseries data
@@ -354,7 +361,7 @@ prog def splitit, rclass properties(kfold uid tpoint retain)
 			la var `retain'xv4 "Forecasting sample for the corresponding split"
 		
 			// Then unflag those records from the main sample
-			qui: replace `sgrp' = . if `touse' & `tvar' > `tpoint'
+			replace `sgrp' = . if `touse' & `tvar' > `tpoint'
 
 		} // End IF Block for timeseries/panel cases
 										

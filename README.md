@@ -12,13 +12,6 @@ several underlying ados and Mata functions to automate this process for end
 users.  The package will also include the underlying commands to give users 
 even greater flexibility without having to code things from the ground up.
 
-## Known challenges
-- [x] Parsing and defining the API for the prefix command consistently
-- [x] Returning results in ereturn in a reasonable way
-- [x] Handling if/in conditions in the estiamtion command
-- [x] Allowing arbitrary validation/test metrics
-- [x] Consideration for how this could be used for hyperparameter tuning in the future
-- [x] Determine how multiclass predictions will be handled
 
 ## Example:
 `xv 0.8, metric(mse): reg price mpg length if foreign != 1`
@@ -53,7 +46,6 @@ set.
 command to ensure it is fitted to the training set only and that predictions are 
 made on the validation/test set only.
 
-
 ## Mata Stuff
 - [x] `getifin` function to handle parsing if/in expressions in the estimation command
 - [x] `repifin` function to handle replacing user if/in w/exp that includes training set
@@ -61,6 +53,8 @@ made on the validation/test set only.
 - [x] `getarg` function to handle retrieving the argument value from options
 - [x] metric specification 
 - [x] monitor specification
+- [ ] generalize classification metrics for multinomial case
+- [ ] add metrics for class probabilities?
 
 # Syntax
 `prefixcmd` numlist(min = 1 max = 2 default = 0.8) [, options]
@@ -100,9 +94,11 @@ made on the validation/test set only.
 * KFold will currently create a similar number of folds in the validation set at the moment in the case of a TVT split
 * xt splits will use information from xtset/tsset to identify the time variable corresponding to the time point cut off; time point threshold works the same way as the first threshold passed to the command (e.g., times that are <= tpoint will be included in the training/validation sets), but time points beyond that are excluded and are assumed to be used for testing outside of this package (e.g., forecasting)
 
-# Metrics/Monitors
+# libxv
 
-## Method Signature
+## Metrics/Monitors
+
+### Method Signature
 The program will allow users to define their own metrics/monitors that are not 
 contained in libcrossvalidate.  In order to do this, users must implement a 
 specific method/function signature:
@@ -113,7 +109,7 @@ The function must return a real valued scalar and take three arguments.  The
 three arguments are used to access the data that would be used to compute the 
 metrics/monitors.  
 
-## Data access
+### Data access
 Within the function body, we recommend using the following pattern to access 
 the data needed to compute any metrics/monitors:
 
@@ -127,10 +123,43 @@ The programs in the cross validate package will handle the construction of the
 variables and passing them to the function name that users pass to the programs. 
 
 ## Testing/QA
-- [ ] Check that all functions are defined correctly based on the mathematical definitions
-- [ ] Create unit tests for each of the metrics 
+- [ ] Test function getifin
+- [ ] Test function getnoifin
+- [ ] Test function repifin
+- [ ] Test function cvparse
+- [ ] Test function getarg
+- [ ] Test function to create the confusion matrix for classification 
+- [ ] Test function for Binary Sensitivity
+- [ ] Test function for Binary Precision
+- [ ] Test function for Binary Recall
+- [ ] Test function for Binary Specificity
+- [ ] Test function for Binary Prevalence
+- [ ] Test function for Binary Positive Predictive Value
+- [ ] Test function for Binary Negative Predictive Value
+- [ ] Test function for Binary Accuracy
+- [ ] Test function for Binary Balanced Accuracy
+- [ ] Test function for Binary F1
+- [ ] Test function for Multinomial Sensitivity
+- [ ] Test function for Multinomial Precision
+- [ ] Test function for Multinomial Recall
+- [ ] Test function for Multinomial Specificity
+- [ ] Test function for Multinomial Prevalence
+- [ ] Test function for Multinomial Positive Predictive Value
+- [ ] Test function for Multinomial Negative Predictive Value
+- [ ] Test function for Multinomial Accuracy
+- [ ] Test function for Multinomial Balanced Accuracy
+- [ ] Test function for Multinomial F1
+- [ ] Test function for Mean Squared Error
+- [ ] Test function for Mean Absolute Error
+- [ ] Test function for Bias
+- [ ] Test function for MBE
+- [ ] Test function for R^2
+- [ ] Test function for Root Mean Squared Error
+- [ ] Test function for Mean Absolute Percentage Error
+- [ ] Test function for Symmetric Mean Absolute Percentage Error
+- [ ] Test function for Root Mean-Squared Error
+- [ ] Test function for Root Mean-Squared Log Error
  
-
 # Commands 
 
 ## splitit
@@ -178,15 +207,15 @@ Here are things that we need to test for this program:
 - [x] K-Fold train/validation/test split functions correctly (e.g., requested proportions)
 - [x] K-Fold tvt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
 - [x] XT/Panel train/test split functions correctly (e.g., requested proportions)
-- [ ] XT/Panel tt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
+- [x] XT/Panel tt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
 - [x] XT/Panel train/validation/test split functions correctly (e.g., requested proportions)
-- [ ] XT/Panel tvt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
+- [x] XT/Panel tvt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
 - [x] XT/Panel K-Fold train/test split functions correctly (e.g., requested proportions)
-- [ ] XT/Panel K-Fold tt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
+- [x] XT/Panel K-Fold tt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
 - [x] XT/Panel K-Fold train/validation/test split functions correctly (e.g., requested proportions)
-- [ ] XT/Panel K-Fold tvt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
-- [ ] Test all cases that should throw an error
-- [ ] Test all of the above scenarios with if expressions
+- [x] XT/Panel K-Fold tvt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
+- [x] Test all cases that should throw an error
+- [x] Test all of the above scenarios with if expressions
 
 
 ## classify
@@ -221,7 +250,7 @@ Here are things that we need to test for this program:
 
 
 ## fitit
-`fitit anything(name = cmd) , PStub(string asis) SPLit(passthru) [ Classes(integer 0) RESults(string asis) Kfold(integer 1) RESTItle(string asis) THReshold(passthru)]`
+`fitit anything(name = cmd) , PStub(string asis) SPLit(passthru) [ Classes(integer 0) RESults(string asis) Kfold(integer 1) THReshold(passthru)]`
 
 ### Syntax and options
 * cmd is the estimation command the user wishes to fit to the data
@@ -230,7 +259,6 @@ Here are things that we need to test for this program:
 * <ins>c</ins>lasses(integer 0) - An option used to determine whether the model is a regression or classification task.  This is subsequently passed to the classify program.
 * <ins>res</ins>ults(string asis) - A name to use to store estimation results persistently using `estimates store`.
 * <ins>k</ins>fold(integer 1) - An option used to determine if the model needs to be fitted over k subsets of the data.
-* <ins>resti</ins>tle(string asis) - An option to add a title to the stored estimation results.  Only used in conjunction with the `results` option.
 * <ins>thr</ins>eshold(passthru) - An option that is passed to the classify program for predicting class membership in classification tasks.
 
 ### TODO
@@ -289,6 +317,8 @@ ensure the predictions are made only on the held out validation set.
 
 ### Testing
 - [x] See cmdmodtests.do for a certification script.
+- [ ] Add tests for commands that include `inlist()` and/or `inrange()` functions
+- [ ] Add tests for commands that include quoted string arguments
 
 ## xv
 
@@ -296,14 +326,17 @@ ensure the predictions are made only on the held out validation set.
 
 
 ### Testing
+- [ ] Handling of `in` expressions passed to estimation commands
 
 
 ## xvloo
 
 ### Syntax and options
-
+Should have the exact same syntax as above, with the exception of no K-Fold 
+argument.  
 
 ### Testing
-
+- [ ] Handling of `in` expressions passed to estimation commands
+- [ ] Correctly handling the loo scenario by treating this as a special case of K-Fold
 
 
