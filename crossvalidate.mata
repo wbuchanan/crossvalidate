@@ -82,21 +82,6 @@ string scalar getnoifin(string scalar x) {
 	
 } // End of function definition to return the cmd string up to the options
 
-// Defines a function used to replace the if/in expression in the command with 
-// the version that would be used to identify the training set
-void function repifin(string scalar x, string scalar swap) {
-	
-	// Stores the new string prior to returning it in a macro
-	string scalar newcmd
-	
-	// Replaces the existing if/in statement with the swapped statement
-	newcmd = ustrregexra(x, "(i[fn]{1}\s+[^,]+)", swap)
-	
-	// Returns the new command statement 
-	st_local("newcmd", newcmd)
-	
-} // End of definition of Mata function to replace if/in expression in command
-
 // Defines a function to parse the prefix command into it's constituent parts
 void function cvparse(string scalar cv) {
 	
@@ -106,9 +91,10 @@ void function cvparse(string scalar cv) {
 	// Defines a variable to use for iterating over the options
 	real scalar i, nopts
 	
-	// Stores the name of all the potential options
+	// Stores the name of all the potential options across all commands
 	opts = ("metric", "monitors", "uid", "tpoint", "retain", "kfold", 		 ///   
-			 "state", "results", "grid", "params", "tuner", "seed", "classes" )
+			 "state", "results", "grid", "params", "tuner", "seed", 		 ///   
+			 "classes", "threshold", "pstub", "split", "display", "pred", "obs")
 	
 	// Gets the number of options so we don't need to track it manually and 
 	// avoid the minor performance penalty of using cols(opts) in the loop below
@@ -118,7 +104,7 @@ void function cvparse(string scalar cv) {
 	for(i = 1; i <= nopts; i++) {
 		
 		// Test for matches for each of the options
-		if (ustrregexm(cv, "(" + opts[1, i] + "\([a-zA-Z0-9]+\))", 1)) {
+		if (ustrregexm(cv, "(" + opts[1, i] + `"(\([a-zA-Z\p{P}0-9]+\))?)"', 1)) {
 			
 			// Returns the option name and argument(s) in a local with the same 
 			// name (e.g., kfold might contain kfold(10))
@@ -146,19 +132,22 @@ void function getarg(string scalar param, | string scalar pname) {
 		
 		// subinstr removes the parameter name, and regex replace should remove
 		// the parentheses
-		retval = ustrregexra(subinstr(param, pname, ""), "[\(\)]", "")
+		retval = ustrregexrf(subinstr(param, pname, ""), "[\(\)]", "")
 	
 	// If the parameter name is not supplied to the function
 	} else {
 		
 		// Removes everything up to the opening parentheses with the regex, then 
 		// removes the closing parenthesis with subinstr
-		retval = subinstr(ustrregexra(param, "[a-z]+\(", ""), ")", "")
+		retval = ustrregexrf(ustrregexrf(param, "[a-z]+\(", ""), "\)", "")
 		
 	} // End ELSE Block for no parameter name supplied
 	
+	// If the parameter doesn't include any parentheses just return it as is
+	if (ustrregexm(param, "[\(\)]") == 0) st_local("argval", param)
+	
 	// Returns the argument value in a local macro
-	st_local("argval", retval)
+	else st_local("argval", retval)
 	
 } // End of function definition to get argument value from a parameter
 
