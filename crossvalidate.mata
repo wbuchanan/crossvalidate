@@ -38,10 +38,10 @@ string scalar getifin(string scalar x) {
 	} // End ELSE block from testing for presence of if/in expression
 	
 	// Stores the if/in expression in the local macro ifin
-	st_local("ifin", strtrim(strexp))
+	st_local("ifin", strexp)
 	
 	// Returns the matched string
-	return(strexp)
+	return(strtrim(strexp))
 	
 } // End of Mata function definition to retrieve if/in expressions from command
 
@@ -553,7 +553,7 @@ real scalar smape(string scalar pred, string scalar obs, string scalar touse) {
 	
 	// Returns the sum of the absolute value of the residual divided by observed 
 	// value, which is then divided by the number of observations
-	return(sum(abs(diff) / (0.5 * (obd + st_data(., pred, touse)))) / 	 ///   
+	return(sum(abs(diff) :/ (0.5 * (obd + st_data(., pred, touse)))) / 	 ///   
 			rows(obd))
 	
 } // End of function definition for mean absolute percentage error
