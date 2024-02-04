@@ -139,6 +139,9 @@ stsens = st_numscalar("r(P_p1)") * 0.01
 // Stata's accuracy metric
 stacc = st_numscalar("r(P_corr)") * 0.01
 
+// Get the twoway tabulation that the estat classification command leaves behind
+ctab = st_matrix("r(ctable)")
+
 //**** Now we compute all of our classification metrics
 
 // Get the value of sensitivity
@@ -194,7 +197,7 @@ asserteq(round(stsens, rf), round(sens, rf))
 asserteq(round(stspec, rf), round(spec, rf))
 
 // Test equality of Prevalence metrics
-// asserteq(round(, rf), round(prev, rf))
+asserteq(round(ctab[3, 1], rf), round(prev, rf))
 
 // Test equality of PPV metrics
 asserteq(round(stppv, rf), round(pospv, rf))
