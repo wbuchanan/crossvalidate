@@ -206,7 +206,7 @@ asserteq(round(stnpv, rf), round(negpv, rf))
 asserteq(round(stacc, rf), round(acc, rf))
 
 // Test equality of "Balanced" Accuracy metrics
-// asserteq(round(, rf), round(bacc, rf))
+asserteq(round(((stsens + stspec) / 2), rf), round(bacc, rf))
 
 // Test equality of F1 metrics
 // asserteq(round(, rf), round(f1stat, rf))
