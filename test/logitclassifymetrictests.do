@@ -27,7 +27,8 @@ Notes:
 */
 
 //change dir to location of the ado files
-cd "~/crossvalidate"  //changes the directory to C:\Users\StevenBrownell\crossvalidate
+// changes the directory to C:\Users\StevenBrownell\crossvalidate
+cd "~/crossvalidate"  
 
 //Clear data
 clear all
@@ -39,7 +40,7 @@ do crossvalidate.mata
 webuse lbw, clear
 
 //create touse variable
-gen touse=1
+gen touse = 1
 
 //Run unrestricted logistic regression to calculate our clssification metrics
 logit low age lwt i.race smoke ptl ht ui
@@ -47,12 +48,18 @@ logit low age lwt i.race smoke ptl ht ui
 //manually calulate predicted values
 predict double pred, pr
 
-//round predicted values - "By default, estat classification uses a cutoff of 0.5"
-**# NOTE: Should we think about allowing users to adjust the cutoff value?
-replace pred=round(pred, 1)
+// round predicted values - "By default, estat classification uses a cutoff of 0.5"
+// NOTE: Should we think about allowing users to adjust the cutoff value?
+// This is handled by the threshold parameter in classify, which also defaults 
+// to a value of 0.5.
+replace pred = round(pred, 1)
 
 
-**# NOTE: Since we rewrote the confusion() function to use stata's tabulate, we are overwriting all of the rclass stored results each time we calculate the ocnfusion matrix
+// NOTE: Since we rewrote the confusion() function to use stata's tabulate, 
+// we are overwriting all of the rclass stored results each time we calculate 
+// the confusion matrix
+// I had created a separate script for these tests and will add an example for 
+// how to mitigate/handle that in that script.
 	//Test confusion matrix
 //Caluclate the confusion matrix using our 
 mata: st_matrix("Conf", confusion("pred", "low", "touse"))    

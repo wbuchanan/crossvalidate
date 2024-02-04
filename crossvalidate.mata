@@ -382,7 +382,7 @@ real scalar accuracy(string scalar pred, string scalar obs, 				 ///
 
 // Defines a function to compute "balanced" accuracy.  
 // See https://yardstick.tidymodels.org/reference/bal_accuracy.html for more info
-real scalar bal_accuracy(string scalar pred, string scalar obs, 			 ///   
+real scalar baccuracy(string scalar pred, string scalar obs, 				 ///   
 					  string scalar touse) {
 	
 	// Declares a matrix to store the confusion matrix
