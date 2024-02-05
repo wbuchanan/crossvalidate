@@ -179,13 +179,10 @@ f1stat = f1("pred", "low", "touse")
 asserteq(sens, rcall)
 
 // Create a variable to store the rounding factor to standardize things in the 
-// tests below
-rf = 0.0001
+// tests below set to 1e-6
+rf = 0.000001
 
 // Now we'll test the metrics based on Stata's computations whenever we can
-// We can try a tolerance of 1e-4 to see if that will generally work.  If not, 
-// we can move to 1e-5 or 1e-6.
-
 
 // Test equality of sensitivity metrics
 asserteq(round(stsens, rf), round(sens, rf))
@@ -239,8 +236,53 @@ end
 *                                                                              *
 *******************************************************************************/
 
+
+
 // Start the Mata interpreter/interactive session
 mata:
+
+// Load the autodataset
+stata("sysuse auto.dta, clear")
+
+// Fit a regression model to those data
+stata("reg mpg price i.rep78 i.foreign")
+
+// Generate the variable that IDs the estimation sample
+stata("g byte touse = 1 if e(sample)")
+
+// Generate the predicted values
+stata("predict double pred if touse")
+
+// Get the root mean squared error calculated by stata
+strmse = st_numscalar("e(rmse)")
+
+// Get the R^2 calculated by stata
+str2 = st_numscalar("e(r2)")
+
+// Get rmse with our calculation
+xvrmse = rmse("pred", "mpg", "touse")
+
+// Get our mean squared error
+xvmse = mse("pred", "mpg", "touse")
+
+// Get our R^2
+xvr2 = r2("pred", "mpg", "touse")
+
+// Set a rounding factor
+rf = 1e-6
+
+// These tests are currently failing.  My guess is there is probably a missing 
+// adjustment for degrees of freedom that isn't accounted for in the functions 
+// I put together.
+
+// Test equality of RMSE
+asserteq(round(strmse, rf), round(xvrmse, rf))
+
+// Test equality of MSE
+asserteq(round(strmse^2, rf), round(xvmse, rf))
+
+// Test equality of R2
+asserteq(round(str2, rf), round(xvr2, rf))
 
 
 // End the Mata session
