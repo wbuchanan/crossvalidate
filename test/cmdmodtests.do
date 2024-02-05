@@ -168,13 +168,13 @@ assert `"`r(kfpredifin)'"' == `" if inlist(rep78, "2", "3") & !e(sample) & spvar
 *******************************************************************************/
 
 // Instance with an if/in expression and no options for a train/test split
-cmdmod "ivreg price (mpg i.foreign) if inlist(rep78, 2, 3), vce(rob)", spl(spvar) 
+cmdmod "ivreg price (mpg i.foreign) if inrange(rep78, 2, 3), vce(rob)", spl(spvar) 
 
 // Test the modified command
-assert `"`r(modcmd)'"' == "ivreg price (mpg i.foreign) if inlist(rep78, 2, 3) & spvar == 1, vce(rob)" 
+assert `"`r(modcmd)'"' == "ivreg price (mpg i.foreign) if inrange(rep78, 2, 3) & spvar == 1, vce(rob)" 
 
 // Test the if statement for prediction
-assert `"`r(predifin)'"' == " if inlist(rep78, 2, 3) & !e(sample) & spvar == 2" 
+assert `"`r(predifin)'"' == " if inrange(rep78, 2, 3) & !e(sample) & spvar == 2" 
 
 // Instance with no if/in expression or options for 5-fold CV
 cmdmod `"ivreg price (mpg i.foreign) if inlist(rep78, "2", "3"), vce(rob)"', spl(spvar) kf(5)

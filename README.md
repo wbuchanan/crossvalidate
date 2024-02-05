@@ -123,21 +123,20 @@ The programs in the cross validate package will handle the construction of the
 variables and passing them to the function name that users pass to the programs. 
 
 ## Testing/QA
-- [ ] Test function getifin
-- [ ] Test function getnoifin
-- [ ] Test function repifin
-- [ ] Test function cvparse
-- [ ] Test function getarg
-- [ ] Test function to create the confusion matrix for classification 
-- [ ] Test function for Binary Sensitivity
+- [x] Test function getifin
+- [x] Test function getnoifin
+- [x] Test function cvparse
+- [x] Test function getarg
+- [x] Test function to create the confusion matrix for classification 
+- [x] Test function for Binary Sensitivity
 - [ ] Test function for Binary Precision
-- [ ] Test function for Binary Recall
-- [ ] Test function for Binary Specificity
+- [x] Test function for Binary Recall
+- [x] Test function for Binary Specificity
 - [ ] Test function for Binary Prevalence
-- [ ] Test function for Binary Positive Predictive Value
-- [ ] Test function for Binary Negative Predictive Value
-- [ ] Test function for Binary Accuracy
-- [ ] Test function for Binary Balanced Accuracy
+- [x] Test function for Binary Positive Predictive Value
+- [x] Test function for Binary Negative Predictive Value
+- [x] Test function for Binary Accuracy
+- [x] Test function for Binary Balanced Accuracy
 - [ ] Test function for Binary F1
 - [ ] Test function for Multinomial Sensitivity
 - [ ] Test function for Multinomial Precision
@@ -243,7 +242,7 @@ Here are things that we need to test for this program:
 `state `
 
 ### Syntax and options
-
+No options
 
 ### Testing
 
@@ -317,8 +316,8 @@ ensure the predictions are made only on the held out validation set.
 
 ### Testing
 - [x] See cmdmodtests.do for a certification script.
-- [ ] Add tests for commands that include `inlist()` and/or `inrange()` functions
-- [ ] Add tests for commands that include quoted string arguments
+- [x] Add tests for commands that include `inlist()` and/or `inrange()` functions
+- [x] Add tests for commands that include quoted string arguments
 
 ## xv
 

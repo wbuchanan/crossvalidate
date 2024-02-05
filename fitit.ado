@@ -124,6 +124,9 @@ prog def fitter, eclass
 		
 	} // End IF Block for K-Fold CV fitting to all training data
 	
+	// Add variable label for the all training set case
+	la var `pstub'all "Predicted value of `e(depvar)' from model w/full training set"
+
 	// Return the names of all the stored estimation results
 	eret loc estresnames "`estres'"
 	
