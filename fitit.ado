@@ -111,6 +111,12 @@ prog def fitit, eclass
 
 	} // End IF Block for K-Fold CV fitting to all training data
 	
+	// Return the predict macro 
+	eret loc predifin `r(predifin)'
+	
+	// Return the predict macro for the K-Fold case on all training data
+	eret loc kfpredifin `r(kfpredifin)'
+	
 	// Return the names of all the stored estimation results
 	eret loc estresnames "`estres'"
 	

@@ -79,7 +79,7 @@ prog def validate, rclass
 	mata: st_numscalar("`metric'sc", metval)
 	
 	// Sets the return value for the scalar
-	return scalar `metric' = `= `metric'sc'
+	return scalar metric = `= `metric'sc'
 	
 // End of program definition
 end

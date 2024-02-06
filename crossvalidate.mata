@@ -539,22 +539,22 @@ real scalar mape(string scalar pred, string scalar obs, string scalar touse) {
 
 
 // Metric based on definition of symmetric mean absolute percentage error here:
-// https://developer.nvidia.com/blog/a-comprehensive-overview-of-regression-evaluation-metrics/
+// https://github.com/tidymodels/yardstick/blob/main/R/num-smape.R
 real scalar smape(string scalar pred, string scalar obs, string scalar touse) {
 
 	// Allocates a column vector to store the differences
-	real colvector diff, obd
+	real colvector num, denom
 	
 	// Creates a column vector with the observed outcome data
-	obd = st_data(., obs, touse)
+	num = abs(st_data(., obs, touse) - st_data(., pred, touse))
 	
 	// Computes the residuals
-	diff = obd - st_data(., pred, touse)
+	denom = (abs(st_data(., obs, touse)) + abs(st_data(., pred, touse))) :/ 2
 	
-	// Returns the sum of the absolute value of the residual divided by observed 
-	// value, which is then divided by the number of observations
-	return(sum(abs(diff) :/ (0.5 * (obd + st_data(., pred, touse)))) / 	 ///   
-			rows(obd))
+	// Returns the sum of the absolute value of the residual divided by the 
+	// average of the sum of absolute observed and predicted values, divided by 
+	// the number of observations
+	return(sum(num :/ denom) / rows(denom))
 	
 } // End of function definition for mean absolute percentage error
 

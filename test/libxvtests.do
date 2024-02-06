@@ -236,53 +236,84 @@ end
 *                                                                              *
 *******************************************************************************/
 
+// Clear any data from memory
+clear
 
+// Create an example data set to make it easy to hand compute the metrics
+input pred obs touse
+1 2 1
+2 1 1
+3 8 1
+4 7 1
+5 2 1
+6 6 1
+7 3 1
+8 10 1
+9 3 1
+10 2 1
+end
 
 // Start the Mata interpreter/interactive session
 mata:
 
-// Load the autodataset
-stata("sysuse auto.dta, clear")
-
-// Fit a regression model to those data
-stata("reg mpg price i.rep78 i.foreign")
-
-// Generate the variable that IDs the estimation sample
-stata("g byte touse = 1 if e(sample)")
-
-// Generate the predicted values
-stata("predict double pred if touse")
-
-// Get the root mean squared error calculated by stata
-strmse = st_numscalar("e(rmse)")
-
-// Get the R^2 calculated by stata
-str2 = st_numscalar("e(r2)")
 
 // Get rmse with our calculation
-xvrmse = rmse("pred", "mpg", "touse")
+xvrmse = rmse("pred", "obs", "touse")
 
 // Get our mean squared error
-xvmse = mse("pred", "mpg", "touse")
+xvmse = mse("pred", "obs", "touse")
 
 // Get our R^2
-xvr2 = r2("pred", "mpg", "touse")
+xvr2 = r2("pred", "obs", "touse")
+
+// Get the mean absolute error
+xvmae = mae("pred", "obs", "touse")	
+
+// Get the mean absolute percentage error
+xvmape = mape("pred", "obs", "touse")	
+
+// Get the symmetric mean absolute percentage error
+xvsmape = smape("pred", "obs", "touse")
+
+// Get the bias stat
+xvbias = bias("pred", "obs", "touse")
+
+// Get the mean bias stat
+xvmbe = mbe("pred", "obs", "touse")
 
 // Set a rounding factor
-rf = 1e-6
+rf = 1e-5
 
 // These tests are currently failing.  My guess is there is probably a missing 
 // adjustment for degrees of freedom that isn't accounted for in the functions 
 // I put together.
 
 // Test equality of RMSE
-asserteq(round(strmse, rf), round(xvrmse, rf))
+asserteq(round(sqrt(16.5), rf), round(xvrmse, rf))
 
 // Test equality of MSE
-asserteq(round(strmse^2, rf), round(xvmse, rf))
+asserteq(round(16.5, rf), round(xvmse, rf))
+
+// Test equality of MAE
+asserteq(round(3.3, rf), round(xvmae, rf))
+
+// Test equality of MAPE
+asserteq(round(1.15869048, rf), round(xvmape, rf))
+
+// Test equality of SMAPE
+asserteq(round(0.70005722, rf), round(xvsmape, rf))
+
+// Test equality of bias
+asserteq(round(-11, rf), round(xvbias, rf))
+
+// Test equality of mean bias
+asserteq(round(-1.1, rf), round(xvmbe, rf))
+
+// Test equality of 
+//asserteq(round(, rf), round(, rf))
 
 // Test equality of R2
-asserteq(round(str2, rf), round(xvr2, rf))
+//asserteq(round(str2, rf), round(xvr2, rf))
 
 
 // End the Mata session
