@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! validate
-*! v 0.0.2
-*! 02FEB2024
+*! v 0.0.3
+*! 06FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop validate
@@ -18,11 +18,14 @@ prog def validate, rclass
 	version 18
 	
 	// Syntax
-	syntax [if] [in] , MEtric(string asis) [ MOnitors(string asis) 			 ///   
-	Pred(string asis) Obs(string asis) DISPlay ]
+	syntax [if] [in] , MEtric(string asis) Pred(varname) [ Obs(varname) 	 ///   
+	MOnitors(string asis) DISPlay ]
 	
 	// Mark the sample that will be used for validation
 	marksample touse
+	
+	// Test if missing observed outcome variable name
+	if mi("`obs'") loc obs `e(depvar)'
 	
 	// Verify that there is only a single metric
 	if `: word count `metric'' > 1 {

@@ -1,6 +1,7 @@
 /*******************************************************************************
 *                                                                              *
-*             Handles fitting the models and returning results                 *
+*             Handles splitting the data set into train/test,                  *
+*               train/validation/test, or K-Fold samples.                      *
 *                                                                              *
 *******************************************************************************/
 
@@ -12,7 +13,7 @@
 cap prog drop splitit
 
 // Define program
-prog def splitit, rclass properties(kfold uid tpoint retain) 
+prog def splitit, rclass 
 
 	// Version statement 
 	version 18
