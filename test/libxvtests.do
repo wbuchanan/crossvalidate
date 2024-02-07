@@ -253,21 +253,32 @@ input pred obs touse
 10 2 1
 end
 
+// Get the correlation between the predicted and observed variables
+qui: corr pred obs
+
 // Start the Mata interpreter/interactive session
 mata:
 
-
-// Get rmse with our calculation
-xvrmse = rmse("pred", "obs", "touse")
+// Store the correlation between predicted and observed values
+str2 = st_numscalar("r(rho)")
 
 // Get our mean squared error
 xvmse = mse("pred", "obs", "touse")
 
-// Get our R^2
-xvr2 = r2("pred", "obs", "touse")
-
 // Get the mean absolute error
 xvmae = mae("pred", "obs", "touse")	
+
+// Get the bias stat
+xvbias = bias("pred", "obs", "touse")
+
+// Get the mean bias stat
+xvmbe = mbe("pred", "obs", "touse")
+
+// Get the R^2
+xvr2 = r2("pred", "obs", "touse")
+
+// Get rmse with our calculation
+xvrmse = rmse("pred", "obs", "touse")
 
 // Get the mean absolute percentage error
 xvmape = mape("pred", "obs", "touse")	
@@ -275,11 +286,14 @@ xvmape = mape("pred", "obs", "touse")
 // Get the symmetric mean absolute percentage error
 xvsmape = smape("pred", "obs", "touse")
 
-// Get the bias stat
-xvbias = bias("pred", "obs", "touse")
+// Get the mean squared loss error
+xvmsle = msle("pred", "obs", "touse")
 
-// Get the mean bias stat
-xvmbe = mbe("pred", "obs", "touse")
+// Get the root mean squared loss error
+xvrmsle = rmsle("pred", "obs", "touse")
+
+// Get the RPD metric
+xvrpd = rpd("pred", "obs", "touse")
 
 // Set a rounding factor
 rf = 1e-5
@@ -288,20 +302,11 @@ rf = 1e-5
 // adjustment for degrees of freedom that isn't accounted for in the functions 
 // I put together.
 
-// Test equality of RMSE
-asserteq(round(sqrt(16.5), rf), round(xvrmse, rf))
-
 // Test equality of MSE
 asserteq(round(16.5, rf), round(xvmse, rf))
 
 // Test equality of MAE
 asserteq(round(3.3, rf), round(xvmae, rf))
-
-// Test equality of MAPE
-asserteq(round(1.15869048, rf), round(xvmape, rf))
-
-// Test equality of SMAPE
-asserteq(round(0.70005722, rf), round(xvsmape, rf))
 
 // Test equality of bias
 asserteq(round(-11, rf), round(xvbias, rf))
@@ -309,12 +314,26 @@ asserteq(round(-11, rf), round(xvbias, rf))
 // Test equality of mean bias
 asserteq(round(-1.1, rf), round(xvmbe, rf))
 
-// Test equality of 
-//asserteq(round(, rf), round(, rf))
-
 // Test equality of R2
-//asserteq(round(str2, rf), round(xvr2, rf))
+asserteq(round(str2, rf), round(xvr2, rf))
 
+// Test equality of RMSE
+asserteq(round(sqrt(16.5), rf), round(xvrmse, rf))
+
+// Test equality of MAPE
+asserteq(round(1.15869048, rf), round(xvmape, rf))
+
+// Test equality of SMAPE
+asserteq(round(0.70005722, rf), round(xvsmape, rf))
+
+// Test equality of MSLE
+asserteq(round(.4736214869, rf), round(xvmsle, rf))
+
+// Test equality of RMSLE
+asserteq(round(.6882016324, rf), round(xvrmsle, rf))
+
+// Test equality of RPD
+asserteq(round(.7453559925, rf), round(xvrpd, rf))
 
 // End the Mata session
 end

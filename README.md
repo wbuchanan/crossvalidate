@@ -138,6 +138,7 @@ variables and passing them to the function name that users pass to the programs.
 - [x] Test function for Binary Accuracy
 - [x] Test function for Binary Balanced Accuracy
 - [ ] Test function for Binary F1
+- [ ] Test function for Youden's J statistic (J-index)
 - [ ] Test function for Multinomial Sensitivity
 - [ ] Test function for Multinomial Precision
 - [ ] Test function for Multinomial Recall
@@ -148,16 +149,19 @@ variables and passing them to the function name that users pass to the programs.
 - [ ] Test function for Multinomial Accuracy
 - [ ] Test function for Multinomial Balanced Accuracy
 - [ ] Test function for Multinomial F1
-- [ ] Test function for Mean Squared Error
-- [ ] Test function for Mean Absolute Error
-- [ ] Test function for Bias
-- [ ] Test function for MBE
-- [ ] Test function for R^2
-- [ ] Test function for Root Mean Squared Error
-- [ ] Test function for Mean Absolute Percentage Error
-- [ ] Test function for Symmetric Mean Absolute Percentage Error
-- [ ] Test function for Root Mean-Squared Error
-- [ ] Test function for Root Mean-Squared Log Error
+- [ ] Test function for Multinomial Detection Prevalence
+- [ ] Test function for Multinomial J-Index
+- [x] Test function for Mean Squared Error
+- [x] Test function for Mean Absolute Error
+- [x] Test function for Bias
+- [x] Test function for MBE
+- [x] Test function for R^2
+- [x] Test function for Root Mean Squared Error
+- [x] Test function for Mean Absolute Percentage Error
+- [x] Test function for Symmetric Mean Absolute Percentage Error
+- [x] Test function for Mean-Squared Log Error
+- [x] Test function for Root Mean-Squared Log Error
+- [x] Test function for Ratio of Performance to Deviation
  
 # Commands 
 

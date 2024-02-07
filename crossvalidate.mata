@@ -173,6 +173,12 @@ real matrix confusion(string scalar pred, string scalar obs, 				 ///
 	
 } // End function definition for confusion matrix
 
+/*******************************************************************************
+*                                                                              *
+*                        Binary Classification Metrics                         *
+*                                                                              *
+*******************************************************************************/
+
 // Can define each of the common metrics/monitors for binary prediction, based 
 // on passing the arguments for the confusion matrix.  There will be additional 
 // computational overhead this way, but we could also consider coding around 
@@ -368,10 +374,6 @@ real scalar accuracy(string scalar pred, string scalar obs, 				 ///
 	// Creates the confusion matrix
 	conf = confusion(pred, obs, touse)
 	
-	// For now, at least, we'll restrict these metrics to only the binary case
-	// so this assertion will make sure that we have a binary confusion matrix
-	assert(rows(conf) == 2 & cols(conf) == 2)
-	
 	// Computes the metric from the confusion matrix
 	result = sum(diagonal(conf)) / sum(conf)
 
@@ -429,6 +431,207 @@ real scalar f1(string scalar pred, string scalar obs, string scalar touse) {
 	return(result)
 	
 } // End of function definition for f1score
+
+// Defines J-index (Youden's J statistic)
+// based on: https://github.com/tidymodels/yardstick/blob/main/R/class-j_index.R
+real scalar jindex(string scalar pred, string scalar obs, string scalar touse) {
+
+	// Return the micro averaged detection prevalence
+	return(sensitivity(pred, obs, touse) + specificity(pred, obs, touse) - 1)
+
+} // End of function definition for j-index
+
+/*******************************************************************************
+*                                                                              *
+*                     Multinomial Classification Metrics                       *
+*                                                                              *
+*******************************************************************************/
+
+// Defines multiclass specificity
+// based on: https://github.com/tidymodels/yardstick/blob/main/R/class-spec.R
+real scalar mcspecificity(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Declares a matrix to store the confusion matrix
+	real matrix conf
+	
+	// Declares column vectors to store the total sample size in a J(x, 1, n) 
+	// sized column vector, , true positive counts,
+	// true positive + false positive counts, true positive + false negative 
+	// counts, true negative counts, false positives, and the numerator and 
+	// denominator for the metric
+	real colvector n, tp, tpfp, tpfn, tn, fp, num, den
+	
+	// Get the confusion matrix
+	conf = confusion(pred, obs, touse)
+	
+	// Store the total sample size in a column vector with the sample size in 
+	// each element
+	n = J(rows(conf), 1, sum(conf))
+	
+	// Get the vector of true positives
+	tp = diagonal(conf)
+	
+	// Get the true positive + false positive counts
+	tpfp = rowsum(conf)
+	
+	// Get the true positive + false negative counts and transpose the result
+	tpfn = colsum(conf)'
+	
+	// Get the count of true negatives
+	tn = n - (tpfp + tpfn - tp)
+	
+	// Get the count of false positives
+	fp = tpfp - tp
+	
+	// Return the micro average specificity
+	return(sum(tn) / sum((tn + fp)))
+
+} // End of function definition for multiclass specificity
+
+// Defines multiclass sensitivity
+// based on: https://github.com/tidymodels/yardstick/blob/main/R/class-sens.R
+real scalar mcsensitivity(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Declares a matrix to store the confusion matrix
+	real matrix conf
+	
+	// Get the confusion matrix
+	conf = confusion(pred, obs, touse)
+
+	// Return the micro averaged sensitivity
+	return(sum(diagonal(conf)) / sum(colsum(conf)))
+
+} // End of function definition for multiclass sensitivity
+
+// Defines multiclass recall
+// based on: https://github.com/tidymodels/yardstick/blob/main/R/class-recall.R
+real scalar mcrecall(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Return the micro averaged recall
+	return(mcsensitivity(pred, obs, touse))
+
+} // End of function definition for multiclass recall
+
+// Defines multiclass precision
+// based on: https://github.com/tidymodels/yardstick/blob/main/R/class-precision.R
+real scalar mcsensitivity(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Declares a matrix to store the confusion matrix
+	real matrix conf
+	
+	// Get the confusion matrix
+	conf = confusion(pred, obs, touse)
+
+	// Return the micro averaged precision
+	return(sum(diagonal(conf)) / sum(rowsum(conf)))
+
+} // End of function definition for multiclass precision
+
+// Defines multiclass positive predictive value
+// based on: https://github.com/tidymodels/yardstick/blob/main/R/class-ppv.R
+real scalar mcppv(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Return the micro averaged PPV
+	// Lines 176-178 indicate that multiclass PPV should be equal to precision 
+	// in all cases EXCEPT when the prevalence paramter in that function is 
+	// passed an argument.  With our method signature, there isn't a way to 
+	// pass that parameter.
+	return(mcprecision(pred, obs, touse))
+
+} // End of function definition for multiclass positive predictive value
+
+// Defines multiclass negative predictive value
+// based on: https://github.com/tidymodels/yardstick/blob/main/R/class-npv.R
+real scalar mcnpv(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Declares a matrix to store the confusion matrix
+	real matrix conf
+	
+	// Declares column vectors to store the total sample size in a J(x, 1, n) 
+	// sized column vector and true positive + false negative counts
+	real colvector n, tpfn
+
+	// Declares scalars to store intermediate results
+	real scalar prev, sens, spec, num, den
+	
+	// Get the confusion matrix
+	conf = confusion(pred, obs, touse)
+	
+	// Store the total sample size in a column vector with the sample size in 
+	// each element
+	n = J(rows(conf), 1, sum(conf))
+	
+	// Get the true positive + false negative counts and transpose the result
+	tpfn = colsum(conf)'
+	
+	// Compute prevalence
+	prev = sum(tpfn) / sum(n)
+	
+	// Compute multiclass sensitivity
+	sens = mcsensitivity(pred, obs, touse)
+	
+	// Compute multiclass specificity
+	spec = mcspecificity(pred, obs, touse)
+	
+	// Define the numerator for the metric
+	num = spec * (1 - prev)
+
+	// Define the denominator for the metric
+	den = (1 - sens) * prev + spec * (1 - prev)
+	
+	// Return the micro averaged NPV
+	return(num / den)
+
+} // End of function definition for multiclass negative predictive value
+
+// Defines multiclass F1 statistic
+// based on: https://github.com/tidymodels/yardstick/blob/main/R/class-f_meas.R
+real scalar mcf1(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Declares scalars to store intermediate results
+	real scalar prec, sens
+	
+	// Compute prevalence
+	prec = mcprecision(pred, obs, touse)
+	
+	// Compute multiclass sensitivity
+	sens = mcsensitivity(pred, obs, touse)
+	
+	// Return the micro averaged NPV
+	return(2 * prec * sens / prec + sens)
+
+} // End of function definition for multiclass negative predictive value
+
+// Defines multiclass Detection Prevalence
+// based on: https://github.com/tidymodels/yardstick/blob/main/R/class-detection_prevalence.R
+real scalar mcdetection(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Declares scalars to store intermediate results
+	real matrix conf
+	
+	// Compute the confusion matrix
+	conf = confusion(pred, obs, touse)
+	
+	// Return the micro averaged detection prevalence
+	return(sum(rowsum(conf)) / sum(J(rows(conf), 1, sum(conf))))
+
+} // End of function definition for multiclass detection prevalence
+
+// Defines multiclass J-index (Youden's J statistic)
+// based on: https://github.com/tidymodels/yardstick/blob/main/R/class-j_index.R
+real scalar mcjindex(string scalar pred, string scalar obs, string scalar touse) {
+
+	// Return the micro averaged detection prevalence
+	return(mcsensitivity(pred, obs, touse) + mcspecificity(pred, obs, touse) - 1)
+
+} // End of function definition for multiclass j-index
+
+
+/*******************************************************************************
+*                                                                              *
+*                          Continuous Metrics/Utilities                        *
+*                                                                              *
+*******************************************************************************/
 
 // Defines function to compute mean squared error from predicted and observed 
 // outcomes
@@ -492,24 +695,12 @@ real scalar mbe(string scalar pred, string scalar obs, string scalar touse) {
 } // End of function definition for mean bias error
 
 // Metric based on definition here:
-// https://developer.nvidia.com/blog/a-comprehensive-overview-of-regression-evaluation-metrics/
+// https://github.com/tidymodels/yardstick/blob/main/R/num-rsq.R
 real scalar r2(string scalar pred, string scalar obs, string scalar touse) {
 	
-	// Declares a scalar to store the residual sum of squares, total 
-	// sum of squares, and mean of the observed outcome.
-	real scalar rss, tss, muob
-	
-	// Computes squared differences
-	rss = sum((st_data(., obs, touse) - st_data(., pred, touse)) :^2)
-	
-	// Computes the mean of the observed outcome
-	muob = sum(st_data(., obs, touse)) / rows(st_data(., obs, touse))
-	
-	// Computes the total sum of squares
-	tss = sum((st_data(., obs, touse) :- muob) :^2)
-	
-	// Returns 1 - RSS / TSS
-	return(1 - (rss / tss))
+	// Returns the correlation between the predicted and observed variable
+	return(corr(variance((st_data(., "pred", "touse"), ///   
+						  st_data(., "obs", "touse"))))[2, 1])
 	
 } // End of function definition for R^2
 
@@ -570,7 +761,7 @@ real scalar msle(string scalar pred, string scalar obs, string scalar touse) {
 	real scalar result
 	
 	// Computes squared differences
-	sqdiff = (log(st_data(., obs, touse)) - log(st_data(., pred, touse))) :^2
+	sqdiff = (log(st_data(., obs, touse) :+ 1) - log(st_data(., pred, touse)  :+ 1)) :^2
 	
 	// Computes the average of the squared differences
 	result = sum(sqdiff) / rows(sqdiff)
@@ -589,6 +780,15 @@ real scalar rmsle(string scalar pred, string scalar obs, string scalar touse) {
 	return(sqrt(msle(pred, obs, touse)))
 	
 } // End of function definition for root mean squared log error
+
+// Defines function for the ratio of performance to deviation
+// based on: https://github.com/tidymodels/yardstick/blob/main/R/num-rpd.R
+real scalar rpd(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Returns the ratio of the SD of predicted to the RMSE
+	return(sqrt(variance(st_data(., pred, touse))) / rmse(pred, obs, touse))
+
+} // End of function definition for RPD
 
 // End mata interpreter
 end
