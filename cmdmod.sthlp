@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.1 05feb2024}{...}
+{* *! version 0.0.2 08feb2024}{...}
 {viewerjumpto "Syntax" "cmdmod##syntax"}{...}
 {viewerjumpto "Description" "cmdmod##description"}{...}
 {viewerjumpto "Options" "cmdmod##options"}{...}
@@ -12,8 +12,19 @@
 {title:Syntax}
 
 {p 8 32 2}
-{cmd:cmdmod} {cmd:estimation command} {cmd:,} {cmdab:spl:it(}{it:varname}{cmd:)} [
+{cmd:cmdmod} {it:"estimation command"} {cmd:,} {cmdab:spl:it(}{it:varname}{cmd:)} [
 {cmdab:k:fold(}{it:integer}{cmd:)} ]{p_end}
+
+{synoptset 25 tabbed}{...}
+{synoptline}
+{synopthdr}
+{synoptline}
+{syntab:Required}
+{synopt :{opt spl:it}}name of the variable that identifies the training split(s){p_end}
+{syntab:Optional}
+{synopt :{opt k:fold}}specifies the number of folds in the training set; default is {cmd:kfold(1)}.{p_end}
+{synoptline}
+
 
 {marker description}{...}
 {title:Description}
@@ -23,13 +34,22 @@
 {marker options}{...}
 {title:Options}
 
-{synoptset 25 tabbed}{...}
-{synoptline}
-{synopthdr}
-{synoptline}
-{synopt :{opt spl:it}}the variable name containing the identifiers for the training split or K-Folds.{p_end}
-{synopt :{opt k:fold}}if set to a value > 1 will return the modified string for {help fitit}'s internal fitting on the K-Folds.{p_end}
-{synoptline}
+{dlgtab:Required}
+
+{phang}
+{opt spl:it} must contain the name of the variable that stores the test, 
+validation, and test splits.  There will only be a single variable if the splits 
+were created using {help splitit}.  
+
+{dlgtab:Optional}
+
+{phang}
+{opt k:fold} defines the number of K-Folds used for the training set.  In other 
+places, we reference using K-Fold cross-validation in the more common form, 
+where the training set consists of multiple subsets of data.  However, standard 
+train/test and train/validation/test splits are simply a special case of K-Fold 
+cross-validation where there is only a single fold.  
+
 
 {marker examples}{...}
 {title:Examples}

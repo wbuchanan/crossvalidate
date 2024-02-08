@@ -18,6 +18,21 @@
 {cmdab:o:bs(}{it:varname}{cmd:)} {cmdab:mo:nitors(}{it:string asis}{cmd:)} 
 {cmdab:dis:play}]{p_end}
 
+{synoptset 15 tabbed}{...}
+{synoptline}
+{synopthdr}
+{synoptline}
+{syntab:Required}
+{synopt :{opt me:tric}}the name of a function from {help libxv} or a user-defined function{p_end}
+{synopt :{opt p:red}}variable name with predicted values{p_end}
+{syntab:Optional}
+{synopt :{opt o:bs}}name of the dependent variable; default is {cmd obs(`e(depvar)')}{p_end}
+{synopt :{opt mo:nitors}}zero or more function names from {help libxv} or user-defined functions; default is {cmd monitors()}{p_end}
+{synopt :{opt dis:play}}display results in window; default is off{p_end}
+{synopt :{opt k:fold}}the number of folds in the training set; default is {cmd:kfold(1)}.{p_end}
+{synoptline}
+
+
 {marker description}{...}
 {title:Description}
 
@@ -26,17 +41,42 @@
 {marker options}{...}
 {title:Options}
 
-{synoptset 15 tabbed}{...}
-{synoptline}
-{synopthdr}
-{synoptline}
-{synopt :{opt me:tric}}the name of a single metric.{p_end}
-{synopt :{opt p:red}}the name of the variable containing the predicted values{p_end}
-{synopt :{opt o:bs}}the name of the variable containing the observed values. {it:Default: `e(depvar)'}{p_end}
-{synopt :{opt mo:nitors}}the name of one or more mata functions used to provide additional information about performance on the out-of-sample set.{p_end}
-{synopt :{opt dis:play}}an option to display the metric and monitor values in the results window.{p_end}
-{synoptline}
+{dlgtab:Required}
 
+{phang}
+{opt me:tric} the name of a {help libxv} or user-defined function, with the 
+function signature described in {help libxv:help libxv} used to evaluate the fit 
+of the model on the held-out data.  Only a single metric can be specified.  For 
+user's who may be interested in hyperparameter tuning, this would be the value 
+that you would optimize with your hyperparameter tuning algorithm.
+
+{phang}
+{opt p:red} the name of the variable containing the predicted values generated 
+after fitting the model
+
+{dlgtab:Optional}
+
+{phang}
+{opt o:bs} the name of the variable containing the observed values. 
+
+{phang}
+{opt mo:nitors} the name of zero or more {help libxv} or user-defined functions, 
+with the function signature described in {help libxv:help libxv} used to 
+evaluate the fit of the model on the held-out data.  These should not be used 
+when attempting to tune hyper parameters, but can still provide useful 
+information regarding the model fit characteristics.
+
+{phang}
+{opt dis:play} an option to display the metric and monitor values in the results 
+window.
+
+{phang}
+{opt k:fold} defines the number of K-Folds used for the training set.  When the 
+value is > 1, this will result in metric and monitor computations for each of 
+the K-Folds.  Additionally, it will also compute the metric and monitor values 
+for the model fitted to all of the training data.
+
+{* * This section might be better for the libxv help file.}
 {marker custom}{...}
 {title:Custom Metrics and Monitors}
 
@@ -74,8 +114,10 @@ All metrics and monitors are required to use the same function signature:{p_end}
 {synoptline}
 {synopthdr}
 {synoptline}
-{synopt :{cmd:r(metric)}}contains the metric value{p_end}
-{synopt :{cmd:r(`monitors')}}one scalar for each monitor passed to the monitors option, named by the monitor function{p_end}
+{synopt :{cmd:r(metric#)}}contains the metric value for the corresponding K-Fold{p_end}
+{synopt :{cmd:r(`monitors'#)}}one scalar for each monitor passed to the monitors option, named by the monitor function with a numeric value to identify the corresponding K-Fold{p_end}
+{synopt :{cmd:r(metricall)}}contains the metric value for K-Fold CV fitted to all of the K-Folds{p_end}
+{synopt :{cmd:r(`monitors'all)}}contains the monitor values for K-Fold CV fitted to all of the K-Folds{p_end}
 {synoptline}
 
 {marker additional}{...}

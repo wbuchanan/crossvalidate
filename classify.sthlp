@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.1 05feb2024}{...}
+{* *! version 0.0.2 08feb2024}{...}
 {vieweralsosee "[R] predict" "mansection R predict"}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat classification"}{...}
 {vieweralsosee "" "--"}{...}
@@ -21,9 +21,11 @@
 {synoptline}
 {synopthdr}
 {synoptline}
-{synopt :{opt ps:tubs}}is used to specify the variable name where the predicted class memberships will be saved.{p_end}
-{synopt :{opt thr:eshold}}is used for binary classification models only to set the predicted probability threshold used to classify an affirmative case (i.e., 1).{p_end}
+{syntab:Required}
+{synopt :{opt ps:tub}}a new variable name for predicted values{p_end}
+{synopt :{opt thr:eshold}}positive outcome threshold; default is {cmd:threshold(0.5)}{p_end}
 {synoptline}
+
 
 
 {marker description}{...}
@@ -33,6 +35,22 @@
 
 {marker options}{...}
 {title:Options}
+
+{dlgtab:Required}
+
+{phang}
+{opt ps:tub} is used to define a new variable name/stub for the predicted values
+from the validation/test set.  When K-Fold cross-validation is used, this 
+option defines the name of the variable containing the predicted values from 
+each of the folds and will be used as a variable stub to store the results from 
+fitting the model to all of the training data. 
+
+{dlgtab:Optional}
+
+{phang}
+{opt thr:eshold} defines the probability cutoff used to determine a positive 
+classification for binary response models.  This value functions the same way 
+as it does in the case of {help estat_classification:estat classification}.
 
 
 {marker examples}{...}

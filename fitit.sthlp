@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.1 05feb2024}{...}
+{* *! version 0.0.2 08feb2024}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat_classification"}{...}
 {vieweralsosee "" "--"}{...}
 {viewerjumpto "Syntax" "fitit##syntax"}{...}
@@ -14,7 +14,7 @@
 {title:Syntax}
 
 {p 8 32 2}
-{cmd:fitit} {cmd:estimation command} {cmd:,} {cmdab:ps:tub(}{it:string asis}{cmd:)} 
+{cmd:fitit} {it:"estimation command"} {cmd:,} {cmdab:ps:tub(}{it:string asis}{cmd:)} 
 {cmdab:spl:it(}{it:passthru}{cmd:)} {cmdab:res:ults(}{it:string asis}{cmd:)} 
 [{cmdab:c:lasses(}{it:integer}{cmd:)} {cmdab:k:fold(}{it:integer}{cmd:)}
 {cmdab:thr:eshold(}{it:real}{cmd:)} ]{p_end}

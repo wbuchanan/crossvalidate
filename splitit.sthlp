@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.1 05feb2024}{...}
+{* *! version 0.0.2 08feb2024}{...}
 {viewerjumpto "Syntax" "splitit##syntax"}{...}
 {viewerjumpto "Description" "splitit##description"}{...}
 {viewerjumpto "Options" "splitit##options"}{...}
@@ -16,27 +16,58 @@
 {cmdab:tp:oint(}{it:string asis}{cmd:)} {cmdab:k:fold(}{it:integer}{cmd:)} 
 {cmdab:ret:ain(}{it:string asis}{cmd:)}]{p_end}
 
-{marker description}{...}
-{title:Description}
-
-{p 4 4 2} {cmd:splitit} is part of the {help crossvalidate} suite of tools to implement crossvalidation methods with Stata estimation commands. {cmd:splitit} is used to create the train/test or train/validation/test splits in the dataset. It also 
-supports K-Fold splitting of the training set.  {p_end}
-
-{marker options}{...}
-{title:Options}
-
 {synoptset 15 tabbed}{...}
 {synoptline}
 {synopthdr}
 {synoptline}
-{synopt :{opt u:id}}accepts a variable list for clustered sampling/splitting.  When used with {opt tpoint} for {help xtset} data, the panel variable is required to be nested within UID.{p_end}
-{synopt :{opt tp:oint}}a time point delimiting the training split from it's corresponding forecastting split.  {it:Note: you can specify time points as numeric values or using td(), tc(), or tC()}.{p_end}
-{synopt :{opt k:fold}}is used to specify the number of K-Folds to create in the training set. {it:Default 1}.{p_end}
-{synopt :{opt ret:ain}}is used to specify the name of a new variable that will contain the group identifiers for the splits in the data.{p_end}
+{synopt :{opt u:id}}a variable list for clustered sampling/splitting{p_end}
+{synopt :{opt tp:oint}}a numeric, td(), tc(), or tC() value{p_end}
+{synopt :{opt k:fold}}the number of K-Folds to create in the training set; default is {cmd kfold(1)}{p_end}
+{synopt :{opt ret:ain}}a new variable name; default is {cmd retain(_splitvar)}{p_end}
 {synoptline}
 
 
-{p 4 4 2} {opt tpoint} should be used when forecasts following model fitting are what you intend to validate or test.  Using this option will result in an additional variable that will have the suffix {it:xv4} and will indicate the portion of the corresponding split that is after the timepoint specified to ensure that the model is not trained on the out of sample forecast sample.{p_end}
+{marker description}{...}
+{title:Description}
+
+{phang}
+{cmd:splitit} is part of the {help crossvalidate} suite of tools to implement 
+cross-validation methods with Stata estimation commands. {cmd:splitit} is used 
+to create the train/test or train/validation/test splits in the dataset. It also 
+supports K-Fold splitting of the training set.  Depending on the options 
+specified by the user, {cmd:splitit} will split randomly across all observations
+, using panel variables or time variables with panel data, using clusters, or 
+a combination of clustered and panel sampling strategies. In all cases, the 
+sampling is based on pseudo-random number generators implemented in Stata.
+
+
+{marker options}{...}
+{title:Options}
+
+{phang}
+{opt u:id} accepts a variable list for clustered sampling/splitting.  When an 
+argument is passed to this parameter entire clusters will be split into the 
+respective training and validation and/or training sets.  When this option is 
+used with {opt tp:oint} for {help xtset} data, the panel variable must be nested 
+within the clusters defined by {opt u:id}.
+
+
+{phang}
+{opt tpoint} a time point delimiting the training split from it's corresponding 
+forecastting split.  This can also be accomplished by passing the appropriate if 
+expression in your estimation command.  Use of this option will result in an 
+additional variable with the suffix {it:xv4} being created to identify the 
+forecasting set associated with each split/K-Fold.  This is to ensure that 
+the forecasting period data will not affect the model training.
+
+{phang}
+{opt k:fold} is used to specify the number of K-Folds to create in the training 
+set. 
+
+{phang}
+{opt ret:ain} is used to specify the name of a new variable that will store the 
+identifiers for the splits in the data.
+
 
 {marker examples}{...}
 {title:Examples}
