@@ -1,6 +1,8 @@
 {smcl}
 {* *! version 0.0.1 05feb2024}{...}
 {vieweralsosee "[R] predict" "mansection R predict"}{...}
+{vieweralsosee "[R] estat classification" "mansection R estat classification"}{...}
+{vieweralsosee "" "--"}{...}
 {viewerjumpto "Syntax" "classify##syntax"}{...}
 {viewerjumpto "Description" "classify##description"}{...}
 {viewerjumpto "Options" "classify##options"}{...}
@@ -15,7 +17,14 @@
 {cmd:classify} # [ if ] {cmd:,} {cmdab:ps:tub(}{it:string asis}{cmd:)} [
 {cmdab:thr:eshold(}{it:real}{cmd:)} ]{p_end}
 
-{p 4 4 2} {cmd:classify} requires users to specify the number of classes that are being predicted by the model as the first argument.{p_end}
+{synoptset 25 tabbed}{...}
+{synoptline}
+{synopthdr}
+{synoptline}
+{synopt :{opt ps:tubs}}is used to specify the variable name where the predicted class memberships will be saved.{p_end}
+{synopt :{opt thr:eshold}}is used for binary classification models only to set the predicted probability threshold used to classify an affirmative case (i.e., 1).{p_end}
+{synoptline}
+
 
 {marker description}{...}
 {title:Description}
@@ -25,13 +34,6 @@
 {marker options}{...}
 {title:Options}
 
-{synoptset 25 tabbed}{...}
-{synoptline}
-{synopthdr}
-{synoptline}
-{synopt :{opt ps:tubs}}is used to specify the variable name where the predicted class memberships will be saved.{p_end}
-{synopt :{opt thr:eshold}}is used for binary classification models only to set the predicted probability threshold used to classify an affirmative case (i.e., 1).{p_end}
-{synoptline}
 
 {marker examples}{...}
 {title:Examples}

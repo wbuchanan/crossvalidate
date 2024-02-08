@@ -122,6 +122,23 @@ the data needed to compute any metrics/monitors:
 The programs in the cross validate package will handle the construction of the 
 variables and passing them to the function name that users pass to the programs. 
 
+### Building the library
+Once we are ready to build the Mata library we should do the following:
+
+`
+// Clear everything from memory
+clear all
+
+// Define all of the Mata functions in memory
+do crossvalidate.mata
+
+// Build the library with all of the functions defined in crossvalidate.mata
+lmbuild libxv
+
+// If the library is already built, use this instead:
+lmbuild libxv, replace 
+`
+
 ## Testing/QA
 - [x] Test function getifin
 - [x] Test function getnoifin

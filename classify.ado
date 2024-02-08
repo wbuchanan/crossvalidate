@@ -66,8 +66,8 @@ prog def classify,
 		predict double `pstub' if `touse', pr
 		
 		// Replace predicted values with classes
-		replace `pstub' = cond(`pstub' <= `threshold' & !mi(`pstub'), 0,	 ///   
-						  cond(`pstub' > `threshold' & !mi(`pstub'), 1, .))
+		replace `pstub' = cond(`pstub' < `threshold' & !mi(`pstub'), 0,	 ///   
+						  cond(`pstub' >= `threshold' & !mi(`pstub'), 1, .))
 		
 	} // End IF Block for binary classification problems
 	
