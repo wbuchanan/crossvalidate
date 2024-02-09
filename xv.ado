@@ -21,26 +21,45 @@ prog def xv, eclass properties(prefix xv)
 	// Tokenize the input string
 	gettoken cv cmd : 0, parse(":") bind 
 	
-	// Need to parse the split proportion from cv
-	gettoken 
+	// Parse the prefix on the comma.  `props' will contain split proportions
+	gettoken props xvopts : cv, parse(",") bind
 	
+	// Remove the leading comma from the options for xv.
+	loc xvopts `"`= substr(`"`opts'"', 2, .)'"'
 	
 	// Then parse the options from the remainder of the macro
+	mata: cvparse(`"`xvopts'"')
+	
+	foreach i in  metric monitors uid tpoint retain kfold state results grid ///   
+	params tuner seed classes threshold pstub split display pred obs modifin ///   
+	kfifin noall {
+		di as res `"Value of `i' is ``i''"'
+	}
 	
 	
 	// Remove leading colon from the estimation command
 	loc cmd `: subinstr loc cmd `":"' ""'
-	
+		
 	// If the seed option is populated set the seed value to the seed that the 
 	// user specified
+	if !mi(`"`seed'"') {
+		
+		// Parse the seed option
+		mata: getarg("`seed'")
+		
+		// Set the seed to the user specified value
+		set seed `argval'
+		
+	} // End IF Block to set the pseudo-random number generator seed.
+	
 	
 	// Check for if/in conditions
-	mata: getifin(`"`cmd'"')
+	//mata: getifin(`"`cmd'"')
 	
 	// Marking for refactoring since this logic should be encapsulated in a 
 	// standalone program or Mata function since it will be used repeatedly 
 	// across each of the commands
-	{
+	
 	
 	// If there is an if/in expression 
 	if `"`ifin'"' != "" {
@@ -65,41 +84,8 @@ prog def xv, eclass properties(prefix xv)
 	}
 	
 	
-	}
-	
-	// If uid, identify the groups/clusters that will be randomly split into the
-	// train and test sets; egen something = tag(`uid') `ifin'
-	// this will get encapsulated in a standalone program splitter which should 
-	// also include options for kfold and tpoint as well.
 	
 	
-
-	
-	// If state, call separate program that will get and bind all of the state 
-	// information with the dataset
-	
-	// This will be the execution block for a single fitting of the model and 
-	// estimating the validation/testing values
-	{
-	
-	// Fitt the statistical model in `cmd'
-	fitter `cmd' `opts'
-	
-	
-	// store the estimation results w/est sto
-	
-	// Compute/return monitors
-
-	// predict the dependent variable for the set defined by getifin + ! train
-	
-	// pass prediction and dv variable names to mata function that will need to 
-	// compute the validation/test metric
-	
-	// return all the values from the ereturn list in the same element names 
-	// if possible
-	
-		
-	}
 	
 	
 
