@@ -5,7 +5,7 @@
 *******************************************************************************/
 
 
-
+**# Utilities
 // Starts mata interpreter
 mata:
 
@@ -174,11 +174,18 @@ real matrix confusion(string scalar pred, string scalar obs, 				 ///
 	
 } // End function definition for confusion matrix
 
+// End Mata interpreter
+end
+
+**# Binary Metrics
 /*******************************************************************************
 *                                                                              *
 *                        Binary Classification Metrics                         *
 *                                                                              *
 *******************************************************************************/
+
+// Start mata
+mata: 
 
 // Can define each of the common metrics/monitors for binary prediction, based 
 // on passing the arguments for the confusion matrix.  There will be additional 
@@ -442,11 +449,29 @@ real scalar jindex(string scalar pred, string scalar obs, string scalar touse) {
 
 } // End of function definition for j-index
 
+// Defines a binary R^2 (tetrachoric correlation)
+real scalar binr2(string scalar pred, string scalar obs, string scalar touse) {
+
+	// Call the tetrachoric command in Stata
+	stata("cap: qui: tetrachoric " + pred + " " + obs + " if " + touse)
+
+	// Returns the correlation coefficient
+	return(st_numscalar("r(Rho)"))
+
+} // End of function definition for binary R^2 
+
+// End mata
+end
+
+**# Multinomial Metrics
 /*******************************************************************************
 *                                                                              *
 *                     Multinomial Classification Metrics                       *
 *                                                                              *
 *******************************************************************************/
+
+// Start mata
+mata:
 
 // Defines multiclass specificity
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-spec.R
@@ -627,12 +652,85 @@ real scalar mcjindex(string scalar pred, string scalar obs, string scalar touse)
 
 } // End of function definition for multiclass j-index
 
+// Defines multiclass accuracy
+// based on: https://github.com/tidymodels/yardstick/blob/main/R/class-accuracy.R
+real scalar mcaccuracy(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Return the accuracy
+	return(accuracy(pred, obs, touse))
+	
+} // End of multiclass accuracy synonym
 
+// Defines multiclass Balanced Accuracy
+// based on: https://github.com/tidymodels/yardstick/blob/main/R/class-bal_accuracy.R
+real scalar mcbalaccuracy(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Declares scalars to store the intermediate results
+	real scalar rec, sens
+		
+	// Compute the recall
+	rec = mcrecall(pred, obs, touse)
+	
+	// Compute the sensitivity
+	sens = mcsensitivity(pred, obs, touse)
+	
+	// Return the balanced accuracy
+	return((rec + sens) / 2)
+	
+} // End of function definition for multiclass balanced accuracy
+
+// Defines multiclass Kappa
+// similar to accuracy, but normalized by accuracy expected by random chance
+// based on: https://github.com/tidymodels/yardstick/blob/main/R/class-kap.R
+real scalar mckappa(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Declares matrix to store random chance outcome
+	real matrix chnc
+	
+	// Declares scalars to store the intermediate results
+	real scalar acc
+	
+	// Compute accuracy
+	acc = msaccuracy(pred, obs, touse)
+	
+	// Create square matrix where each 
+	chnc = J(rows(conf), rows(conf), (sum(conf)/rows(conf)))
+	
+	return(0)
+	
+} // End of function definition for multiclass Kappa 
+
+// Defines multiclass Mathews correlation coefficient
+// based on: https://github.com/tidymodels/yardstick/blob/main/src/mcc-multiclass.c
+real scalar mcmcc(string scalar pred, string scalar obs, string scalar touse) {
+	
+	return(0)
+	
+} // End of function definition for multiclass MCC
+
+// Defines a multiclass R^2 (polychoric correlation)
+real scalar mcordr2(string scalar pred, string scalar obs, string scalar touse) {
+
+	// Call the tetrachoric command in Stata
+	stata("cap: qui: polychoric " + pred + " " + obs + " if " + touse)
+
+	// Returns the correlation coefficient
+	return(st_numscalar("r(rho)"))
+
+} // End of function definition for ordinal R^2
+
+// End mata
+end
+
+**# Continuous Metrics
 /*******************************************************************************
 *                                                                              *
 *                          Continuous Metrics/Utilities                        *
 *                                                                              *
 *******************************************************************************/
+
+// Start mata
+mata:
 
 // Defines function to compute mean squared error from predicted and observed 
 // outcomes
