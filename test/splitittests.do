@@ -25,6 +25,15 @@ g byte touse = rbinomial(1, 0.5)
 // Test for case where the user requests greater than unity for the training set
 rcof "splitit 1.2, ret(splitvar)" == 198
 
+// Create a training split with a 40% test sample and default split variable name
+splitit .6
+
+// Confirm the name of the default split variable
+assert "`r(splitter)'" == "_xvsplit"
+
+// Confirm the variable is created
+confirm v _xvsplit
+
 // Create a training split with a 20% test sample
 splitit .8, ret(splitvar)
 

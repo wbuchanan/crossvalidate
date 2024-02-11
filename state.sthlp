@@ -1,6 +1,7 @@
 {smcl}
 {* *! version 0.0.1 05feb2024}{...}
 {vieweralsosee "[P] creturn" "mansection P creturn"}{...}
+{vieweralsosee "" "--"}{...}
 {viewerjumpto "Syntax" "state##syntax"}{...}
 {viewerjumpto "Description" "state##description"}{...}
 {viewerjumpto "Example" "state##examples"}{...}
@@ -17,7 +18,12 @@
 {marker description}{...}
 {title:Description}
 
-{p 4 4 2} {cmd:state} is part of the {help crossvalidate} suite of tools to implement crossvalidation methods with Stata estimation commands. {cmd:state} is used internally by the {help xv} and {help xvloo} commands to return information about the current state to the end user and to bind that information to the dataset via dataset characteristics.{p_end}
+{pstd} 
+{cmd:state} is part of the {help crossvalidate} suite of tools to implement 
+cross-validation methods with Stata estimation commands. {cmd:state} is used 
+internally by the {help xv} and {help xvloo} commands to return information 
+about the current state to the end user and to bind that information to the 
+dataset via dataset characteristics.
 
 {marker examples}{...}
 {title:Example}

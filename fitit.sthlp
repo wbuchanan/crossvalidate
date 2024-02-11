@@ -37,12 +37,19 @@
 {marker description}{...}
 {title:Description}
 
-{p 4 4 2}{cmd:fitit} is part of the {help crossvalidate} suite of tools to implement crossvalidation methods with Stata estimation commands. {cmd:fitit} is used to fit the user specified model to the appropriate subset of the data in memory and to generate the predicted values following model fitting.  {cmd:fitit} depends on {help cmdmod} and {help classify}, which are also included with {help crossvalidate}.
-{p_end}
+{pstd}
+{cmd:fitit} is part of the {help crossvalidate} suite of tools to implement 
+cross-validation methods with Stata estimation commands. {cmd:fitit} is used to 
+fit the user specified model to the appropriate subset of the data in memory.  
+{cmd:fitit} depends on {help cmdmod}, which is also included with 
+{help crossvalidate}.
 
-{p 4 4 2}{cmd:fitit} takes the entire estimation command (options and all) as the first argument.  Internally, {help cmdmod} is used to append the appropriate condition to any existing if/in expressions to ensure that the model is fitted to the appropriate training set while still respecting any inclusion constraints specified by the end user.{p_end}
-
-{p 4 4 2}{p_end}
+{pstd}
+{cmd:fitit} takes the entire estimation command (options and all) as the first 
+argument.  Internally, {help cmdmod} is used to append the appropriate condition 
+to any existing if expressions to ensure that the model is fitted to the 
+appropriate training set while still respecting any inclusion constraints 
+specified by the end user.
 
 {marker options}{...}
 {title:Options}

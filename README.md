@@ -1,47 +1,28 @@
-# Specifications for crossvalidation package
-
-
-## What should it do?
-* Allow users to define a train/test or train/validation/test split and fit 
-* models to the data defined by the splits
-
-## How will it be accomplished?
-A prefix command, ala brewproof, that handles the splitting, fitting, predicting, 
-and validating for the end user.  The prefix command will be a wrapper that uses
-several underlying ados and Mata functions to automate this process for end 
-users.  The package will also include the underlying commands to give users 
-even greater flexibility without having to code things from the ground up.
+# Stata Cross-Validation
 
 
 ## Example:
-`xv 0.8, metric(mse): reg price mpg length if foreign != 1`
+`xv 0.8, ps(pred) metric(mse): reg price mpg length if foreign != 1`
 
-# How to handle 
-1. parse the if/in statement from the estimation command if it exists
-2. generate random uniform for the subset requested 
-3. tag the cases that should be used for training
-4. fit the model to the training set
-5. predict outcome on the test set (e.g., foreign == 0 but not test)
-6. pass predicted and observed outcomes to a mata function/method that will compute the metric
-7. return the results from fitting the model
-8. return the metric following the model fitting
-9. return the monitors following the model fitting
-10. ensure results stored in appropriate e() locations
 
 ## Commands to write for this package
 - [ ] xv - Cross validation using train/test, train/validation/test, or K-Fold 
 cross-validation methods.
 - [ ] xvloo - Leave One Out cross-validation 
-- [ ] state - a program that will handle getting and writing important information 
+- [x] state - a program that will handle getting and writing important information 
 about the state of the software when starting up for replication purposes.  It 
 should either add dataset characteristics or notes.
 - [x] splitit - a program that handles defining the splits of the dataset for the 
-main end user facing commands also needs to handle potential persistence of group membership (e.g., folds or train/validation/test splits)
-- [x] fitit - a program that handles fitting the statistical model to the data, 
-storing estimation results, and predicting the outcome on the validation/test 
-set.
-- [x] validateit - a program that will handle the validation portion of the training loop (e.g., computing monitors and/or test metrics and returning those values as well)
-- [x] classify - a program that can return the predicted class from classification based models (e.g., logit, ologit, mlogit, etc...)
+main end user facing commands also needs to handle potential persistence of 
+group membership (e.g., folds or train/validation/test splits)
+- [x] fitit - a program that handles fitting the statistical model to the data 
+and storing estimation results
+- [x] predictit - a program that handles generating the out-of-sample predictions
+- [x] validateit - a program that will handle the validation portion of the 
+training loop (e.g., computing monitors and/or test metrics and returning those 
+values as well)
+- [x] classify - a program that can return the predicted class from 
+classification based models (e.g., logit, ologit, mlogit, etc...)
 - [x] cmdmod - a metaprogram used to modify the user-specified estimation 
 command to ensure it is fitted to the training set only and that predictions are 
 made on the validation/test set only.
@@ -53,46 +34,9 @@ made on the validation/test set only.
 - [x] `getarg` function to handle retrieving the argument value from options
 - [x] metric specification 
 - [x] monitor specification
-- [ ] generalize classification metrics for multinomial case
+- [x] generalize classification metrics for multinomial case
 - [ ] add metrics for class probabilities?
 
-# Syntax
-`prefixcmd` numlist(min = 1 max = 2 default = 0.8) [, options]
-
-## Required:
-* numlist in [0, 1] that identifies the proportion of the data to use for training
-	- for xttsplit and ttsplit there should only be a single digit (training proportion)
-	- for xtvtsplit and tvtsplit there should be two digits for the training and validation proportions
-		- The sum of these two elements must be < 1
-		- Consider threshold for warnings (e.g., .8 .15 might leave too little data for the test set (5%))		
-
-## Options:
-* metric (will take the name of a mata function that computes the validation/test metric)
-* seed (to set the pseudo-random number generator seed before executing)
-* monitors (? potentially a list of things to monitor that don't resolve in a scalar (metrics would be used for hyperparameter tuning); should this only be used for train/validation/test splits?)
-* uid (used to determine whether the sample needs to split based on clusters of observations)
-* tpoint (time point used to identify the splitting for panel/time series data only)
-* retain (option to create a permanent variable that identifies the groups for the splits) by itself will just keep the \_splitter variable following execution, otherwise will remove it at conclusion.
-* retain2 this will be a string asis parameter and if a value is passed that will be the name of the variable storing the split groups otherwise we'll use a generic name
-* kfold (to use k-fold cross validation will define the number of folds to use)
-* state (? potentially a way to bind additional metadata to the dataset for replication purposes; see `c(rng_current)` to determine which pseudo-random number generator is used and `c(rngstate)` for the current state of the pseudo-random number generator)
-* results (to store intermediate estimation results via est sto or potentially another method)
-* grid (reserved for future to support hyperparameter tuning)
-* params (reserved for future to support hyperparameter tuning; these will be options passed to the estimation command that would be tuned via grid or a result set for regression based tunning methods)
-* tuner (reserved for future to support hyperparameter tuning; will take name of method for the tuning)
-* classes an option that signals that the number of predicted classes; 0 indicates not categorical outcome
-* restitle an option to add titles to stored estimation results
-
-## Rules
-* time point only allowed for xt prefixes
-* metric is a required option
-* xt prefixes can only be called on xtset or tsset datasets
-* uid should not be isid
-* splitter.ado will use the variable name \_splitter as the default if no value is passed to the retain parameter and should be dropped before the execution of any of the cv commands finishes executing. 
-* splitter assumes that the first threshold is the upper bound for the split.  In other words the random uniform will be <= threshold to define the training set.  For TVT splits, the validation set is > threshold 1 and <= threshold 2.  
-* TT split can be used for KFold with the enter dataset using a value of 1
-* KFold will currently create a similar number of folds in the validation set at the moment in the case of a TVT split
-* xt splits will use information from xtset/tsset to identify the time variable corresponding to the time point cut off; time point threshold works the same way as the first threshold passed to the command (e.g., times that are <= tpoint will be included in the training/validation sets), but time points beyond that are excluded and are assumed to be used for testing outside of this package (e.g., forecasting)
 
 # libxv
 
@@ -180,7 +124,7 @@ lmbuild libxv, replace
 - [x] Test function for Root Mean-Squared Log Error
 - [x] Test function for Ratio of Performance to Deviation
  
-# Commands 
+# Main Commands 
 
 ## splitit
 `splitit # [#] [if] [in] [, Uid(varlist) TPoint(string asis) KFold(integer 0) RETain(string asis)]`
@@ -237,38 +181,6 @@ Here are things that we need to test for this program:
 - [x] Test all cases that should throw an error
 - [x] Test all of the above scenarios with if expressions
 
-
-## classify
-`classify # [if], PStub(string asis) [ THReshold(real 0.5) ]`
-
-### Syntax and options
-* \# - This is the number of classes of the outcome variable being modeled.  This 
-value must be integer valued.
-* <ins>ps</ins>tub(_string asis_) - Specifies a stub name to use to store the 
-predicted classes from the model.
-* <ins>thr</ins>eshold(_real 0.5_) - Specifies the threshold to use for classification 
-of predicted probabilities in the case of binary outcome models.  The value of 
-the threshold must be in (0, 1).
-
-### Testing
-Here are things that we need to test for this program:
-- [x] Binary classification works correctly with user specified or default threshold
-- [x] Multi-class classification works correctly (e.g., highest probability class is predicted)
-- [x] The prediction is returned in the variable specified by pstub
-- [x] Mutli-class probabilities are not returned, but the predicted class is returned in pstub
-- [x] Make sure numbers attached to pstub* for multiclass cases are consistent with the value being predicted
-
-
-## state
-`state `
-
-### Syntax and options
-No options
-
-### Testing
-
-
-
 ## fitit
 `fitit anything(name = cmd) , PStub(string asis) SPLit(passthru) [ Classes(integer 0) RESults(string asis) Kfold(integer 1) THReshold(passthru)]`
 
@@ -283,9 +195,32 @@ No options
 
 ### TODO
 - [x] Determine how we will handle updating and substituting the if/in statements for estimation and prediction respectively
+- [ ] Update help file and syntax here to reflect only parameters required for model fitting
+- [ ] Develop tests for the command
 
 ### Testing
-- [ ] Biggest test will be ensuring that the if/in statements are handled appropriately for estimation and prediction.
+- [ ] Biggest test will be ensuring that the if/in statements are handled appropriately for estimation
+
+
+## predictit
+`predictit [anything(name = cmd)], PStub(string asis) [SPLit(passthru) Classes(integer 0) Kfold(integer 1) THReshold(passthru) MODifin(string asis) KFIfin(string asis) noall]`
+
+### Syntax and options
+* cmd is the estimation command the user wishes to fit to the data
+* <ins>ps</ins>tub(string asis) - A variable name to use to store the predicted values following model fitting.
+* <ins>spl</ins>it(passthru) - specifies the name of the variable used to identify the train/validate/test or KFold splits in the dataset.
+* <ins>c</ins>lasses(integer 0) - An option used to determine whether the model is a regression or classification task.  This is subsequently passed to the classify program.
+* <ins>k</ins>fold(integer 1) - An option used to determine if the model needs to be fitted over k subsets of the data.
+* <ins>thr</ins>eshold(passthru) - An option that is passed to the classify program for predicting class membership in classification tasks.
+* <ins>mod</ins>ifin(string asis) - the modified if expression used to generate the out of sample predictions.
+* <ins>kfi</ins>fin(string asis) - the modified if expression used to generate the out of sample predictions for the full training sample when using K-Fold cross-validation.
+* noall - suppresses prediction on the entire training sample when using K-Fold cross-validation.
+
+### TODO
+- [ ] Need to generate tests for this command
+
+### Testing
+- [ ] TBD
 
 ## validateit
 `validateit [if] [in], MEtric(string asis) [MOnitors(string asis) Pred(string asis) Obs(string asis) DISplay`
@@ -310,6 +245,51 @@ console.
 - [ ] Test that the display option works correctly and that output is easy to read
 - [ ] Test that approach to calling the Mata functions works as intended
 
+## xv
+
+### Syntax and options
+
+
+### Testing
+- [ ] Handling of `in` expressions passed to estimation commands
+
+
+## xvloo
+
+### Syntax and options
+Should have the exact same syntax as above, with the exception of no K-Fold 
+argument.  
+
+
+
+
+# Utility commands
+
+## classify
+`classify # [if], PStub(string asis) [ THReshold(real 0.5) ]`
+
+### Syntax and options
+* \# - This is the number of classes of the outcome variable being modeled.  This 
+value must be integer valued.
+* <ins>ps</ins>tub(_string asis_) - Specifies a stub name to use to store the 
+predicted classes from the model.
+* <ins>thr</ins>eshold(_real 0.5_) - Specifies the threshold to use for classification 
+of predicted probabilities in the case of binary outcome models.  The value of 
+the threshold must be in (0, 1).
+
+### Testing
+Here are things that we need to test for this program:
+- [x] Binary classification works correctly with user specified or default threshold
+- [x] Multi-class classification works correctly (e.g., highest probability class is predicted)
+- [x] The prediction is returned in the variable specified by pstub
+- [x] Mutli-class probabilities are not returned, but the predicted class is returned in pstub
+- [x] Make sure numbers attached to pstub* for multiclass cases are consistent with the value being predicted
+
+## state
+`state `
+
+### Syntax and options
+No options
 
 ## cmdmod
 `cmdmod anything(name = cmd id = "estimation command"), SPLit(varlist min = 1 max = 1) [ KFold(integer 1) ]`
@@ -339,24 +319,4 @@ ensure the predictions are made only on the held out validation set.
 - [x] See cmdmodtests.do for a certification script.
 - [x] Add tests for commands that include `inlist()` and/or `inrange()` functions
 - [x] Add tests for commands that include quoted string arguments
-
-## xv
-
-### Syntax and options
-
-
-### Testing
-- [ ] Handling of `in` expressions passed to estimation commands
-
-
-## xvloo
-
-### Syntax and options
-Should have the exact same syntax as above, with the exception of no K-Fold 
-argument.  
-
-### Testing
-- [ ] Handling of `in` expressions passed to estimation commands
-- [ ] Correctly handling the loo scenario by treating this as a special case of K-Fold
-
 

@@ -23,15 +23,22 @@
 {synoptline}
 {syntab:Required}
 {synopt :{opt ps:tub}}a new variable name for predicted values{p_end}
+{syntab:Optional}
 {synopt :{opt thr:eshold}}positive outcome threshold; default is {cmd:threshold(0.5)}{p_end}
 {synoptline}
-
 
 
 {marker description}{...}
 {title:Description}
 
-{p 4 4 2} {cmd:classify} is part of the {help crossvalidate} suite of tools to implement crossvalidation methods with Stata estimation commands. {cmd:classify} is used internally by the {help fitit} command to handle conversion of predicted probabilities into integer valued class memberships.  {cmd:classify} will work with binomial and multinomial (including ordinal) classification models.  For multinomial models, the classmembership with the highest predicted probability is selected as the class predicted by the model.{p_end}
+{pstd} 
+{cmd:classify} is part of the {help crossvalidate} suite of tools to implement 
+cross-validation methods with Stata estimation commands. {cmd:classify} is used 
+internally by the {help predictit} command to handle conversion of predicted 
+probabilities into integer valued class memberships.  {cmd:classify} will work 
+with binomial and multinomial (including ordinal) classification models.  For 
+multinomial models, the class membership with the highest predicted probability 
+is selected as the class predicted by the model.
 
 {marker options}{...}
 {title:Options}

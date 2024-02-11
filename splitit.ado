@@ -96,14 +96,14 @@ prog def splitit, rclass
 	// split
 	if !mi("`validate'") & mi(`"`retain'"') {
 		
-		// Check to see if _splitvar is already defined
-		cap confirm v _splitvar
+		// Check to see if _xvsplit is already defined
+		cap confirm v _xvsplit
 
 		// If the variable exists
 		if _rc == 0 {
 			
 			// If no varname is passed to retain
-			di as err "New varname required for validation/test splits if _splitvar already exists."
+			di as err "New varname required for validation/test splits if _xvsplit already exists."
 			
 			// Return error code
 			error 100	
@@ -112,8 +112,8 @@ prog def splitit, rclass
 
 	} // End IF Block for new varname requirement for tvt splits
 	
-	// If no variable name is passed to retain use _splitvar
-	if mi("`retain'") loc retain _splitvar
+	// If no variable name is passed to retain use _xvsplit
+	if mi("`retain'") loc retain _xvsplit
 	
 	// If tpoint is used expect that the data are xt/tsset
 	if !mi(`"`tpoint'"') {

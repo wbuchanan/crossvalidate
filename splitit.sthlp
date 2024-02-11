@@ -22,15 +22,15 @@
 {synoptline}
 {synopt :{opt u:id}}a variable list for clustered sampling/splitting{p_end}
 {synopt :{opt tp:oint}}a numeric, td(), tc(), or tC() value{p_end}
-{synopt :{opt k:fold}}the number of K-Folds to create in the training set; default is {cmd kfold(1)}{p_end}
-{synopt :{opt ret:ain}}a new variable name; default is {cmd retain(_splitvar)}{p_end}
+{synopt :{opt k:fold}}the number of K-Folds to create in the training set; default is {cmd:kfold(1)}{p_end}
+{synopt :{opt ret:ain}}a new variable name; default is {cmd:retain(_xvsplit)}{p_end}
 {synoptline}
 
 
 {marker description}{...}
 {title:Description}
 
-{phang}
+{pstd}
 {cmd:splitit} is part of the {help crossvalidate} suite of tools to implement 
 cross-validation methods with Stata estimation commands. {cmd:splitit} is used 
 to create the train/test or train/validation/test splits in the dataset. It also 

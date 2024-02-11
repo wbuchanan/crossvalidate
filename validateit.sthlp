@@ -14,7 +14,7 @@
 
 {p 8 32 2}
 {cmd:validateit} {ifin} {cmd:,} {cmdab:me:tric(}{it:string asis}{cmd:)} 
-{cmdab:p:red(}{it:varname}{cmd:)} [ ]
+{cmdab:p:red(}{it:varname}{cmd:)} [ 
 {cmdab:o:bs(}{it:varname}{cmd:)} {cmdab:mo:nitors(}{it:string asis}{cmd:)} 
 {cmdab:dis:play}]{p_end}
 
@@ -36,7 +36,12 @@
 {marker description}{...}
 {title:Description}
 
-{p 4 4 2} {cmd:validateit} is part of the {help crossvalidate} suite of tools to implement crossvalidation methods with Stata estimation commands. {cmd:validateit} is used to compute the validation metric and monitors.  For additional information about the measurement functions available in {help crossvalidate} please see help {help libxv}. {p_end}
+{pstd} 
+{cmd:validateit} is part of the {help crossvalidate} suite of tools to implement 
+cross-validation methods with Stata estimation commands. {cmd:validateit} is 
+used to compute the validation metric and monitors.  For additional information 
+about the measurement functions available in {help crossvalidate} please see 
+help {help libxv}.
 
 {marker options}{...}
 {title:Options}

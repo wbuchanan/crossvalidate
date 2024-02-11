@@ -29,7 +29,14 @@
 {marker description}{...}
 {title:Description}
 
-{p 4 4 2} {cmd:cmdmod} is part of the {help crossvalidate} suite of tools to implement crossvalidation methods with Stata estimation commands. {cmd:cmdmod} is used internally by the {help fitit} command for metaprogramming tasks.  Specifically, {cmd:cmdmod} is used to modify the user supplied estimation command to include the necessary if expression to fit the data to the appropriate training set or K-Fold.  It is also used to ensure that predictions are made on the appropriate out-of-sample portion of the data set.{p_end}
+{pstd} 
+{cmd:cmdmod} is part of the {help crossvalidate} suite of tools to implement 
+cross-validation methods with Stata estimation commands. {cmd:cmdmod} is used 
+internally by the {help fitit} and {help predictit} commands for metaprogramming 
+tasks.  Specifically, {cmd:cmdmod} is used to modify the user supplied 
+estimation command to include the necessary if expression to fit the data to 
+the appropriate training set or K-Fold.  It is also used to ensure that 
+predictions are made on the appropriate out-of-sample portion of the data set.
 
 {marker options}{...}
 {title:Options}

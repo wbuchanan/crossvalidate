@@ -39,20 +39,19 @@
 {marker description}{...}
 {title:Description}
 
-{phang}{cmd:predictit} is part of the {help crossvalidate} suite of tools to 
+{pstd}
+{cmd:predictit} is part of the {help crossvalidate} suite of tools to 
 implement crossvalidation methods with Stata estimation commands. 
 {cmd:predictit} is used to generate the predicted values for validation after 
 fitting the models to the data. {cmd:predictit} depends on {help cmdmod} and 
 {help classify}, which are also included with {help crossvalidate}.
 
-{phang}
+{pstd}
 {cmd:predictit} can take the entire estimation command (options and all) as the 
 first argument.  In that case, users are required to pass the split variable 
 name to the {opt spl:it} option.  Internally, {help cmdmod} is used to generate 
 the necessary if expression based on the estimation command to ensure that any 
 user specified constraints are satisfied in the predictions as well.  
-
-{p 4 4 2}{p_end}
 
 {marker options}{...}
 {title:Options}
