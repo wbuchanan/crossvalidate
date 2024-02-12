@@ -55,7 +55,7 @@ prog def predictit
 		else confirm v `split'
 		
 		// Generate the modified if expressions for predictions
-		cmdmod `cmd', `split' kf(`kfold')
+		cmdmod `cmd', split(`split') kf(`kfold')
 		
 		// Then substitute the individual split case to modifin
 		loc modifin "`macval(r(predifin))'"
@@ -69,7 +69,7 @@ prog def predictit
 	forv i = 1/`kfold' {
 		
 		// Stores the estimation results in a more persistent way
-		qui: est restore _est_*`i'
+		qui: est restore *`i'
 		
 		// Test whether this is a "regression" task
 		if `classes' == 0 {
@@ -104,7 +104,7 @@ prog def predictit
 	if `kfold' > 1 & mi("`all'") {
 		
 		// Stores the estimation results in a more persistent way
-		est restore _est_*all
+		est restore *all
 		
 		// Test whether this is a "regression" task
 		if `classes' == 0 {
@@ -127,6 +127,14 @@ prog def predictit
 		la var `pstub'all "Predicted value of `e(depvar)' from model w/full training set"
 
 	} // End IF Block for K-Fold CV predictting to all training data
+	
+	// Loop over the K-Folds
+	forv i = 1/`kfold' {
+		
+		// Drop any predicted value variables that are intermediate in nature
+		qui: drop `pstub'`i'
+		
+	} // End of Loop to clean up the data set
 		
 // End definition of the command
 end

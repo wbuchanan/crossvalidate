@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! fitit
-*! v 0.0.3
-*! 05FEB2024
+*! v 0.0.5
+*! 12FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop fitit
@@ -19,15 +19,22 @@ prog def fitit, eclass
 	
 	// Syntax
 	syntax anything(name = cmd id="estimation command name"),				 ///   
-			PStub(string asis) SPLit(passthru) RESults(string asis) 		 ///   
-			[ Classes(integer 0) Kfold(integer 1) THReshold(passthru) ]
+			SPLit(passthru) RESults(string asis) [ KFold(integer 1) noall ]
 			
 	// Create a macro to store the names of all the estimation results
 	loc estres 
 	
 	// Call the command to generate the modified estimation command string
 	cmdmod `cmd', `split' kf(`kfold')
-			
+	
+	// Stores the returned modified prediction if expression so it can be 
+	// returned by fitit
+	loc predifin `r(predifin)'
+	
+	// Does the same with the macro used for the all training set component when
+	// used with K-Fold CV
+	loc kfpredifin `r(kfpredifin)'
+
 	// Handles fitting for KFold and non-KFold CV
 	forv i = 1/`kfold' {
 		
@@ -49,30 +56,10 @@ prog def fitit, eclass
 		// Add the name of the estimation results to the estres macro
 		loc estres "`estres' `results'`i'"
 			
-		// Test whether this is a "regression" task
-		if `classes' == 0 {
-			
-			// If it is, predict on the validation sample:
-			predict double `pstub'`i' `r(predifin)'
-			
-		} // End IF Block for "regression" tasks
-		
-		// Otherwise
-		else {
-			
-			// Call the classification program
-			// Also need to handle the if statement here as well
-			classify `classes' `r(predifin)', `threshold' ps(`pstub'`i')
-				
-		} // End ELSE Block for classifcation tasks
-		
 	} // Loop over the KFolds
 
-	// Attach a variable label to the predicted variable
-	la var `pstub' "Predicted value of `e(depvar)'"
-	
 	// Test if K-Fold cross validation is being used
-	if `kfold' > 1 {
+	if `kfold' > 1 & mi(`"`all'"') {
 		
 		// Fit the model to all the training data
 		`r(kfmodcmd)'
@@ -89,37 +76,17 @@ prog def fitit, eclass
 		// Add the name of the estimation results to the estres macro
 		loc estres "`estres' `results'all"
 
-		// Test whether this is a "regression" task
-		if `classes' == 0 {
-			
-			// If it is, predict on the validation sample:
-			predict double `pstub'all `r(predifin)'
-			
-		} // End IF Block for "regression" tasks
-		
-		// Otherwise
-		else {
-			
-			// Call the classification program
-			// Also need to handle the if statement here as well
-			classify `classes' `r(predifin)', `threshold' ps(`pstub'all)
-				
-		} // End ELSE Block for classifcation tasks
-		
-		// Add variable label for the all training set case
-		la var `pstub'all "Predicted value of `e(depvar)' from model w/full training set"
-
 	} // End IF Block for K-Fold CV fitting to all training data
-	
-	// Return the predict macro 
-	eret loc predifin `r(predifin)'
-	
-	// Return the predict macro for the K-Fold case on all training data
-	eret loc kfpredifin `r(kfpredifin)'
 	
 	// Return the names of all the stored estimation results
 	eret loc estresnames "`estres'"
 	
+	// Return the predict macro 
+	eret loc predifin `macval(predifin)'
+	
+	// Return the predict macro for the K-Fold case on all training data
+	eret loc kfpredifin `macval(kfpredifin)'
+		
 	// Repost the estimation results to return them to users
 	ereturn repost
 	

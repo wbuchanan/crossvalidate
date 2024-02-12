@@ -685,18 +685,34 @@ real scalar mcbalaccuracy(string scalar pred, string scalar obs, string scalar t
 real scalar mckappa(string scalar pred, string scalar obs, string scalar touse) {
 	
 	// Declares matrix to store random chance outcome
-	real matrix chnc
+	real matrix chnc, conf, expected
 	
 	// Declares scalars to store the intermediate results
-	real scalar acc
+	real scalar n, rsum, csum, wgts, i
 	
-	// Compute accuracy
-	acc = msaccuracy(pred, obs, touse)
+	// Get the confusion matrix
+	conf = confusion(pred, obs, touse)
 	
-	// Create square matrix where each 
-	chnc = J(rows(conf), rows(conf), (sum(conf)/rows(conf)))
+	// Gets total sample size
+	n = sum(conf)
 	
-	return(0)
+	// Gets the row margins
+	rsum = rowsum(conf)
+	
+	// Gets the column margins
+	csum = colsum(conf)
+	
+	// Normalizes the outer product of row margins * col margins
+	expected = (rsum * csum) :/ n
+	
+	// Generates the weighting matrix for the no-weighting case
+	wgts = J(rows(conf), cols(conf), 1)
+	
+	// Will need to replace the diagonal with 0s for wgts
+	for(i = 1; i <= rows(wgts); i++) wgts[i, i] = 0
+	
+	// Return the metric 
+	return(1 - sum(wgts * conf) / sum(wgts * expected))
 	
 } // End of function definition for multiclass Kappa 
 
