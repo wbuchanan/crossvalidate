@@ -36,25 +36,27 @@ prog def fitit, eclass
 	loc kfpredifin `r(kfpredifin)'
 
 	// Handles fitting for KFold and non-KFold CV
-	forv i = 1/`kfold' {
+	forv k = 1/`kfold' {
 		
 		// Call the estimation command passed by the user
-		`r(modcmd)'
-				
+		qui:`r(modcmd)'
+		
+		di `"`macval(r(modcmd))'"'
+						
 		// Add a title for standard cases
 		if `kfold' == 1 est title: Model Fit on Training Sample
 		
 		// Add a title for K-Fold cases
-		else est title: Model fit on Fold #`i'
+		else est title: Model fit on Fold #`k'
 		
 		// Stores the estimation results in a more persistent way
-		est sto `results'`i'
+		est sto `results'`k'
 		
 		// Return the estimation result name in a macro
-		eret loc estres`i' "`results'`i'"
+		eret loc estres`k' "`results'`k'"
 		
 		// Add the name of the estimation results to the estres macro
-		loc estres "`estres' `results'`i'"
+		loc estres "`estres' `results'`k'"
 			
 	} // Loop over the KFolds
 
@@ -62,7 +64,7 @@ prog def fitit, eclass
 	if `kfold' > 1 & mi(`"`all'"') {
 		
 		// Fit the model to all the training data
-		`r(kfmodcmd)'
+		qui:`r(kfmodcmd)'
 		
 		// Test if user wants title added
 		est title: Model Fitted on All Training Folds 

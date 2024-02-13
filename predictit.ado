@@ -58,24 +58,28 @@ prog def predictit
 		cmdmod `cmd', split(`split') kf(`kfold')
 		
 		// Then substitute the individual split case to modifin
-		loc modifin "`macval(r(predifin))'"
+		loc modifin `r(predifin)'
 		
 		// And substitute the K-Fold case for the entire training set
-		loc kfifin "`macval(r(kfpredifin))'"
+		loc kfifin `r(kfpredifin)'
 		
 	} // End IF Block for cases where the user passes the command string
 			
 	// Handles predictting for KFold and non-KFold CV
-	forv i = 1/`kfold' {
+	forv k = 1/`kfold' {
+		
+		// Check to verify that the modified if expression ends with a numeric 
+		// value and if it is missing a numeric value at the iterator
+		if !ustrregexm(`"`modifin'"', "\d\$") loc modifin `modifin' \`k'
 		
 		// Stores the estimation results in a more persistent way
-		qui: est restore *`i'
+		qui: est restore *`k'
 		
 		// Test whether this is a "regression" task
 		if `classes' == 0 {
 			
 			// If it is, predict on the validation sample:
-			predict double `pstub'`i' `modifin'
+			predict double `pstub'`k' `modifin'
 			
 		} // End IF Block for "regression" tasks
 		
@@ -84,7 +88,7 @@ prog def predictit
 			
 			// Call the classification program
 			// Also need to handle the if statement here as well
-			classify `classes' `modifin', `threshold' ps(`pstub'`i')
+			classify `classes' `modifin', `threshold' ps(`pstub'`k')
 				
 		} // End ELSE Block for classifcation tasks
 		
@@ -129,10 +133,10 @@ prog def predictit
 	} // End IF Block for K-Fold CV predictting to all training data
 	
 	// Loop over the K-Folds
-	forv i = 1/`kfold' {
+	forv k = 1/`kfold' {
 		
 		// Drop any predicted value variables that are intermediate in nature
-		qui: drop `pstub'`i'
+		qui: drop `pstub'`k'
 		
 	} // End of Loop to clean up the data set
 		

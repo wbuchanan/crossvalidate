@@ -43,7 +43,7 @@ prog def cmdmod, rclass
 			
 			// For KFold CV use the loop iterator to ID the holdout sample to 
 			// exclude from model fitting
-			loc modifin " if `split' != \`i'"
+			loc modifin " if `split' != \`k'"
 			
 			// Creates the new command string with the substituted value stored 
 			// in the local cmdmod and a mata variable with the same name
@@ -52,7 +52,7 @@ prog def cmdmod, rclass
 
 			// For KFold CV we'll use the loop iterator value to ID the holdout
 			// sample for validation
-			ret loc predifin " if !e(sample) & `split' == \`i'"
+			ret loc predifin " if !e(sample) & `split' == \`k'"
 			
 			// Also create a modified statement to fit the model to all training
 			// data
@@ -93,14 +93,14 @@ prog def cmdmod, rclass
 			
 			// Create the modified if/in statement to be pushed into the user's 
 			// estimation command
-			loc modifin "`ifin' & `split' != \`i'"
+			loc modifin "`ifin' & `split' != \`k'"
 			
 			// Creates the new command string with the substituted value stored 
 			// in the local cmdmod
 			mata: st_local("cmdmod", subinstr(`cmd', `"`ifin'"', `"`macval(modifin)'"'))
 						
 			// Create the if/in statement for predictions
-			ret loc predifin " `ifin' & !e(sample) & `split' == \`i'"
+			ret loc predifin " `ifin' & !e(sample) & `split' == \`k'"
 			
 			// Also create a modified statement to fit the model to all training
 			// data

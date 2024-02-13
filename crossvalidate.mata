@@ -460,6 +460,62 @@ real scalar binr2(string scalar pred, string scalar obs, string scalar touse) {
 
 } // End of function definition for binary R^2 
 
+// Defines Matthews correlation coefficient
+// based on: https://en.wikipedia.org/wiki/Phi_coefficient#Multiclass_case
+real scalar mcc(string scalar pred, string scalar obs, string scalar touse) {
+		
+	// To store the confusion matrix
+	real matrix conf
+	
+	// To store the row margins
+	real colvector rowm
+	
+	// To store the column margins
+	real rowvector colm
+	
+	// Scalars used in the computation
+	real scalar i, num, den1, den2
+	
+	// Stores confusion matrix
+	conf = confusion(pred, obs, touse)
+	
+	// If the confusion matrix isn't square return a missing value.
+	if (rows(conf) != cols(conf)) return(.)
+	
+	// Stores the row margins
+	rowm = rowsum(conf)
+	
+	// Stores the column margins
+	colm = colsum(conf)
+	
+	// Stores the first term for the numerator (correct classified * n)
+	num = sum(diagonal(conf)) * sum(conf)
+		
+	// Initializes the denominator terms
+	den1 = sum(conf)^2
+	den2 = den1
+	
+	// Loop over the dimension for the margins
+	for(i = 1; i <= rows(rowm); i++) {
+		
+		// Starts subtracting the true * predicted cell sizes
+		num = num - colm[1, i] * rowm[i, 1]
+		
+		// Subtracts the squared number of predicted cases for each value 
+		// from the squared sample size
+		den1 = den1 - rowm[i, 1]^2
+		
+		// Subtracts the squared number of observed cases for each value from 
+		// the squared sample size
+		den2 = den2 - colm[1, i]^2
+		
+	} // End Loop over the margins
+	
+	// Return the correlation coefficient
+	return(num / (sqrt(den1) * sqrt(den2)))
+	
+} // End of function definition for Matthew's correlation coefficent
+
 // End mata
 end
 
@@ -720,7 +776,8 @@ real scalar mckappa(string scalar pred, string scalar obs, string scalar touse) 
 // based on: https://github.com/tidymodels/yardstick/blob/main/src/mcc-multiclass.c
 real scalar mcmcc(string scalar pred, string scalar obs, string scalar touse) {
 	
-	return(0)
+	// Call the other implementation
+	return(mcc(pred, obs, touse))
 	
 } // End of function definition for multiclass MCC
 
