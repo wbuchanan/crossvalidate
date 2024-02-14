@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! predictit
-*! v 0.0.1
-*! 09FEB2024
+*! v 0.0.2
+*! 14FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop predictit
@@ -24,19 +24,19 @@ prog def predictit
 			KFIfin(string asis) noall ]
 
 	// Test if the user passed of the necesary info for this to work
-	if mi(`cmd') & mi(`"`modifin'"') {
+	if mi(`"`cmd'"') & mi(`"`modifin'"') {
 		
 		// Display error message
 		di as err "You must provide either the estimation command string "	 ///
 		"or pass an argument to modifin to use this command"
 		
 		// Return an error code and exit
-		err
+		err 197
 		
 	} // End IF Block for insufficient information for the command	 
 				 
 	// If the user passes a command string 
-	if !mi(`cmd') {
+	if !mi(`"`cmd'"') {
 		
 		// Make sure a split variable is passed
 		if mi("`split'") {
@@ -47,21 +47,32 @@ prog def predictit
 			"variable with the split group identifiers."
 			
 			// Return an error code and exit
-			err 
+			err 198
 			
 		} // End IF Block for insufficient options with command string.
 		
 		// If there is something passed to split confirm it exists
 		else confirm v `split'
 		
-		// Generate the modified if expressions for predictions
-		cmdmod `cmd', split(`split') kf(`kfold')
+		// If modded if expression in characteristic use it
+		if !mi(`"`: char _dta[predifin]'"') loc modifin : char _dta[predifin]
 		
-		// Then substitute the individual split case to modifin
-		loc modifin `r(predifin)'
+		// Otherwise
+		else {
+			
+			// Generate the modified if expressions for predictions
+			cmdmod `cmd', split(`split') kf(`kfold')
 		
-		// And substitute the K-Fold case for the entire training set
-		loc kfifin `r(kfpredifin)'
+			// Then substitute the individual split case to modifin
+			loc modifin `r(predifin)'
+			
+			// And substitute the K-Fold case for the entire training set
+			loc kfifin `r(kfpredifin)'
+			
+		} // End ELSE Block for missing dataset characteristics
+		
+		// If modded k-fold if expression in characteristic use it
+		if !mi(`"`: char _dta[kfpredifin]'"') loc kfifin : char _dta[kfpredifin]
 		
 	} // End IF Block for cases where the user passes the command string
 			
@@ -73,7 +84,7 @@ prog def predictit
 		if !ustrregexm(`"`modifin'"', "\d\$") loc modifin `modifin' \`k'
 		
 		// Stores the estimation results in a more persistent way
-		qui: est restore *`k'
+		est restore *`k'
 		
 		// Test whether this is a "regression" task
 		if `classes' == 0 {
@@ -94,6 +105,8 @@ prog def predictit
 		
 	} // Loop over the KFolds
 	
+	su `pstub'*
+	
 	// Create the combined variable as a double for continuous outcomes
 	if `classes' == 0 qui: egen double `pstub' = rowfirst(`pstub'*)
 	
@@ -108,7 +121,22 @@ prog def predictit
 	if `kfold' > 1 & mi("`all'") {
 		
 		// Stores the estimation results in a more persistent way
-		est restore *all
+		cap: est restore *all
+		
+		// If the estimation on all the training data is not done
+		if _rc != 0 {
+			
+			// Remove all the predicted value variables
+			drop `pstub'* `pstub'
+			
+			// Display an error message
+			di as err "If {help fitit} was called without the noall option " ///   
+			"predictit must also use that option."
+			
+			// Throw an error code
+			err 198
+			
+		} // End IF Block for all training sample prediction w/o all sample fit
 		
 		// Test whether this is a "regression" task
 		if `classes' == 0 {

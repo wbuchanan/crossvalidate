@@ -6,8 +6,8 @@
 *******************************************************************************/
 
 *! cmdmod
-*! v 0.0.2
-*! 03FEB2024
+*! v 0.0.3
+*! 13FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop cmdmod
@@ -49,10 +49,14 @@ prog def cmdmod, rclass
 			// in the local cmdmod and a mata variable with the same name
 			mata: cmdmod = subinstr(`cmd', tosub, tosub + "`macval(modifin)'")
 			mata: st_local("cmdmod", cmdmod)
+			mata: st_global("_dta[modcmd]", cmdmod)
 
 			// For KFold CV we'll use the loop iterator value to ID the holdout
 			// sample for validation
 			ret loc predifin " if !e(sample) & `split' == \`k'"
+			
+			// Store this in a dataset characteristic
+			char _dta[predifin] " if !e(sample) & `split' == \`k'"
 			
 			// Also create a modified statement to fit the model to all training
 			// data
@@ -61,10 +65,15 @@ prog def cmdmod, rclass
 			// And do the same for the prediction
 			ret loc kfpredifin " if !e(sample) & `split' == `= `kfold' + 1'"
 			
+			// Store in a dataset characteristic
+			char _dta[kfpredifin] " if !e(sample) & `split' == `= `kfold' + 1'"
+			
 			// Creates the modified command string for fitting all training data 
 			// following the k-folds.
 			mata: st_local("kfcmdmod",										 ///   
-							subinstr(`cmd', tosub, tosub + "`kfifin'"))			
+							subinstr(`cmd', tosub, tosub + "`kfifin'"))		
+			mata: st_global("_dta[kfcmdmod]", 								 ///   
+							subinstr(`cmd', tosub, tosub + "`kfifin'"))
 			
 		} // End IF Block for KFold missing if/in statement cases
 		
@@ -76,11 +85,16 @@ prog def cmdmod, rclass
 			
 			// For TT and TVT splits, use the validation sample group ID
 			ret loc predifin " if !e(sample) & `split' == 2"
+			
+			// Store in a dataset characteristic
+			char _dta[predifin] " if !e(sample) & `split' == 2"
 
 			// Creates the new command string with the substituted value stored 
 			// in the local cmdmod
 			mata: st_local("cmdmod", subinstr(`cmd', tosub, tosub + "`modifin'"))
-
+			mata: st_global("_dta[modcmd]", 								 ///   
+									subinstr(`cmd', tosub, tosub + "`modifin'"))
+			
 		} // End ELSE Block for non-KFold cases w/o if/in statements
 							
 	} // End IF Block for no if or in statements in the estimation command
@@ -97,10 +111,16 @@ prog def cmdmod, rclass
 			
 			// Creates the new command string with the substituted value stored 
 			// in the local cmdmod
-			mata: st_local("cmdmod", subinstr(`cmd', `"`ifin'"', `"`macval(modifin)'"'))
-						
+			mata: st_local("cmdmod", 										 ///   
+							 subinstr(`cmd', `"`ifin'"', `"`macval(modifin)'"'))
+			mata: st_global("_dta[modcmd]", 								 ///   
+							 subinstr(`cmd', `"`ifin'"', `"`macval(modifin)'"'))
+												
 			// Create the if/in statement for predictions
 			ret loc predifin " `ifin' & !e(sample) & `split' == \`k'"
+			
+			// Store this macro in a data characteristic as well
+			char _dta[predifin] " `ifin' & !e(sample) & `split' == \`k'"
 			
 			// Also create a modified statement to fit the model to all training
 			// data
@@ -109,9 +129,15 @@ prog def cmdmod, rclass
 			// And do the same for the prediction
 			ret loc kfpredifin " `ifin' & !e(sample) & `split' == `= `kfold' + 1'"
 			
+			// Store kfpredifin in a dataset characteristic
+			char _dta[kfpredifin] " `ifin' & !e(sample) & `split' == `= `kfold' + 1'"
+			
 			// Creates the modified command string for fitting all training data 
 			// following the k-folds.
-			mata: st_local("kfcmdmod", subinstr(`cmd', `"`ifin'"', `"`kfifin'"'))			
+			mata: st_local("kfcmdmod",										 ///   
+									  subinstr(`cmd', `"`ifin'"', `"`kfifin'"'))			
+			mata: st_global("_dta[kfcmdmod]", 								 ///   
+									  subinstr(`cmd', `"`ifin'"', `"`kfifin'"'))			
 
 		} // End IF Block for KFold if/in statements
 		
@@ -124,9 +150,14 @@ prog def cmdmod, rclass
 			// Create the if/in statement for predictions
 			ret loc predifin " `ifin' & !e(sample) & `split' == 2"
 			
+			// Store predifin in a dataset characteristic
+			char _dta[predifin] " `ifin' & !e(sample) & `split' == 2"
+			
 			// Creates the new command string with the substituted value stored 
 			// in the local cmdmod
 			mata: st_local("cmdmod", subinstr(`cmd', `"`ifin'"', `"`modifin'"'))
+			mata: st_global("_dta[modcmd]", 								 ///   
+									 subinstr(`cmd', `"`ifin'"', `"`modifin'"'))
 						
 		} // End ELSE Block for non-KFold if/in statements
 				

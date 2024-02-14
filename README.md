@@ -6,7 +6,7 @@
 
 
 ## Commands to write for this package
-- [ ] xv - Cross validation using train/test, train/validation/test, or K-Fold 
+- [x] xv - Cross validation using train/test, train/validation/test, or K-Fold 
 cross-validation methods.
 - [ ] xvloo - Leave One Out cross-validation 
 - [x] state - a program that will handle getting and writing important information 
@@ -27,16 +27,14 @@ classification based models (e.g., logit, ologit, mlogit, etc...)
 command to ensure it is fitted to the training set only and that predictions are 
 made on the validation/test set only.
 
-## Mata Stuff
-- [x] `getifin` function to handle parsing if/in expressions in the estimation command
-- [x] `repifin` function to handle replacing user if/in w/exp that includes training set
-- [x] `cvparse` function to handle parsing the options for the prefix commands
-- [x] `getarg` function to handle retrieving the argument value from options
-- [x] metric specification 
-- [x] monitor specification
-- [x] generalize classification metrics for multinomial case
-- [ ] add metrics for class probabilities?
-
+## TODO
+- [ ] Standardize language in help files
+- [ ] Add Steven's Job Title to help files
+- [ ] Standardize API (e.g., change retain to split)
+- [ ] Finish writing test cases for Mata functions
+- [ ] Finish writing test cases for ADO commands
+- [ ] Write help file for the package
+- [ ] Write help file for the Mata library
 
 # libxv
 
@@ -100,6 +98,8 @@ lmbuild libxv, replace
 - [x] Test function for Binary Balanced Accuracy
 - [ ] Test function for Binary F1
 - [ ] Test function for Youden's J statistic (J-index)
+- [ ] Test function for Matthew's Correlation Coefficient
+- [ ] Test function for Binary R^2
 - [ ] Test function for Multinomial Sensitivity
 - [ ] Test function for Multinomial Precision
 - [ ] Test function for Multinomial Recall
@@ -112,6 +112,9 @@ lmbuild libxv, replace
 - [ ] Test function for Multinomial F1
 - [ ] Test function for Multinomial Detection Prevalence
 - [ ] Test function for Multinomial J-Index
+- [ ] Test function for Multinomial Kappa coefficient
+- [ ] Test function for Multinomial Matthew's Correlation Coefficient
+- [ ] Test function for Ordinal R^2
 - [x] Test function for Mean Squared Error
 - [x] Test function for Mean Absolute Error
 - [x] Test function for Bias

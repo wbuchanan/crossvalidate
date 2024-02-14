@@ -871,8 +871,8 @@ real scalar mbe(string scalar pred, string scalar obs, string scalar touse) {
 real scalar r2(string scalar pred, string scalar obs, string scalar touse) {
 	
 	// Returns the correlation between the predicted and observed variable
-	return(corr(variance((st_data(., "pred", "touse"), ///   
-						  st_data(., "obs", "touse"))))[2, 1])
+	return(corr(variance((st_data(., pred, touse), ///   
+						  st_data(., obs, touse))))[2, 1])
 	
 } // End of function definition for R^2
 
@@ -961,6 +961,68 @@ real scalar rpd(string scalar pred, string scalar obs, string scalar touse) {
 	return(sqrt(variance(st_data(., pred, touse))) / rmse(pred, obs, touse))
 
 } // End of function definition for RPD
+
+// Defines function for the Index of ideality of correlation
+// based on: https://github.com/tidymodels/yardstick/blob/main/R/num-iic.R
+real scalar iic(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Declares some columnvectors
+	real colvector neg, pos, delta
+	
+	// Declares scalars needed
+	real scalar muneg, mupos, adj
+
+	// Gets the difference in observed vs predict values
+	delta = st_data(., obs, touse) - st_data(., pred, touse)
+	
+	// Selects only the differences that are negative
+	neg = select(delta, delta :< 0)
+	
+	// Selects only the differences that are positive
+	pos = select(delta, delta :>= 0)
+	
+	// Computes the absolute mean of the negative values
+	muneg = sum(abs(neg)) / rows(neg)
+	
+	// Computes the absolute mean of the positive values
+	mupos = sum(abs(pos)) / rows(pos)
+	
+	// Computes the adjustment factor for the correlation
+	adj = min((muneg, mupos)) / max((muneg, mupos))
+	
+	// Returns the adjusted correlation
+	return(r2(pred, obs, touse) * adj)
+
+} // End of function definition for IIC
+
+// Defines function for the Concordance Correlation Coefficient
+// based on: https://github.com/tidymodels/yardstick/blob/main/R/num-ccc.R
+real scalar ccc(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Declares scalars needed
+	real scalar mupred, muobs, varpred, varobs, cov
+
+	// estimate_mean in R function
+	mupred = mean(st_data(., pred, touse))
+
+	// truth_mean in R function
+	muobs = mean(st_data(., obs, touse)) 
+
+	// estimate_variance in R function
+	varpred = variance(st_data(., pred, touse))[1, 1]
+
+	// truth_variance in R function
+	varobs = variance(st_data(., obs, touse))[1, 1]
+
+	// Gets the covariance between the predicted and observed values
+	cov = variance((st_data(., pred, touse), st_data(., obs, touse)))[2, 1]
+
+	// Computes and returns the coefficient
+	return(2 * cov / varobs + varpred + (muobs - mupred)^2)
+	
+} // End of function definition for CCC
+
+
 
 // End mata interpreter
 end

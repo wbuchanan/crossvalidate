@@ -39,10 +39,11 @@ prog def fitit, eclass
 	forv k = 1/`kfold' {
 		
 		// Call the estimation command passed by the user
-		qui:`r(modcmd)'
+		if !mi(`"`: char _dta[modcmd]'"') `: char _dta[modcmd]'
 		
-		di `"`macval(r(modcmd))'"'
-						
+		// Otherwise call the returned macro from cmdmod
+		else `r(modcmd)'
+		
 		// Add a title for standard cases
 		if `kfold' == 1 est title: Model Fit on Training Sample
 		
@@ -53,7 +54,7 @@ prog def fitit, eclass
 		est sto `results'`k'
 		
 		// Return the estimation result name in a macro
-		eret loc estres`k' "`results'`k'"
+		loc estres`k' "`results'`k'"
 		
 		// Add the name of the estimation results to the estres macro
 		loc estres "`estres' `results'`k'"
@@ -79,6 +80,14 @@ prog def fitit, eclass
 		loc estres "`estres' `results'all"
 
 	} // End IF Block for K-Fold CV fitting to all training data
+	
+	// Loop over the kfolds to return the individual stored result names
+	forv k = 1/`kfold' {
+		
+		// Returns the individual estimation result names in their own macros
+		eret loc estres`k' "`estres`k''"
+		
+	} // End Loop over the K-Folds to return the estimation result names
 	
 	// Return the names of all the stored estimation results
 	eret loc estresnames "`estres'"
