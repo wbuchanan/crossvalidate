@@ -64,8 +64,16 @@ prog def fitit, eclass
 	// Test if K-Fold cross validation is being used
 	if `kfold' > 1 & mi(`"`all'"') {
 		
-		// Fit the model to all the training data
-		qui:`r(kfmodcmd)'
+		// If the dataset characteristic is not missing
+		if !mi(`"`: char _dta[kfmodcmd]'"') {
+			
+			// Call the estimation command stored in the characteristic
+			`: char _dta[kfmodcmd]'
+		
+		} // End IF Block for estimation command in characteristic
+		
+		// Otherwise, use the returned result from cmdmod
+		else `r(kfmodcmd)'
 		
 		// Test if user wants title added
 		est title: Model Fitted on All Training Folds 

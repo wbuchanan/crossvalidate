@@ -102,7 +102,7 @@ fitit "reg price mpg, vce(rob)", res(tst) spl(splitvar) noall kf(5)
 // training split
 rcof `"predictit "reg price mpg, vce(rob)", ps(pred) kf(5) spl(splitvar)"' == 198
 
-predictit "reg price mpg, vce(rob)", ps(pred) kf(5) spl(splitvar) noall
+predictit "reg price mpg, vce(rob)", ps(pred) kf(5) noall spl(splitvar)
 
 // Fit the model manually
 reg price mpg if splitvar != 5, vce(rob)
@@ -142,7 +142,7 @@ reg price mpg if splitvar != 5, vce(rob)
 predict double mpred1 if !e(sample) & splitvar == 5
 
 // Fit the model to all training data
-reg price mpg if splitvar < 6, vce(rob)
+reg price mpg if splitvar <= 5, vce(rob)
 
 // Create manual prediction
 predict double mpred2 if splitvar == 6
@@ -160,6 +160,7 @@ assert mpred2 == predall if splitvar == 6
 *                          K-Fold Train Test Split Case                        *
 *                                                                              *
 *******************************************************************************/
+
 // Load some example data
 sysuse auto.dta, clear
 
@@ -177,14 +178,23 @@ spl(splitvar) kfold(5)
 // Called with estimation command for K-Fold case without fitting to entire 
 // training split
 predictit "reg price mpg i.foreign headroom trunk, vce(rob)", 		 ///   
-ps(pred) spl(splitvar) kf(5) noall
+ps(pred) spl(splitvar) kf(5)
 
 // Fit the model manually
-reg price mpg i.foreign headroom trunk if splitvar == 1, vce(rob)
+reg price mpg i.foreign headroom trunk if splitvar != 5, vce(rob)
 
 // Generate manual prediction
-predict double mpred if !e(sample) & splitvar == 2
+predict double mpred if !e(sample) & splitvar == 5
 
 // Assert the predicted values are the same
-assert pred == mpred
+assert pred == mpred if splitvar == 5
 
+// Fit the model manually
+reg price mpg i.foreign headroom trunk if splitvar <= 5, vce(rob)
+
+// Generate manual prediction
+predict double mpred2 if !e(sample) & splitvar == 6
+
+// Assert that the predict values from fitting to the entire training set are 
+// the same
+assert predall == mpred2

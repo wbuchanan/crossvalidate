@@ -6,8 +6,8 @@
 *******************************************************************************/
 
 *! cmdmod
-*! v 0.0.3
-*! 13FEB2024
+*! v 0.0.5
+*! 15FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop cmdmod
@@ -48,7 +48,11 @@ prog def cmdmod, rclass
 			// Creates the new command string with the substituted value stored 
 			// in the local cmdmod and a mata variable with the same name
 			mata: cmdmod = subinstr(`cmd', tosub, tosub + "`macval(modifin)'")
+			
+			// Stores the value in a local macro
 			mata: st_local("cmdmod", cmdmod)
+			
+			// Stores the value in a dataset characteristic as well
 			mata: st_global("_dta[modcmd]", cmdmod)
 
 			// For KFold CV we'll use the loop iterator value to ID the holdout
@@ -72,7 +76,9 @@ prog def cmdmod, rclass
 			// following the k-folds.
 			mata: st_local("kfcmdmod",										 ///   
 							subinstr(`cmd', tosub, tosub + "`kfifin'"))		
-			mata: st_global("_dta[kfcmdmod]", 								 ///   
+			
+			// Stores the value in a dataset characteristic as well
+			mata: st_global("_dta[kfmodcmd]", 								 ///   
 							subinstr(`cmd', tosub, tosub + "`kfifin'"))
 			
 		} // End IF Block for KFold missing if/in statement cases
@@ -92,6 +98,8 @@ prog def cmdmod, rclass
 			// Creates the new command string with the substituted value stored 
 			// in the local cmdmod
 			mata: st_local("cmdmod", subinstr(`cmd', tosub, tosub + "`modifin'"))
+			
+			// Stores the value in a dataset characteristic as well
 			mata: st_global("_dta[modcmd]", 								 ///   
 									subinstr(`cmd', tosub, tosub + "`modifin'"))
 			
@@ -113,6 +121,8 @@ prog def cmdmod, rclass
 			// in the local cmdmod
 			mata: st_local("cmdmod", 										 ///   
 							 subinstr(`cmd', `"`ifin'"', `"`macval(modifin)'"'))
+			
+			// Stores the value in a dataset characteristic as well
 			mata: st_global("_dta[modcmd]", 								 ///   
 							 subinstr(`cmd', `"`ifin'"', `"`macval(modifin)'"'))
 												
@@ -136,7 +146,9 @@ prog def cmdmod, rclass
 			// following the k-folds.
 			mata: st_local("kfcmdmod",										 ///   
 									  subinstr(`cmd', `"`ifin'"', `"`kfifin'"'))			
-			mata: st_global("_dta[kfcmdmod]", 								 ///   
+			
+			// Stores the value in a dataset characteristic as well
+			mata: st_global("_dta[kfmodcmd]", 								 ///   
 									  subinstr(`cmd', `"`ifin'"', `"`kfifin'"'))			
 
 		} // End IF Block for KFold if/in statements
@@ -156,6 +168,8 @@ prog def cmdmod, rclass
 			// Creates the new command string with the substituted value stored 
 			// in the local cmdmod
 			mata: st_local("cmdmod", subinstr(`cmd', `"`ifin'"', `"`modifin'"'))
+			
+			// Stores the value in a dataset characteristic as well
 			mata: st_global("_dta[modcmd]", 								 ///   
 									 subinstr(`cmd', `"`ifin'"', `"`modifin'"'))
 						

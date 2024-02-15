@@ -35,6 +35,10 @@ made on the validation/test set only.
 - [ ] Finish writing test cases for ADO commands
 - [ ] Write help file for the package
 - [ ] Write help file for the Mata library
+- [x] Update help file for cmdmod related to characteristics
+- [x] Update help file for predictit with info about characteristics
+- [ ] Consider updating predictit to allow fewer parameters to be specified
+- [ ] Define a utility function to determine if the estimation command has any options 
 
 # libxv
 
@@ -126,6 +130,10 @@ lmbuild libxv, replace
 - [x] Test function for Mean-Squared Log Error
 - [x] Test function for Root Mean-Squared Log Error
 - [x] Test function for Ratio of Performance to Deviation
+- [ ] Test function for Index of ideality of correlation
+- [ ] Test function for Concordance Correlation Coefficient
+- [ ] Test function for Pseudo-Huber Loss
+- [ ] Test function for Poisson Log Loss
  
 # Main Commands 
 
@@ -198,11 +206,11 @@ Here are things that we need to test for this program:
 
 ### TODO
 - [x] Determine how we will handle updating and substituting the if/in statements for estimation and prediction respectively
-- [ ] Update help file and syntax here to reflect only parameters required for model fitting
-- [ ] Develop tests for the command
+- [x] Update help file and syntax here to reflect only parameters required for model fitting
+- [x] Develop tests for the command
 
 ### Testing
-- [ ] Biggest test will be ensuring that the if/in statements are handled appropriately for estimation
+- [x] Biggest test will be ensuring that the if/in statements are handled appropriately for estimation
 
 
 ## predictit
@@ -218,9 +226,10 @@ Here are things that we need to test for this program:
 * <ins>mod</ins>ifin(string asis) - the modified if expression used to generate the out of sample predictions.
 * <ins>kfi</ins>fin(string asis) - the modified if expression used to generate the out of sample predictions for the full training sample when using K-Fold cross-validation.
 * noall - suppresses prediction on the entire training sample when using K-Fold cross-validation.
+* <ins>pm</ins>ethod(string asis) - the method (statistic) to predict with the out-of-sample/held-out data.
 
 ### TODO
-- [ ] Need to generate tests for this command
+- [x] Need to generate tests for this command
 
 ### Testing
 - [ ] TBD
@@ -279,6 +288,7 @@ predicted classes from the model.
 * <ins>thr</ins>eshold(_real 0.5_) - Specifies the threshold to use for classification 
 of predicted probabilities in the case of binary outcome models.  The value of 
 the threshold must be in (0, 1).
+* <ins>pm</ins>ethod(string asis) - the method (statistic) to predict with the out-of-sample/held-out data.
 
 ### Testing
 Here are things that we need to test for this program:

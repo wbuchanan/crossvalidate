@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.1 09feb2024}{...}
+{* *! version 0.0.2 15feb2024}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat_classification"}{...}
 {vieweralsosee "" "--"}{...}
 {viewerjumpto "Syntax" "predictit##syntax"}{...}
@@ -17,7 +17,7 @@
 [{cmdab:spl:it(}{it:varname}{cmd:)} {cmdab:c:lasses(}{it:integer}{cmd:)} 
 {cmdab:k:fold(}{it:integer}{cmd:)} {cmdab:thr:eshold(}{it:real}{cmd:)} 
 {cmdab:mod:ifin(}{it:string asis}{cmd:)} {cmdab:kfi:fin(}{it:string asis}{cmd:)}
-{cmdab:noall}]{p_end}
+{cmdab:noall} {cmdab:pm:ethod(}{it:string asis}{cmd:)}]{p_end}
 
 {synoptset 25 tabbed}{...}
 {synoptline}
@@ -33,6 +33,7 @@
 {synopt :{opt mod:ifin}}a modified if expression{p_end}
 {synopt :{opt kfi:fin}}a modified if expression{p_end}
 {synopt :{opt noall}}suppresses prediction on entire training set for K-Fold cases{p_end}
+{synopt :{opt pm:ethod}}predicted statistic from {help predict}; default is {cmd:pmethod(pr)}{p_end}
 {synoptline}
 
 
@@ -52,6 +53,10 @@ first argument.  In that case, users are required to pass the split variable
 name to the {opt spl:it} option.  Internally, {help cmdmod} is used to generate 
 the necessary if expression based on the estimation command to ensure that any 
 user specified constraints are satisfied in the predictions as well.  
+
+{pstd}
+{cmd:predictit} will use the dataset {help char:characteristics} created by 
+previous calls to {help cmdmod} to construct the necessary syntax
 
 {marker options}{...}
 {title:Options}
@@ -117,6 +122,14 @@ performance on a test set.
 to the entire training set when using K-Fold cross-validation.  If this option 
 is used, {opt kfi:fin} will have no effect since the relevant predictions will 
 not be generated.
+
+{phang}
+{opt pm:ethod} is passed internally to Stata's {help predict} command to 
+generate the predicted values of the outcome for the out-of-sample data. The 
+default value used by {cmd:predictit} depends on the value passed to the 
+{opt c:lasses} option.  When option {opt c:lasses} is set to 0 the prediction 
+method will default to {opt xb}; in all other instances, the prediction method 
+will default to {opt pr}.
 
 
 {marker examples}{...}

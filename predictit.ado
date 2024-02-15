@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! predictit
-*! v 0.0.2
-*! 14FEB2024
+*! v 0.0.3
+*! 15FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop predictit
@@ -21,14 +21,33 @@ prog def predictit
 	syntax [anything(name = cmd id="estimation command name")],				 ///   
 			PStub(string asis) [ SPLit(varname)  Classes(integer 0) 		 ///   
 			Kfold(integer 1) THReshold(passthru) MODifin(string asis) 		 ///   
-			KFIfin(string asis) noall ]
+			KFIfin(string asis) noall PMethod(string asis)]
 
+	// Test the value of the classes option
+	if `classes' < 0 {
+		
+		// Display an error message
+		di as err "The classes option requires a value >= 0."
+		
+		// Return an error code
+		err 125
+		
+	} // End IF Block for negative valued class arguments
+			
+	// For linear model cases use xb as the default prediction method
+	if `classes' == 0 & mi(`"`pmethod'"') loc pmethod xb
+	
+	// For categorical model cases use pr as the default prediction method
+	else if `classes' > 0 & mi(`"`pmethod'"') loc pmethod pr
+			
 	// Test if the user passed of the necesary info for this to work
-	if mi(`"`cmd'"') & mi(`"`modifin'"') {
+	if mi(`"`cmd'"') & mi(`"`modifin'"') & mi(`"`: char _dta[predifin]'"') {
 		
 		// Display error message
 		di as err "You must provide either the estimation command string "	 ///
-		"or pass an argument to modifin to use this command"
+		"or pass an argument to modifin to use this command if "			 ///   
+		"{help cmdmod} was not called previously, or the characteristics "	 ///    
+		"created by {help cmdmod} were removed."
 		
 		// Return an error code and exit
 		err 197
@@ -90,7 +109,7 @@ prog def predictit
 		if `classes' == 0 {
 			
 			// If it is, predict on the validation sample:
-			predict double `pstub'`k' `modifin'
+			predict double `pstub'`k' `modifin', `pmethod'
 			
 		} // End IF Block for "regression" tasks
 		
@@ -104,8 +123,6 @@ prog def predictit
 		} // End ELSE Block for classifcation tasks
 		
 	} // Loop over the KFolds
-	
-	su `pstub'*
 	
 	// Create the combined variable as a double for continuous outcomes
 	if `classes' == 0 qui: egen double `pstub' = rowfirst(`pstub'*)
@@ -138,11 +155,13 @@ prog def predictit
 			
 		} // End IF Block for all training sample prediction w/o all sample fit
 		
+		est restore *all
+		
 		// Test whether this is a "regression" task
 		if `classes' == 0 {
 			
 			// If it is, predict on the validation sample:
-			predict double `pstub'all `kfifin'
+			predict double `pstub'all `kfifin', `pmethod'
 			
 		} // End IF Block for "regression" tasks
 		

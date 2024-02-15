@@ -174,6 +174,24 @@ real matrix confusion(string scalar pred, string scalar obs, 				 ///
 	
 } // End function definition for confusion matrix
 
+// Create a function to implement the Poisson density function
+real colvector dpois(real colvector events, real colvector means, | 		 ///   
+					 real scalar ln){
+	
+	// Declares a column vector to store the densities temporarily
+	real colvector density
+	
+	// Compute the density 
+	density = means :^ events :* exp(-means) :/ factorial(events)
+	
+	// Test if there is an argument passed to ln and it equals 1
+	if (args() == 3 & ln == 1) return(log(density))
+	
+	// Otherwise return the density without transformation
+	else return(density)
+
+} // End definition for the Poisson density function
+
 // End Mata interpreter
 end
 
@@ -1022,7 +1040,29 @@ real scalar ccc(string scalar pred, string scalar obs, string scalar touse) {
 	
 } // End of function definition for CCC
 
+// Defines function for Pseudo-Huber Loss
+// based on: https://github.com/tidymodels/yardstick/blob/main/R/num-pseudo_huber_loss.R
+real scalar phl(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Declares a column vector to store the errors
+	real colvector a
+	
+	// Gets the covariance between the predicted and observed values
+	a = st_data(., obs, touse) - st_data(., pred, touse)
 
+	// Computes and returns the loss function value
+	return(mean(1^2 :* (sqrt(1 + (a :/ 1) :^2) :- 1)))
+	
+} // End of function definition for Pseud-Huber Loss
+
+// Defines function for Poisson Log Loss
+// based on: https://github.com/tidymodels/yardstick/blob/main/R/num-poisson_log_loss.R
+real scalar pll(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Returns the mean of the negative log poisson density
+	return(mean(-dpois(st_data(., obs, touse), st_data(., pred, touse), 1)))
+	
+} // End of function definition for Poisson Log Loss
 
 // End mata interpreter
 end

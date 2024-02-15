@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.2 08feb2024}{...}
+{* *! version 0.0.3 15feb2024}{...}
 {vieweralsosee "[R] predict" "mansection R predict"}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat classification"}{...}
 {vieweralsosee "" "--"}{...}
@@ -15,7 +15,7 @@
 
 {p 8 32 2}
 {cmd:classify} # [ if ] {cmd:,} {cmdab:ps:tub(}{it:string asis}{cmd:)} [
-{cmdab:thr:eshold(}{it:real}{cmd:)} ]{p_end}
+{cmdab:thr:eshold(}{it:real}{cmd:)} {cmdab:pm:ethod(}{it:string asis}{cmd:)}]{p_end}
 
 {synoptset 25 tabbed}{...}
 {synoptline}
@@ -25,6 +25,7 @@
 {synopt :{opt ps:tub}}a new variable name for predicted values{p_end}
 {syntab:Optional}
 {synopt :{opt thr:eshold}}positive outcome threshold; default is {cmd:threshold(0.5)}{p_end}
+{synopt :{opt pm:ethod}}predicted statistic from {help predict}; default is {cmd:pmethod(pr)}{p_end}
 {synoptline}
 
 
@@ -58,6 +59,12 @@ fitting the model to all of the training data.
 {opt thr:eshold} defines the probability cutoff used to determine a positive 
 classification for binary response models.  This value functions the same way 
 as it does in the case of {help estat_classification:estat classification}.
+
+{phang}
+{opt pm:ethod} is passed internally to Stata's {help predict} command to 
+generate the predicted values of the outcome for the out-of-sample data. The 
+default in {cmd:classify} is to generate the predicted probabilities of class 
+membership.
 
 
 {marker examples}{...}
