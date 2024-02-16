@@ -30,7 +30,7 @@ made on the validation/test set only.
 ## TODO
 - [ ] Standardize language in help files
 - [ ] Add Steven's Job Title to help files
-- [ ] Standardize API (e.g., change retain to split)
+- [x] Standardize API (e.g., change retain to split)
 - [ ] Finish writing test cases for Mata functions
 - [ ] Finish writing test cases for ADO commands
 - [ ] Write help file for the package
@@ -38,7 +38,7 @@ made on the validation/test set only.
 - [x] Update help file for cmdmod related to characteristics
 - [x] Update help file for predictit with info about characteristics
 - [ ] Consider updating predictit to allow fewer parameters to be specified
-- [ ] Define a utility function to determine if the estimation command has any options 
+- [x] Define a utility function to determine if the estimation command has any options 
 
 # libxv
 
@@ -134,6 +134,7 @@ lmbuild libxv, replace
 - [ ] Test function for Concordance Correlation Coefficient
 - [ ] Test function for Pseudo-Huber Loss
 - [ ] Test function for Poisson Log Loss
+- [ ] Test function for Huber Loss
  
 # Main Commands 
 

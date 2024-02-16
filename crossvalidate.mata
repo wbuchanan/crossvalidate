@@ -82,6 +82,14 @@ string scalar getnoifin(string scalar x) {
 	
 } // End of function definition to return the cmd string up to the options
 
+// Defines a function to indicate whether or not the command string includes
+// optional arguments
+real scalar hasoptions(string scalar x) {
+	
+	return(regexmatch(x, `"(?:(?!["\(]).)*?,\s*(?![^\(]*\))(.*)\$"'))
+	
+} // End of function definition to return an indicator for options in cmd
+
 // Defines a function to parse the prefix command into it's constituent parts
 void function cvparse(string scalar cv) {
 	
@@ -95,7 +103,7 @@ void function cvparse(string scalar cv) {
 	opts = ("metric", "monitors", "uid", "tpoint", "retain", "kfold", 		 ///   
 			 "state", "results", "grid", "params", "tuner", "seed", 		 ///   
 			 "classes", "threshold", "pstub", "split", "display", "pred",    ///   
-			 "obs", "modifin", "kfifin", "noall")
+			 "obs", "modifin", "kfifin", "noall", "pmethod")
 	
 	// Gets the number of options so we don't need to track it manually and 
 	// avoid the minor performance penalty of using cols(opts) in the loop below
@@ -1047,13 +1055,32 @@ real scalar phl(string scalar pred, string scalar obs, string scalar touse) {
 	// Declares a column vector to store the errors
 	real colvector a
 	
-	// Gets the covariance between the predicted and observed values
+	// Gets the difference between the observed and predicted values
 	a = st_data(., obs, touse) - st_data(., pred, touse)
 
 	// Computes and returns the loss function value
 	return(mean(1^2 :* (sqrt(1 + (a :/ 1) :^2) :- 1)))
 	
 } // End of function definition for Pseud-Huber Loss
+
+// Defines function for Huber Loss
+// based on: https://github.com/tidymodels/yardstick/blob/main/R/num-huber_loss.R
+real scalar huber(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Declares a column vector to store the errors and absolute errors
+	real colvector a, absa 
+	
+	// Gets the difference between the observed and predicted values
+	a = st_data(., obs, touse) - st_data(., pred, touse)
+	
+	// Gets the absolute difference of the observed and predicted values
+	absa = abs(a)
+	 
+	// Computes and returns the loss function value
+	return(mean(0.5 :* a[selectindex(absa :<= 1)]:^ 2 \						 ///   
+					absa[selectindex(absa :> 1)] :- 0.5))
+	
+} // End of function definition for the Huber Loss function
 
 // Defines function for Poisson Log Loss
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/num-poisson_log_loss.R

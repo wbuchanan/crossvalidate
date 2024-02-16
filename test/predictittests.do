@@ -19,12 +19,12 @@ bys make: g byte splitvar = _n
 // Make sure the mata library is loaded
 run crossvalidate.mata
 
+// Test error if no estimation command and no value passed to modifin
+rcof "predictit, ps(pred) spl(splitvar)" == 197
+
 // call fitit for 5 folds
 fitit "reg price mpg i.foreign headroom trunk, vce(rob)", res(tst) 			 ///   
 spl(splitvar) 
-
-// Test error if no estimation command and no value passed to modifin
-rcof "predictit, ps(pred) spl(splitvar)" == 197
 
 // Test error if estimation command passed without split variable
 rcof `"predictit "reg price mpg i.foreign headroom trunk, vce(rob)", ps(p)"' == 198

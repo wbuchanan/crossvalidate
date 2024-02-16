@@ -21,7 +21,7 @@
 [{cmdab:se:ed(}{it:integer}{cmd:)}
 {cmdab:u:id(}{it:varlist}{cmd:)} 
 {cmdab:tp:oint(}{it:string asis}{cmd:)} {cmdab:k:fold(}{it:integer}{cmd:)} 
-{cmdab:ret:ain(}{it:string asis}{cmd:)}
+{cmdab:spl:it(}{it:string asis}{cmd:)}
 {cmdab:res:ults(}{it:string asis}{cmd:)}
 {cmdab:c:lasses(}{it:integer}{cmd:)} {cmdab:thr:eshold(}{it:real}{cmd:)} 
 {cmdab:noall} {cmdab:mo:nitors(}{it:string asis}{cmd:)} 
@@ -40,7 +40,7 @@
 {synopt :{opt u:id}}a variable list for clustered sampling/splitting{p_end}
 {synopt :{opt tp:oint}}a numeric, td(), tc(), or tC() value{p_end}
 {synopt :{opt k:fold}}the number of K-Folds to create in the training set; default is {cmd:kfold(1)}{p_end}
-{synopt :{opt ret:ain}}a new variable name; default is {cmd:retain(_xvsplit)}{p_end}
+{synopt :{opt spl:it}}a new variable name; default is {cmd:split(_xvsplit)}{p_end}
 {syntab:Fit}
 {synopt :{opt res:ults}}a stub for storing estimation results{p_end}
 {syntab:Predict}
@@ -122,7 +122,7 @@ the forecasting period data will not affect the model training.
 set. 
 
 {phang}
-{opt ret:ain} is used to specify the name of a new variable that will store the 
+{opt spl:it} is used to specify the name of a new variable that will store the 
 identifiers for the splits in the data.
 
 {dlgtab:Model Fitting}
@@ -225,7 +225,7 @@ addition to the macros that are returned by the estimation command you specify.
 {synopt :{cmd:e(estresall)}}the name used to store the estimation results for the entire training set when K-Fold cross-validation is used.{p_end}
 {synopt :{cmd:e(predifin)}}the if expression to use when predicting on validation/test split.{p_end}
 {synopt :{cmd:e(kfpredifin)}}the if expression to use when predicting on the K-Fold hold out set.{p_end}
-{syntab:Validation Macros}
+{syntab:Validation Scalars}
 {synopt :{cmd:r(metric#)}}contains the metric value for the corresponding K-Fold{p_end}
 {synopt :{cmd:r(`monitors'#)}}one scalar for each monitor passed to the monitors option, named by the monitor function with a numeric value to identify the corresponding K-Fold{p_end}
 {synopt :{cmd:r(metricall)}}contains the metric value for K-Fold CV fitted to all of the K-Folds{p_end}

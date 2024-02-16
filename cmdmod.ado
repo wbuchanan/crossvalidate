@@ -6,8 +6,8 @@
 *******************************************************************************/
 
 *! cmdmod
-*! v 0.0.5
-*! 15FEB2024
+*! v 0.0.6
+*! 16FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop cmdmod
@@ -21,12 +21,13 @@ prog def cmdmod, rclass
 	// Defines the syntax for this program
 	syntax anything(name = cmd id="estimation command"), 					 ///   
 			SPLit(varlist min = 1 max = 1) [ KFold(integer 1) ]
-
-	// This should all get refactored into a new program/function
 	
 	// Get any if/in statements
 	mata: tosub = getifin(`cmd')
 	
+	// Test whether the command includes options
+	mata: st_local("opts", strofreal(hasoptions(`cmd')))
+		
 	// Test for no if/in statements
 	if mi(`"`ifin'"') {
 		
@@ -43,7 +44,8 @@ prog def cmdmod, rclass
 			
 			// For KFold CV use the loop iterator to ID the holdout sample to 
 			// exclude from model fitting
-			loc modifin " if `split' != \`k'"
+			if `opts' loc modifin " if `split' != \`k'"
+			else loc modifin " if `split' != \`k',"
 			
 			// Creates the new command string with the substituted value stored 
 			// in the local cmdmod and a mata variable with the same name
@@ -64,7 +66,8 @@ prog def cmdmod, rclass
 			
 			// Also create a modified statement to fit the model to all training
 			// data
-			loc kfifin " if `split' <= `kfold'"
+			if `opts' loc kfifin " if `split' <= `kfold'"
+			else loc kfifin " if `split' <= `kfold',"
 			
 			// And do the same for the prediction
 			ret loc kfpredifin " if !e(sample) & `split' == `= `kfold' + 1'"
@@ -87,7 +90,8 @@ prog def cmdmod, rclass
 		else {
 			
 			// Create the model if/in statement
-			loc modifin " if `split' == 1"
+			if `opts' loc modifin " if `split' == 1"
+			else loc modifin " if `split' == 1,"
 			
 			// For TT and TVT splits, use the validation sample group ID
 			ret loc predifin " if !e(sample) & `split' == 2"
@@ -115,7 +119,8 @@ prog def cmdmod, rclass
 			
 			// Create the modified if/in statement to be pushed into the user's 
 			// estimation command
-			loc modifin "`ifin' & `split' != \`k'"
+			if `opts' loc modifin "`ifin' & `split' != \`k'"
+			else loc modifin "`ifin' & `split' != \`k',"
 			
 			// Creates the new command string with the substituted value stored 
 			// in the local cmdmod
@@ -134,7 +139,8 @@ prog def cmdmod, rclass
 			
 			// Also create a modified statement to fit the model to all training
 			// data
-			loc kfifin "`ifin' & `split' <= `kfold'"
+			if `opts' loc kfifin "`ifin' & `split' <= `kfold'"
+			else loc kfifin "`ifin' & `split' <= `kfold',"
 			
 			// And do the same for the prediction
 			ret loc kfpredifin " `ifin' & !e(sample) & `split' == `= `kfold' + 1'"
@@ -157,7 +163,8 @@ prog def cmdmod, rclass
 		else {
 			
 			// Create the modified if/in statement for non-KFold cases
-			loc modifin "`ifin' & `split' == 1"
+			if `opts' loc modifin "`ifin' & `split' == 1"
+			else loc modifin "`ifin' & `split' == 1,"
 			
 			// Create the if/in statement for predictions
 			ret loc predifin " `ifin' & !e(sample) & `split' == 2"

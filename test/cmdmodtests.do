@@ -21,7 +21,7 @@ run crossvalidate.mata
 cmdmod "ivreg price (mpg i.foreign)", spl(spvar) 
 
 // Test the modified command
-assert `"`r(modcmd)'"' == "ivreg price (mpg i.foreign) if spvar == 1" 
+assert `"`r(modcmd)'"' == "ivreg price (mpg i.foreign) if spvar == 1," 
 
 // Test the if statement for prediction
 assert `"`r(predifin)'"' == " if !e(sample) & spvar == 2" 
@@ -30,10 +30,10 @@ assert `"`r(predifin)'"' == " if !e(sample) & spvar == 2"
 cmdmod "ivreg price (mpg i.foreign)", spl(spvar) kf(5)
 
 // Test the modified command
-assert `"`r(modcmd)'"' == "ivreg price (mpg i.foreign) if spvar != `k'" 
+assert `"`r(modcmd)'"' == "ivreg price (mpg i.foreign) if spvar != `k'," 
 
 // Test the modified command for kfold cv
-assert `"`r(kfmodcmd)'"' == "ivreg price (mpg i.foreign) if spvar <= 5"
+assert `"`r(kfmodcmd)'"' == "ivreg price (mpg i.foreign) if spvar <= 5,"
 
 // Test the if statement for prediction
 assert `"`r(predifin)'"' == " if !e(sample) & spvar == `k'" 
@@ -81,7 +81,7 @@ assert `"`r(kfpredifin)'"' == " if !e(sample) & spvar == 6"
 cmdmod "ivreg price (mpg i.foreign) if rep78 == 2", spl(spvar) 
 
 // Test the modified command
-assert `"`r(modcmd)'"' == "ivreg price (mpg i.foreign) if rep78 == 2 & spvar == 1" 
+assert `"`r(modcmd)'"' == "ivreg price (mpg i.foreign) if rep78 == 2 & spvar == 1," 
 
 // Test the if statement for prediction
 assert `"`r(predifin)'"' == " if rep78 == 2 & !e(sample) & spvar == 2" 
@@ -90,10 +90,10 @@ assert `"`r(predifin)'"' == " if rep78 == 2 & !e(sample) & spvar == 2"
 cmdmod "ivreg price (mpg i.foreign) if rep78 == 2", spl(spvar) kf(5)
 
 // Test the modified command
-assert `"`r(modcmd)'"' == "ivreg price (mpg i.foreign) if rep78 == 2 & spvar != `k'" 
+assert `"`r(modcmd)'"' == "ivreg price (mpg i.foreign) if rep78 == 2 & spvar != `k'," 
 
 // Test the modified command for kfold cv
-assert `"`r(kfmodcmd)'"' == "ivreg price (mpg i.foreign) if rep78 == 2 & spvar <= 5"
+assert `"`r(kfmodcmd)'"' == "ivreg price (mpg i.foreign) if rep78 == 2 & spvar <= 5,"
 
 // Test the if statement for prediction
 assert `"`r(predifin)'"' == " if rep78 == 2 & !e(sample) & spvar == `k'" 
@@ -141,7 +141,7 @@ assert `"`r(kfpredifin)'"' == " if rep78 == 2 & !e(sample) & spvar == 6"
 cmdmod "ivreg price (mpg i.foreign) if inlist(rep78, 2, 3)", spl(spvar) 
 
 // Test the modified command
-assert `"`r(modcmd)'"' == "ivreg price (mpg i.foreign) if inlist(rep78, 2, 3) & spvar == 1" 
+assert `"`r(modcmd)'"' == "ivreg price (mpg i.foreign) if inlist(rep78, 2, 3) & spvar == 1," 
 
 // Test the if statement for prediction
 assert `"`r(predifin)'"' == " if inlist(rep78, 2, 3) & !e(sample) & spvar == 2" 
@@ -150,10 +150,10 @@ assert `"`r(predifin)'"' == " if inlist(rep78, 2, 3) & !e(sample) & spvar == 2"
 cmdmod `"ivreg price (mpg i.foreign) if inlist(rep78, "2", "3")"', spl(spvar) kf(5)
 
 // Test the modified command
-assert `"`r(modcmd)'"' == `"ivreg price (mpg i.foreign) if inlist(rep78, "2", "3") & spvar != `k'"'
+assert `"`r(modcmd)'"' == `"ivreg price (mpg i.foreign) if inlist(rep78, "2", "3") & spvar != `k',"'
 
 // Test the modified command for kfold cv
-assert `"`r(kfmodcmd)'"' == `"ivreg price (mpg i.foreign) if inlist(rep78, "2", "3") & spvar <= 5"'
+assert `"`r(kfmodcmd)'"' == `"ivreg price (mpg i.foreign) if inlist(rep78, "2", "3") & spvar <= 5,"'
 
 // Test the if statement for prediction
 assert `"`r(predifin)'"' == `" if inlist(rep78, "2", "3") & !e(sample) & spvar == `k'"' 

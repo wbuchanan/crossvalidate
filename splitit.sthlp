@@ -14,7 +14,7 @@
 {p 8 32 2}
 {cmd:splitit} # [#] {ifin} [{cmd:,} {cmdab:u:id(}{it:varlist}{cmd:)} 
 {cmdab:tp:oint(}{it:string asis}{cmd:)} {cmdab:k:fold(}{it:integer}{cmd:)} 
-{cmdab:ret:ain(}{it:string asis}{cmd:)}]{p_end}
+{cmdab:spl:it(}{it:string asis}{cmd:)}]{p_end}
 
 {synoptset 15 tabbed}{...}
 {synoptline}
@@ -23,7 +23,7 @@
 {synopt :{opt u:id}}a variable list for clustered sampling/splitting{p_end}
 {synopt :{opt tp:oint}}a numeric, td(), tc(), or tC() value{p_end}
 {synopt :{opt k:fold}}the number of K-Folds to create in the training set; default is {cmd:kfold(1)}{p_end}
-{synopt :{opt ret:ain}}a new variable name; default is {cmd:retain(_xvsplit)}{p_end}
+{synopt :{opt spl:it}}a new variable name; default is {cmd:split(_xvsplit)}{p_end}
 {synoptline}
 
 
@@ -65,7 +65,7 @@ the forecasting period data will not affect the model training.
 set. 
 
 {phang}
-{opt ret:ain} is used to specify the name of a new variable that will store the 
+{opt spl:it} is used to specify the name of a new variable that will store the 
 identifiers for the splits in the data.
 
 

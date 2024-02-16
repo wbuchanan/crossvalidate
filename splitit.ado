@@ -20,7 +20,7 @@ prog def splitit, rclass
 	
 	// Syntax for the splitit subroutine
 	syntax anything(name = props id = "Split proportion(s)") [if] [in] [, 	 ///   
-		   Uid(varlist) TPoint(string asis) KFold(integer 1) RETain(string asis) ]
+		   Uid(varlist) TPoint(string asis) KFold(integer 1) SPLit(string asis) ]
 	
 	// Mark the sample to handle any if/in arguments (can now pass if `touse') 
 	// for the downstream work to handle user specified if/in conditions.
@@ -92,9 +92,9 @@ prog def splitit, rclass
 		
 	} // End IF Block for proportions that sum to greater than unity
 
-	// Require an argument for retain if the user wants a validation and test 
+	// Require an argument for split if the user wants a validation and test 
 	// split
-	if !mi("`validate'") & mi(`"`retain'"') {
+	if !mi("`validate'") & mi(`"`split'"') {
 		
 		// Check to see if _xvsplit is already defined
 		cap confirm v _xvsplit
@@ -102,7 +102,7 @@ prog def splitit, rclass
 		// If the variable exists
 		if _rc == 0 {
 			
-			// If no varname is passed to retain
+			// If no varname is passed to split
 			di as err "New varname required for validation/test splits if _xvsplit already exists."
 			
 			// Return error code
@@ -112,8 +112,8 @@ prog def splitit, rclass
 
 	} // End IF Block for new varname requirement for tvt splits
 	
-	// If no variable name is passed to retain use _xvsplit
-	if mi("`retain'") loc retain _xvsplit
+	// If no variable name is passed to split use _xvsplit
+	if mi("`split'") loc split _xvsplit
 	
 	// If tpoint is used expect that the data are xt/tsset
 	if !mi(`"`tpoint'"') {
@@ -356,10 +356,10 @@ prog def splitit, rclass
 		if !mi("`tpoint'") { 
 			
 			// Create a new variable to identify the corresponding forecast sample
-			qui: g byte `retain'xv4 = `sgrp' if `touse' & `tvar' > `tpoint'
+			qui: g byte `split'xv4 = `sgrp' if `touse' & `tvar' > `tpoint'
 			
 			// Label the variable
-			la var `retain'xv4 "Forecasting sample for the corresponding split"
+			la var `split'xv4 "Forecasting sample for the corresponding split"
 		
 			// Then unflag those records from the main sample
 			replace `sgrp' = . if `touse' & `tvar' > `tpoint'
@@ -377,10 +377,10 @@ prog def splitit, rclass
 							& mi(`sgrp'[_n]) & !mi(`sgrp'[_n - 1]) 
 							
 		// Create the forecast identifier
-		qui: g byte `retain'xv4 = `sgrp' if `touse' & `tvar' > `tpoint'
+		qui: g byte `split'xv4 = `sgrp' if `touse' & `tvar' > `tpoint'
 		
 		// Label the variable
-		la var `retain'xv4 "Forecasting sample for the corresponding split"
+		la var `split'xv4 "Forecasting sample for the corresponding split"
 		
 		// And now replace the split variables with missings for the forecast 
 		// sample
@@ -393,14 +393,14 @@ prog def splitit, rclass
 	
 	// For the last step we'll move the values from the tempvar into the 
 	// permanent variable (which could have happened earlier)
-	clonevar `retain' = `sgrp' if `touse'
+	clonevar `split' = `sgrp' if `touse'
 	
 	// Apply the value label to the split group variable
-	la val `retain' _splitvar
+	la val `split' _splitvar
 	
 	// Set an r macro with the variable name with the split variable to make 
 	// sure it can be cleaned up by the calling command later in the process
-	ret loc splitter = "`retain'"
+	ret loc splitter = "`split'"
 	
 	// Return the IDs that identifies the training splits
 	ret loc training = "`trainsplit'"
@@ -418,7 +418,7 @@ prog def splitit, rclass
 	ret loc flavor = `"`flavor'"'
 	
 	// If using for panel/timeseries return the forecast variable name
-	if !mi("`tpoint'") ret loc forecastset = "`retain'xv4"
+	if !mi("`tpoint'") ret loc forecastset = "`split'xv4"
 	
 // End of program definitions	
 end
