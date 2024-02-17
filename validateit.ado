@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! validateit
-*! v 0.0.5
-*! 16FEB2024
+*! v 0.0.6
+*! 17FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop validateit
@@ -18,7 +18,7 @@ prog def validateit, rclass
 	version 18
 	
 	// Syntax
-	syntax , MEtric(string asis) Pred(varname) SPLit(varname) 				 ///   
+	syntax , MEtric(string asis) Pred(string asis) SPLit(varname) 			 ///   
 	[ Obs(varname) MOnitors(string asis) DISplay KFold(integer 1) noall ]
 	
 	// Test to ensure the metric is not included in the monitor
@@ -46,6 +46,28 @@ prog def validateit, rclass
 	
 	// If no argument is passed to the option but it is found in e(depvar) 
 	else if mi("`obs'") & !mi("`e(depvar)'") loc obs `e(depvar)'
+	
+	// Test for `pred'all if using K-Fold and not specifying noall
+	if `kfold' > 1 & mi(`"`all'"') {
+		
+		// Capture the code from confirming the variable's presence
+		cap: confirm v `pred'all
+		
+		// If this fails
+		if _rc != 0 {
+			
+			// Print an error message to the console
+			di as err "The variable `pred'all was not found and you are "	 ///   
+			"requesting evaluating metrics that require that variable." _n   ///   
+			"You can either pass the noall option, or need to predict the "	 ///   
+			"values from your models again to generate that variable."
+			
+			// Throw an error code and exit
+			err 111
+			
+		} // End IF Block for missing `pred'all variable
+		
+	} // End IF Block for detecting missing `pred'all w/K-Fold and missing noall
 	
 	// Verify that there is only a single metric
 	if `: word count `metric'' > 1 {

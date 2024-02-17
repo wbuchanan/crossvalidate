@@ -155,6 +155,7 @@ prog def predictit
 			
 		} // End IF Block for all training sample prediction w/o all sample fit
 		
+		// Restore the estimation results
 		est restore *all
 		
 		// Test whether this is a "regression" task

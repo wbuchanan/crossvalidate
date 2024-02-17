@@ -145,19 +145,19 @@ ctab = st_matrix("r(ctable)")
 //**** Now we compute all of our classification metrics
 
 // Get the value of sensitivity
-sens = sensitivity("pred", "low", "touse")
+sensitivity = sens("pred", "low", "touse")
 
 // Get the value for precision
-prec = precision("pred", "low", "touse")
+precision = prec("pred", "low", "touse")
 
 // Gets the value for "recall" (remember this is a synonym for sensitivity)
 rcall = recall("pred", "low", "touse")
 
 // Get the value of specificity
-spec = specificity("pred", "low", "touse")
+specificity = spec("pred", "low", "touse")
 
 // Get the value of prevalence
-prev = prevalence("pred", "low", "touse")
+prevalence = prev("pred", "low", "touse")
 
 // Get the value of positive predictive value
 pospv = ppv("pred", "low", "touse")
@@ -166,17 +166,17 @@ pospv = ppv("pred", "low", "touse")
 negpv = npv("pred", "low", "touse")
 
 // Get the value of accuracy
-acc = accuracy("pred", "low", "touse")
+accuracy = acc("pred", "low", "touse")
 
 // Get the value of the balanced accuracy statistic
-bacc = baccuracy("pred", "low", "touse")
+baccuracy = bacc("pred", "low", "touse")
 
 // Get the value of the f1 statistic
 f1stat = f1("pred", "low", "touse")
 
 // Recall function calls sensitivity under the hood and is just a synonym so it 
 // should return the exact same result 
-asserteq(sens, rcall)
+asserteq(sensitivity, rcall)
 
 // Create a variable to store the rounding factor to standardize things in the 
 // tests below set to 1e-6
@@ -185,13 +185,13 @@ rf = 0.000001
 // Now we'll test the metrics based on Stata's computations whenever we can
 
 // Test equality of sensitivity metrics
-asserteq(round(stsens, rf), round(sens, rf))
+asserteq(round(stsens, rf), round(sensitivity, rf))
 
 // Test equality of Precision metrics
 // asserteq(round(, rf), round(prec, rf))
 
 // Test equality of specificity metrics
-asserteq(round(stspec, rf), round(spec, rf))
+asserteq(round(stspec, rf), round(specificity, rf))
 
 // Test equality of Prevalence metrics
 //asserteq(round(ctab[3, 1], rf), round(prev, rf))
@@ -203,10 +203,10 @@ asserteq(round(stppv, rf), round(pospv, rf))
 asserteq(round(stnpv, rf), round(negpv, rf))
 
 // Test equality of Accuracy metrics
-asserteq(round(stacc, rf), round(acc, rf))
+asserteq(round(stacc, rf), round(accuracy, rf))
 
 // Test equality of "Balanced" Accuracy metrics
-asserteq(round(((stsens + stspec) / 2), rf), round(bacc, rf))
+asserteq(round(((stsens + stspec) / 2), rf), round(baccuracy, rf))
 
 // Test equality of F1 metrics
 // asserteq(round(, rf), round(f1stat, rf))

@@ -6,8 +6,8 @@
 *******************************************************************************/
 
 *! cmdmod
-*! v 0.0.6
-*! 16FEB2024
+*! v 0.0.7
+*! 17FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop cmdmod
@@ -42,10 +42,23 @@ prog def cmdmod, rclass
 		// For KFold CV cases
 		if `kfold' > 1 {
 			
-			// For KFold CV use the loop iterator to ID the holdout sample to 
-			// exclude from model fitting
-			if `opts' loc modifin " if `split' != \`k'"
-			else loc modifin " if `split' != \`k',"
+			// If there are options present
+			if `opts' {
+				
+				// Generate the modified if expression w/o a trailing comma for 
+				// the individual K-Folds
+				loc modifin " if `split' != \`k'"
+				
+			} // End IF Block for options present
+			
+			// If there are no options present
+			else {
+				
+				// Generate the modified if expression w/a trailing comma for 
+				// the individual K-Folds
+				loc modifin " if `split' != \`k',"
+					
+			} // End ELSE Block for no options
 			
 			// Creates the new command string with the substituted value stored 
 			// in the local cmdmod and a mata variable with the same name
@@ -64,10 +77,23 @@ prog def cmdmod, rclass
 			// Store this in a dataset characteristic
 			char _dta[predifin] " if !e(sample) & `split' == \`k'"
 			
-			// Also create a modified statement to fit the model to all training
-			// data
-			if `opts' loc kfifin " if `split' <= `kfold'"
-			else loc kfifin " if `split' <= `kfold',"
+			// If there are options present
+			if `opts' {
+				
+				// Generate the modified if expression for the whole training 
+				// set w/o a trailing comma
+				loc kfifin " if `split' <= `kfold'"
+				
+			} // End IF Block for options present
+			
+			// If there aren't options present
+			else {
+				
+				// Generate the modified if expression for the whole training 
+				// set w/a trailing comma
+				loc kfifin " if `split' <= `kfold',"
+				
+			} // End ELSE Block for options present
 			
 			// And do the same for the prediction
 			ret loc kfpredifin " if !e(sample) & `split' == `= `kfold' + 1'"
@@ -89,9 +115,21 @@ prog def cmdmod, rclass
 		// For non-KFold cases
 		else {
 			
-			// Create the model if/in statement
-			if `opts' loc modifin " if `split' == 1"
-			else loc modifin " if `split' == 1,"
+			// If there are options present
+			if `opts' {
+				
+				// Generate the modified if expression w/o a trailing comma
+				loc modifin " if `split' == 1"
+				
+			} // End IF Block for options present
+			
+			// If no options are present
+			else {
+				
+				// Generate the modified if expression w/a trailing comma
+				loc modifin " if `split' == 1,"
+				
+			} // End ELSE Block for no options present
 			
 			// For TT and TVT splits, use the validation sample group ID
 			ret loc predifin " if !e(sample) & `split' == 2"
@@ -117,10 +155,23 @@ prog def cmdmod, rclass
 		// Create the modified if/in statements for KFold cases
 		if `kfold' > 1 { 
 			
-			// Create the modified if/in statement to be pushed into the user's 
-			// estimation command
-			if `opts' loc modifin "`ifin' & `split' != \`k'"
-			else loc modifin "`ifin' & `split' != \`k',"
+			// If there are options present
+			if `opts' {
+				
+				// Generate the modified if expression w/o a trailing comma for 
+				// the individual K-Folds
+				loc modifin "`ifin' & `split' != \`k'"
+				
+			} // End IF Block for options present
+			
+			// If there are no options present
+			else {
+				
+				// Generate the modified if expression w/a trailing comma for 
+				// the individual K-Folds
+				loc modifin "`ifin' & `split' != \`k',"
+					
+			} // End ELSE Block for no options
 			
 			// Creates the new command string with the substituted value stored 
 			// in the local cmdmod
@@ -137,10 +188,23 @@ prog def cmdmod, rclass
 			// Store this macro in a data characteristic as well
 			char _dta[predifin] " `ifin' & !e(sample) & `split' == \`k'"
 			
-			// Also create a modified statement to fit the model to all training
-			// data
-			if `opts' loc kfifin "`ifin' & `split' <= `kfold'"
-			else loc kfifin "`ifin' & `split' <= `kfold',"
+			// If there are options present
+			if `opts' {
+				
+				// Generate the modified if expression for the whole training 
+				// set w/o a trailing comma
+				loc kfifin "`ifin' & `split' <= `kfold'"
+				
+			} // End IF Block for options present
+			
+			// If there aren't options present
+			else {
+				
+				// Generate the modified if expression for the whole training 
+				// set w/a trailing comma
+				loc kfifin "`ifin' & `split' <= `kfold',"
+				
+			} // End ELSE Block for options present
 			
 			// And do the same for the prediction
 			ret loc kfpredifin " `ifin' & !e(sample) & `split' == `= `kfold' + 1'"
@@ -162,9 +226,21 @@ prog def cmdmod, rclass
 		// For non-KFold
 		else {
 			
-			// Create the modified if/in statement for non-KFold cases
-			if `opts' loc modifin "`ifin' & `split' == 1"
-			else loc modifin "`ifin' & `split' == 1,"
+			// If there are options present
+			if `opts' {
+				
+				// Generate the modified if expression w/o a trailing comma
+				loc modifin "`ifin' & `split' == 1"
+				
+			} // End IF Block for options present
+			
+			// If no options are present
+			else {
+				
+				// Generate the modified if expression w/a trailing comma
+				loc modifin "`ifin' & `split' == 1,"
+				
+			} // End ELSE Block for no options present
 			
 			// Create the if/in statement for predictions
 			ret loc predifin " `ifin' & !e(sample) & `split' == 2"

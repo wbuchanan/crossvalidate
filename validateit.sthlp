@@ -1,9 +1,10 @@
 {smcl}
-{* *! version 0.0.2 16feb2024}{...}
+{* *! version 0.0.3 17feb2024}{...}
 {viewerjumpto "Syntax" "validateit##syntax"}{...}
 {viewerjumpto "Description" "validateit##description"}{...}
 {viewerjumpto "Options" "validateit##options"}{...}
 {viewerjumpto "Custom Metrics and Monitors" "validateit##custom"}{...}
+{viewerjumpto "Built-In Metrics and Monitors" "validateit##builtin"}{...}
 {viewerjumpto "Examples" "validateit##examples"}{...}
 {viewerjumpto "Returned Values" "validateit##retvals"}{...}
 {viewerjumpto "Additional Information" "validateit##additional"}{...}
@@ -16,7 +17,7 @@
 {cmd:validateit} {cmd:,} {cmdab:me:tric(}{it:string asis}{cmd:)} 
 {cmdab:p:red(}{it:string asis}{cmd:)} {cmdab:spl:it(}{it:varname}{cmd:)} [ 
 {cmdab:o:bs(}{it:varname}{cmd:)} {cmdab:mo:nitors(}{it:string asis}{cmd:)} 
-{cmdab:dis:play}]{p_end}
+{cmdab:dis:play} {cmdab:k:fold(}{it:integer}{cmd:)} {cmdab:noall}]{p_end}
 
 {synoptset 15 tabbed}{...}
 {synoptline}
@@ -27,9 +28,9 @@
 {synopt :{opt p:red}}variable name stuf for predicted values{p_end}
 {synopt :{opt spl:it}}name of the variable that identifies the training split(s){p_end}
 {syntab:Optional}
-{synopt :{opt o:bs}}name of the dependent variable; default is {cmd obs(`e(depvar)')}{p_end}
-{synopt :{opt mo:nitors}}zero or more function names from {help libxv} or user-defined functions; default is {cmd monitors()}{p_end}
-{synopt :{opt dis:play}}display results in window; default is off{p_end}
+{synopt :{opt o:bs}}name of the dependent variable; default is {cmd:obs(`e(depvar)')}{p_end}
+{synopt :{opt mo:nitors}}zero or more function names from {help libxv} or user-defined functions; default is {cmd:monitors()}{p_end}
+{synopt :{opt dis:play}}display results in window; default is {cmd:off}{p_end}
 {synopt :{opt k:fold}}the number of folds in the training set; default is {cmd:kfold(1)}.{p_end}
 {synopt :{opt noall}}suppresses prediction on entire training set for K-Fold cases{p_end}
 {synoptline}
@@ -147,15 +148,79 @@ name to the metric or monitors options.  {it:Note, you will need to make sure
 that the function is defined in Mata prior to using it or ensure that it is 
 defined in a library that Mata will search automatically}.
 
+{marker builtin}{...}
+{title:Built-In Metrics and Monitors}
+
+{pstd}
+The table below lists all of the validation measures that can be used as metrics 
+or monitors with {cmd:validateit}.  The values in the name column below indicate 
+what to specify in the {opt me:tric} and {opt mo:nitors} options to use the 
+corresponding measures.  For additional information about each of the measures 
+and references, please see {help libxv}.
+
+{synoptset 15 tabbed}{...}
+{synoptline}
+{synopthdr:Name}
+{synoptline}
+{syntab:Binary Classification Metrics}
+{synopt :{opt sens}}Sensitivity{p_end}
+{synopt :{opt prec}}Precision{p_end}
+{synopt :{opt recall}}Recall{p_end}
+{synopt :{opt spec}}Specificity{p_end}
+{synopt :{opt prev}}Prevalence{p_end}
+{synopt :{opt ppv}}Positive Predictive Value{p_end}
+{synopt :{opt npv}}Negative Predictive Value{p_end}
+{synopt :{opt acc}}Accuracy{p_end}
+{synopt :{opt bacc}}Balanced Accuracy{p_end}
+{synopt :{opt mcc}}Matthews Correlation Coefficient{p_end}
+{synopt :{opt f1}}F1 Statistic{p_end}
+{synopt :{opt jindex}}Youden's J Statistic{p_end}
+{synopt :{opt binr2}}Tetrachoric Correlation Coefficient{p_end}
+{syntab:Multinomial/Ordinal Classification Metrics}
+{synopt :{opt mcsens}}Multiclass Sensitivity{p_end}
+{synopt :{opt mcprec}}Multiclass Precision{p_end}
+{synopt :{opt mcrecall}}Multiclass Recall{p_end}
+{synopt :{opt mcspec}}Multiclass Specificity{p_end}
+{synopt :{opt mcprev}}Multiclass Prevalence{p_end}
+{synopt :{opt mcppv}}Multiclass Positive Predictive Value{p_end}
+{synopt :{opt mcnpv}}Multiclass Negative Predictive Value{p_end}
+{synopt :{opt mcacc}}Multiclass Accuracy{p_end}
+{synopt :{opt mcbacc}}Multiclass Balanced Accuracy{p_end}
+{synopt :{opt mcmcc}}Multiclass Matthews Correlation Coefficient{p_end}
+{synopt :{opt mcf1}}Multiclass F1 Statistic{p_end}
+{synopt :{opt mcjindex}}Multiclass Youden's J Statistic{p_end}
+{synopt :{opt mcordr2}}Polychoric Correlation Coefficient {opt ***}{p_end}
+{synopt :{opt mcdetect}}Multiclass Detection Prevalence{p_end}
+{synopt :{opt mckappa}}Multiclass Kappa{p_end}
+{syntab:Non-Classification Metrics}
+{synopt :{opt mse}}Mean Squared Error{p_end}
+{synopt :{opt rmse}}Root Mean Squared Error{p_end}
+{synopt :{opt mae}}Mean Absolute Error{p_end}
+{synopt :{opt bias}}Total (Bias) Error{p_end}
+{synopt :{opt mbe}}Mean (Bias) Error{p_end}
+{synopt :{opt r2}}Pearson Correlation Coefficient{p_end}
+{synopt :{opt mape}}Mean Absolute Percentage Error{p_end}
+{synopt :{opt smape}}Symmetric Mean Absolute Percentage Error{p_end}
+{synopt :{opt msle}}Mean Squared Log Error{p_end}
+{synopt :{opt rmsle}}Root Mean Squared Log Error{p_end}
+{synopt :{opt rpd}}Ratio of Performance to Deviation{p_end}
+{synopt :{opt iic}}Index of Ideality of Correlation{p_end}
+{synopt :{opt ccc}}Concordance Correlation Coefficient{p_end}
+{synopt :{opt huber}}Huber Loss{p_end}
+{synopt :{opt phl}}Pseudo-Huber Loss{p_end}
+{synopt :{opt pll}}Poisson Log Loss{p_end}
+{synoptline}
+{synopt :{opt ***}  {it:Note this requires installation of {search polychoric}}}
+
+
 {marker examples}{...}
 {title:Examples}
 
-
 {p 4 4 2}Without Monitors{p_end}
-{p 8 4 2}validateit, me(mse) p(pred){p_end}
+{p 8 4 2}validateit, me(mse) p(pred) spl(splitvar){p_end}
 
 {p 4 4 2}With Monitors{p_end}
-{p 8 4 2}validateit, me(accuracy) p(pred) mo(npv ppv baccuracy f1 sensitivity specificity){p_end}
+{p 8 4 2}validateit, me(acc) p(pred) spl(splitvar) mo(npv ppv bacc f1 sens spec){p_end}
 
 
 {marker retvals}{...}

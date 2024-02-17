@@ -33,11 +33,13 @@ made on the validation/test set only.
 - [x] Standardize API (e.g., change retain to split)
 - [ ] Finish writing test cases for Mata functions
 - [ ] Finish writing test cases for ADO commands
-- [ ] Write help file for the package
-- [ ] Write help file for the Mata library
+- [x] Start writing help file for the package
+- [x] Start writing help file for the Mata library
+- [ ] Finish writing help file for the package
+- [ ] Finish writing help file for the Mata library
 - [x] Update help file for cmdmod related to characteristics
 - [x] Update help file for predictit with info about characteristics
-- [ ] Consider updating predictit to allow fewer parameters to be specified
+- [x] Consider updating predictit to allow fewer parameters to be specified
 - [x] Define a utility function to determine if the estimation command has any options 
 
 # libxv
@@ -252,11 +254,12 @@ predicted values from the model.
 * <ins>o</ins>bs(string asis) - the name of the dependent variable from the model.
 * <ins>dis</ins>play - an option to print the monitor and metric values to the 
 console.
+* noall - suppresses prediction on the entire training sample when using K-Fold cross-validation.
 
 ### Testing
-- [ ] Need to ensure that the return scalars are correctly populated
-- [ ] Test that the display option works correctly and that output is easy to read
-- [ ] Test that approach to calling the Mata functions works as intended
+- [x] Need to ensure that the return scalars are correctly populated
+- [x] Test that the display option works correctly and that output is easy to read
+- [x] Test that approach to calling the Mata functions works as intended
 
 ## xv
 

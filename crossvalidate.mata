@@ -222,8 +222,7 @@ mata:
 // For sensitivity, specificity, prevalence, ppv, and npv see:
 // https://yardstick.tidymodels.org/reference/ppv.html	
 // For others in this section see other pages from above			
-real scalar sensitivity(string scalar pred, string scalar obs, 				 ///   
-					  string scalar touse) {
+real scalar sens(string scalar pred, string scalar obs, string scalar touse) {
 	
 	// Declares a matrix to store the confusion matrix
 	real matrix conf
@@ -248,8 +247,7 @@ real scalar sensitivity(string scalar pred, string scalar obs, 				 ///
 					
 // Function to compute precision from a confusion matrix.  See:
 // https://yardstick.tidymodels.org/reference/precision.html for the formula
-real scalar precision(string scalar pred, string scalar obs, 				 ///   
-					  string scalar touse) {
+real scalar prec(string scalar pred, string scalar obs, string scalar touse) {
 	
 	// Declares a matrix to store the confusion matrix
 	real matrix conf
@@ -280,7 +278,7 @@ real scalar recall(string scalar pred, string scalar obs, string scalar touse) {
 	real scalar result
 	
 	// Recall is a synonym for sensitivity, so it just calls that function
-	result = sensitivity(pred, obs, touse)
+	result = sens(pred, obs, touse)
 	
 	// Returns the metric
 	return(result)
@@ -289,7 +287,7 @@ real scalar recall(string scalar pred, string scalar obs, string scalar touse) {
 				
 // Defines function to compute specificity from a confusion matrix.  
 // See: https://yardstick.tidymodels.org/reference/ppv.html for the formula
-real scalar specificity(string scalar pred, string scalar obs, 				 ///   
+real scalar spec(string scalar pred, string scalar obs, 				 ///   
 					  string scalar touse) {
 	
 	// Declares a matrix to store the confusion matrix
@@ -315,8 +313,7 @@ real scalar specificity(string scalar pred, string scalar obs, 				 ///
 
 // Defines a function to compute prevalence.  
 // See: https://yardstick.tidymodels.org/reference/ppv.html for the formula
-real scalar prevalence(string scalar pred, string scalar obs, 				 ///   
-					  string scalar touse) {
+real scalar prev(string scalar pred, string scalar obs, string scalar touse) {
 	
 	// Declares a matrix to store the confusion matrix
 	real matrix conf
@@ -351,13 +348,13 @@ real scalar ppv(string scalar pred, string scalar obs, string scalar touse) {
 	real scalar result, sens, spec, prev
 	
 	// Computes sensitivity 
-	sens = sensitivity(pred, obs, touse)
+	sens = sens(pred, obs, touse)
 	
 	// Computes prevalence
-	prev = prevalence(pred, obs, touse)
+	prev = prev(pred, obs, touse)
 	
 	// Computes specificity
-	spec = specificity(pred, obs, touse)
+	spec = spec(pred, obs, touse)
 	
 	// Computes positive predictive value
 	result = (sens * prev) / ((sens * prev) + ((1 - spec) * (1 - prev)))
@@ -379,13 +376,13 @@ real scalar npv(string scalar pred, string scalar obs, string scalar touse) {
 	real scalar result, sens, spec, prev
 	
 	// Computes sensitivity 
-	sens = sensitivity(pred, obs, touse)
+	sens = sens(pred, obs, touse)
 	
 	// Computes prevalence
-	prev = prevalence(pred, obs, touse)
+	prev = prev(pred, obs, touse)
 	
 	// Computes specificity
-	spec = specificity(pred, obs, touse)
+	spec = spec(pred, obs, touse)
 	
 	// Computes negative predictive value
 	result = (spec * (1 - prev)) / (((1 - sens) * prev) + (spec * (1 - prev)))
@@ -396,8 +393,7 @@ real scalar npv(string scalar pred, string scalar obs, string scalar touse) {
 } // End of function definition for negative predictive value
 
 // Defines a function to compute accuracy.
-real scalar accuracy(string scalar pred, string scalar obs, 				 ///   
-					  string scalar touse) {
+real scalar acc(string scalar pred, string scalar obs, string scalar touse) {
 	
 	// Declares a matrix to store the confusion matrix
 	real matrix conf
@@ -418,8 +414,7 @@ real scalar accuracy(string scalar pred, string scalar obs, 				 ///
 
 // Defines a function to compute "balanced" accuracy.  
 // See https://yardstick.tidymodels.org/reference/bal_accuracy.html for more info
-real scalar baccuracy(string scalar pred, string scalar obs, 				 ///   
-					  string scalar touse) {
+real scalar bacc(string scalar pred, string scalar obs, string scalar touse) {
 	
 	// Declares a matrix to store the confusion matrix
 	real matrix conf
@@ -429,10 +424,10 @@ real scalar baccuracy(string scalar pred, string scalar obs, 				 ///
 	real scalar result, sens, spec, prev
 	
 	// Computes sensitivity 
-	sens = sensitivity(pred, obs, touse)
+	sens = sens(pred, obs, touse)
 	
 	// Computes specificity
-	spec = specificity(pred, obs, touse)
+	spec = spec(pred, obs, touse)
 	
 	// Computes "balanced" accuracy as the average of sensitivity and specificity
 	result = (sens + spec) / 2
@@ -453,7 +448,7 @@ real scalar f1(string scalar pred, string scalar obs, string scalar touse) {
 	real scalar result, prec, rec
 
 	// Computes precision
-	prec = precision(pred, obs, touse)
+	prec = prev(pred, obs, touse)
 
 	// Computes recall
 	rec = recall(pred, obs, touse)
@@ -471,7 +466,7 @@ real scalar f1(string scalar pred, string scalar obs, string scalar touse) {
 real scalar jindex(string scalar pred, string scalar obs, string scalar touse) {
 
 	// Return the micro averaged detection prevalence
-	return(sensitivity(pred, obs, touse) + specificity(pred, obs, touse) - 1)
+	return(sens(pred, obs, touse) + spec(pred, obs, touse) - 1)
 
 } // End of function definition for j-index
 
@@ -557,7 +552,7 @@ mata:
 
 // Defines multiclass specificity
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-spec.R
-real scalar mcspecificity(string scalar pred, string scalar obs, string scalar touse) {
+real scalar mcspec(string scalar pred, string scalar obs, string scalar touse) {
 	
 	// Declares a matrix to store the confusion matrix
 	real matrix conf
@@ -598,7 +593,7 @@ real scalar mcspecificity(string scalar pred, string scalar obs, string scalar t
 
 // Defines multiclass sensitivity
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-sens.R
-real scalar mcsensitivity(string scalar pred, string scalar obs, string scalar touse) {
+real scalar mcsens(string scalar pred, string scalar obs, string scalar touse) {
 	
 	// Declares a matrix to store the confusion matrix
 	real matrix conf
@@ -616,13 +611,13 @@ real scalar mcsensitivity(string scalar pred, string scalar obs, string scalar t
 real scalar mcrecall(string scalar pred, string scalar obs, string scalar touse) {
 	
 	// Return the micro averaged recall
-	return(mcsensitivity(pred, obs, touse))
+	return(mcsens(pred, obs, touse))
 
 } // End of function definition for multiclass recall
 
 // Defines multiclass precision
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-precision.R
-real scalar mcprecision(string scalar pred, string scalar obs, string scalar touse) {
+real scalar mcprev(string scalar pred, string scalar obs, string scalar touse) {
 	
 	// Declares a matrix to store the confusion matrix
 	real matrix conf
@@ -644,7 +639,7 @@ real scalar mcppv(string scalar pred, string scalar obs, string scalar touse) {
 	// in all cases EXCEPT when the prevalence paramter in that function is 
 	// passed an argument.  With our method signature, there isn't a way to 
 	// pass that parameter.
-	return(mcprecision(pred, obs, touse))
+	return(mcprev(pred, obs, touse))
 
 } // End of function definition for multiclass positive predictive value
 
@@ -676,10 +671,10 @@ real scalar mcnpv(string scalar pred, string scalar obs, string scalar touse) {
 	prev = sum(tpfn) / sum(n)
 	
 	// Compute multiclass sensitivity
-	sens = mcsensitivity(pred, obs, touse)
+	sens = mcsens(pred, obs, touse)
 	
 	// Compute multiclass specificity
-	spec = mcspecificity(pred, obs, touse)
+	spec = mcspec(pred, obs, touse)
 	
 	// Define the numerator for the metric
 	num = spec * (1 - prev)
@@ -700,10 +695,10 @@ real scalar mcf1(string scalar pred, string scalar obs, string scalar touse) {
 	real scalar prec, sens
 	
 	// Compute prevalence
-	prec = mcprecision(pred, obs, touse)
+	prec = mcprev(pred, obs, touse)
 	
 	// Compute multiclass sensitivity
-	sens = mcsensitivity(pred, obs, touse)
+	sens = mcsens(pred, obs, touse)
 	
 	// Return the micro averaged NPV
 	return(2 * prec * sens / prec + sens)
@@ -712,7 +707,7 @@ real scalar mcf1(string scalar pred, string scalar obs, string scalar touse) {
 
 // Defines multiclass Detection Prevalence
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-detection_prevalence.R
-real scalar mcdetection(string scalar pred, string scalar obs, string scalar touse) {
+real scalar mcdetect(string scalar pred, string scalar obs, string scalar touse) {
 	
 	// Declares scalars to store intermediate results
 	real matrix conf
@@ -730,22 +725,22 @@ real scalar mcdetection(string scalar pred, string scalar obs, string scalar tou
 real scalar mcjindex(string scalar pred, string scalar obs, string scalar touse) {
 
 	// Return the micro averaged detection prevalence
-	return(mcsensitivity(pred, obs, touse) + mcspecificity(pred, obs, touse) - 1)
+	return(mcsens(pred, obs, touse) + mcspec(pred, obs, touse) - 1)
 
 } // End of function definition for multiclass j-index
 
 // Defines multiclass accuracy
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-accuracy.R
-real scalar mcaccuracy(string scalar pred, string scalar obs, string scalar touse) {
+real scalar mcacc(string scalar pred, string scalar obs, string scalar touse) {
 	
 	// Return the accuracy
-	return(accuracy(pred, obs, touse))
+	return(acc(pred, obs, touse))
 	
 } // End of multiclass accuracy synonym
 
 // Defines multiclass Balanced Accuracy
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-bal_accuracy.R
-real scalar mcbalaccuracy(string scalar pred, string scalar obs, string scalar touse) {
+real scalar mcbacc(string scalar pred, string scalar obs, string scalar touse) {
 	
 	// Declares scalars to store the intermediate results
 	real scalar rec, sens
@@ -754,7 +749,7 @@ real scalar mcbalaccuracy(string scalar pred, string scalar obs, string scalar t
 	rec = mcrecall(pred, obs, touse)
 	
 	// Compute the sensitivity
-	sens = mcsensitivity(pred, obs, touse)
+	sens = mcsens(pred, obs, touse)
 	
 	// Return the balanced accuracy
 	return((rec + sens) / 2)
@@ -1059,7 +1054,7 @@ real scalar phl(string scalar pred, string scalar obs, string scalar touse) {
 	a = st_data(., obs, touse) - st_data(., pred, touse)
 
 	// Computes and returns the loss function value
-	return(mean(1^2 :* (sqrt(1 + (a :/ 1) :^2) :- 1)))
+	return(mean(1^2 :* (sqrt(1 :+ (a :/ 1) :^2) :- 1)))
 	
 } // End of function definition for Pseud-Huber Loss
 
