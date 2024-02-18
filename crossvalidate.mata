@@ -448,7 +448,7 @@ real scalar f1(string scalar pred, string scalar obs, string scalar touse) {
 	real scalar result, prec, rec
 
 	// Computes precision
-	prec = prev(pred, obs, touse)
+	prec = prec(pred, obs, touse)
 
 	// Computes recall
 	rec = recall(pred, obs, touse)
@@ -474,10 +474,10 @@ real scalar jindex(string scalar pred, string scalar obs, string scalar touse) {
 real scalar binr2(string scalar pred, string scalar obs, string scalar touse) {
 
 	// Call the tetrachoric command in Stata
-	stata("cap: qui: tetrachoric " + pred + " " + obs + " if " + touse)
+	stata("cap: qui: tetrachoric " + pred + " " + obs + " if " + touse + ", ed")
 
 	// Returns the correlation coefficient
-	return(st_numscalar("r(Rho)"))
+	return(st_numscalar("r(rho)"))
 
 } // End of function definition for binary R^2 
 
@@ -617,7 +617,7 @@ real scalar mcrecall(string scalar pred, string scalar obs, string scalar touse)
 
 // Defines multiclass precision
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-precision.R
-real scalar mcprev(string scalar pred, string scalar obs, string scalar touse) {
+real scalar mcprec(string scalar pred, string scalar obs, string scalar touse) {
 	
 	// Declares a matrix to store the confusion matrix
 	real matrix conf
@@ -639,7 +639,7 @@ real scalar mcppv(string scalar pred, string scalar obs, string scalar touse) {
 	// in all cases EXCEPT when the prevalence paramter in that function is 
 	// passed an argument.  With our method signature, there isn't a way to 
 	// pass that parameter.
-	return(mcprev(pred, obs, touse))
+	return(mcprec(pred, obs, touse))
 
 } // End of function definition for multiclass positive predictive value
 
@@ -694,14 +694,14 @@ real scalar mcf1(string scalar pred, string scalar obs, string scalar touse) {
 	// Declares scalars to store intermediate results
 	real scalar prec, sens
 	
-	// Compute prevalence
-	prec = mcprev(pred, obs, touse)
+	// Compute precision
+	prec = mcprec(pred, obs, touse)
 	
 	// Compute multiclass sensitivity
 	sens = mcsens(pred, obs, touse)
 	
-	// Return the micro averaged NPV
-	return(2 * prec * sens / prec + sens)
+	// Return the micro averaged F1 Statistic
+	return((2 * prec * sens) / (prec + sens))
 
 } // End of function definition for multiclass negative predictive value
 
