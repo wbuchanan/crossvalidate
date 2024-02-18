@@ -35,7 +35,7 @@ made on the validation/test set only.
 - [ ] Finish writing test cases for ADO commands
 - [x] Start writing help file for the package
 - [x] Start writing help file for the Mata library
-- [ ] Finish writing help file for the package
+- [x] Finish writing help file for the package
 - [ ] Finish writing help file for the Mata library
 - [x] Update help file for cmdmod related to characteristics
 - [x] Update help file for predictit with info about characteristics
@@ -94,32 +94,32 @@ lmbuild libxv, replace
 - [x] Test function getarg
 - [x] Test function to create the confusion matrix for classification 
 - [x] Test function for Binary Sensitivity
-- [ ] Test function for Binary Precision
+- [x] Test function for Binary Precision
 - [x] Test function for Binary Recall
 - [x] Test function for Binary Specificity
-- [ ] Test function for Binary Prevalence
+- [x] Test function for Binary Prevalence
 - [x] Test function for Binary Positive Predictive Value
 - [x] Test function for Binary Negative Predictive Value
 - [x] Test function for Binary Accuracy
 - [x] Test function for Binary Balanced Accuracy
-- [ ] Test function for Binary F1
-- [ ] Test function for Youden's J statistic (J-index)
-- [ ] Test function for Matthew's Correlation Coefficient
-- [ ] Test function for Binary R^2
-- [ ] Test function for Multinomial Sensitivity
-- [ ] Test function for Multinomial Precision
-- [ ] Test function for Multinomial Recall
-- [ ] Test function for Multinomial Specificity
-- [ ] Test function for Multinomial Prevalence
-- [ ] Test function for Multinomial Positive Predictive Value
-- [ ] Test function for Multinomial Negative Predictive Value
-- [ ] Test function for Multinomial Accuracy
-- [ ] Test function for Multinomial Balanced Accuracy
-- [ ] Test function for Multinomial F1
-- [ ] Test function for Multinomial Detection Prevalence
-- [ ] Test function for Multinomial J-Index
-- [ ] Test function for Multinomial Kappa coefficient
-- [ ] Test function for Multinomial Matthew's Correlation Coefficient
+- [x] Test function for Binary F1
+- [x] Test function for Youden's J statistic (J-index)
+- [x] Test function for Matthew's Correlation Coefficient
+- [x] Test function for Binary R^2
+- [x] Test function for Multinomial Sensitivity
+- [x] Test function for Multinomial Precision
+- [x] Test function for Multinomial Recall
+- [x] Test function for Multinomial Specificity
+- [x] Test function for Multinomial Prevalence
+- [x] Test function for Multinomial Positive Predictive Value
+- [x] Test function for Multinomial Negative Predictive Value
+- [x] Test function for Multinomial Accuracy
+- [x] Test function for Multinomial Balanced Accuracy
+- [x] Test function for Multinomial F1
+- [x] Test function for Multinomial Detection Prevalence
+- [x] Test function for Multinomial J-Index
+- [x] Test function for Multinomial Kappa coefficient
+- [x] Test function for Multinomial Matthew's Correlation Coefficient
 - [ ] Test function for Ordinal R^2
 - [x] Test function for Mean Squared Error
 - [x] Test function for Mean Absolute Error

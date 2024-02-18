@@ -6,7 +6,7 @@
 
 *! xv
 *! v 0.0.1
-*! 11FEB2023
+*! 18FEB2023
 
 // Drop program from memory if already loaded
 cap prog drop xv
@@ -30,30 +30,15 @@ prog def xv, eclass properties(prefix xv)
 	// Then parse the options from the remainder of the macro
 	mata: cvparse(`"`xvopts'"')
 	
-	// Set a local for the missing parameters
-	loc miss 
-	
-	// This should be a loop over the required parameters across all four 
-	// underlying commands.  If one is missing we can collect it's name and 
-	// then throw one big error message listing all of the missing parameters.
-	foreach i in  metric monitors uid tpoint retain kfold state results grid ///   
-	params tuner seed classes threshold pstub split display pred obs modifin ///   
-	kfifin noall {
-		
-		// If a required parameter is missing, add it to the local
-		if mi(`"`i'"') loc miss "`miss' `i',"
-		
-	} // End loop over required parameters
-	
 	// If there is anything in the missing local throw an error message
-	if !mi(`"`miss'"') {
+	if mi(`"`metric'"') | mi(`"`pred'"') {
 		
 		// Display the error message
-		di as err `"You must supply arguments to the following parameters "' ///   
-		`"to use the xv prefix: `miss' please modify your command statement"'
+		di as err `"You must supply valid arguments to metric and pred "'    ///   
+		`"to use the xv prefix."'
 		
 		// Throw an error code to exit
-		err
+		err 198
 		
 	} // End IF Block for missing required parameters
 		
@@ -91,6 +76,30 @@ prog def xv, eclass properties(prefix xv)
 		
 	} // End IF Block to set the pseudo-random number generator seed.
 	
+	// Check to see if the user passed the state option
+	if !mi(`"`state'"') {
+		
+		// Call the state command
+		`state'
+		
+		// Capture all of the returned values in locals
+		loc rng `r(rng)'
+		loc rngcurrent `r(rngcurrent)'
+		loc rngstate `r(rngstate)'
+		loc rngseed `r(rngseed)'
+		loc rngstream `r(rngstream)'
+		loc filename `r(filename)'
+		loc filedate `r(filedate)'
+		loc version `r(version)'
+		loc currentdate `r(currentdate)'
+		loc currenttime `r(currenttime)'
+		loc stflavor `r(stflavor)'
+		loc processors `r(processors)'
+		loc hostname `r(hostname)'
+		loc machinetype `r(machinetype)'
+		
+	} // End IF Block to call the state command
+	
 	/*
 	The split, fit, predict, and validate commands should be able to be called 
 	sequentially from this point down.  It will be important to remember to 
@@ -111,6 +120,22 @@ prog def xv, eclass properties(prefix xv)
 	
 	// Remember to repost results
 	ereturn repost 
+	
+	// Return all of the macros from the state command if invoked
+	eret loc rng = "`rng'"
+	eret loc rngcurrent = "`rngcurrent'"
+	eret loc rngstate = "`rngstate'"
+	eret loc rngseed = "`rngseed'"
+	eret loc rngstream = "`rngstream'"
+	eret loc filename = "`filename'"
+	eret loc filedate = "`filedate'"
+	eret loc version = "`version'"
+	eret loc currentdate = "`currentdate'"
+	eret loc currenttime = "`currenttime'"
+	eret loc stflavor = "`stflavor'"
+	eret loc processors = "`processors'"
+	eret loc hostname = "`hostname'"
+	eret loc machinetype = "`machinetype'"
 
 // End definition of ttsplit prefix command	
 end 
