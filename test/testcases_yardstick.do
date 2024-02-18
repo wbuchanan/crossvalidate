@@ -13,10 +13,10 @@ Notes:
 	[x] [x]    accuracy() - computes accuracy
 	[x] [x]    bal_accuracy() - computes "balanced" accuracy
 	[x] [x]    f1() - computes the F1 statistic
-	[x]  [x]    multiclass J-index
+	[x] [x]    multiclass J-index
 	    []     multiclass Kappa
-	[]  []     multiclass MCC	
-	[]	[]  [] Binary/multiclass R^2 (polychoric correlation)/Continuous R^2
+	[x] []     multiclass MCC	
+	[x]	[]  [] Binary/multiclass R^2 (polychoric correlation)/Continuous R^2
 			[] mse() - computes the mean squared error
 			[] mae() - mean absolute error from pred. and observed outcomes
 			[] bias() - metric biased on definition https://developer.nvidia.com/blog/a-comprehensive-overview-of-regression-evaluation-metrics/
@@ -41,9 +41,6 @@ cd "~/crossvalidate"
 
 //Load mata functions
 do crossvalidate.mata
-
-//build mata library
-lmbuild libxv, replace 
 
 **# Creates binary data set
 /*******************************************************************************
@@ -325,14 +322,37 @@ mata: st_local("jind", strofreal(jindex("pred", "obs", "touse")))
 assert round(`jind',0.0000001)==round(`sns' + `spc' - 1,0.0000001)
 
 
+
 	//Test Binary R^2
+//Calculate tetrachoric correlation
 mata: st_local("r2", strofreal(binr2("pred", "obs", "touse")))
 
+//define alpha to calculate edwards rho estimate from https://www.stata.com/manuals/rtetrachoric.pdf
+local alph = ((28 * 30) / (30 * 12))^(_pi/4)
+
 //Test for Equality
-assert round(`r2',0.0000001)==round(cos(180/(1 + sprt((30*12)/(28*30))),0.0000001)
+assert round(`r2',0.0000001)==round((`alph' - 1) / (`alph' + 1),0.0000001)
+
+
 
 	//Test MCC
+//Calculate the MCC
+mata: st_local("mcc", strofreal(mcc("pred", "obs", "touse")))
 
+//Define numerator
+local num = (30 + 28) * 100 - (60 * 42) - (40 * 58)
+
+//Define denominator 1
+local den1 = 100^2 - 40^2 - 60^2
+
+//Define denominator 2
+local den2 = 100^2 - 58^2 - 42^2
+
+//Test for Equality
+assert round(`mcc',0.0000001)==round(`num'/(sqrt(`den1')*sqrt(`den2')),0.0000001)
+
+	
+	
 **# Multinomial Classificating Metrics
 /*******************************************************************************
 *                                                                              *
@@ -476,19 +496,61 @@ assert round(`jind',0.0000001)==round(`sns' + `spc' - 1,0.0000001)
 	
 
 	//Test Kappa
-//Calculate f1 using our function
-mata: st_local("jind", strofreal(mcjindex("pred", "obs", "touse")))
+//Calculate Kappa using our function
+mata: st_local("kap", strofreal(mckappa("pred", "obs", "touse")))
+
+//define weight matrix
+mat wgt = [0, 1, 1 \ 1, 0 , 1 \ 1, 1, 0]
+
+//define row margins 
+mat row = [56, 48, 46]
+
+//define column margins
+mat col = ([50, 50, 50])'
+
+//redefind confusion matrix
+qui tab pred obs, matcell(c)
+
+//calculate numerator
+mata: st_matrix("numer", sum( st_matrix("wgt") * st_matrix("c")))
+
+//calculate demonenator
+mata: st_matrix("denom", sum( st_matrix("wgt") * (st_matrix("row") * st_matrix("col") :/ 150)) )
 
 //Test for Equality
-assert round(`jind',0.0000001)==round(`sns' + `spc' - 1,0.0000001)
+assert round(`kap',0.0000001)==round((1 - numer[1,1]/denom[1,1]),0.0000001)
 
 
 
 	//Test MCC
+//Calculate MCC using our function
+mata: st_local("mcc", strofreal(mcmcc("pred", "obs", "touse")))
+	
+//Define numerator
+local num = (22 + 21 + 21) * 150 - (50 * 46) - (50 * 48) - (50 * 56)
 
+//Define denominator 1
+local den1 = 150^2 - 50^2 - 50^2 - 50^2
+
+//Define denominator 2
+local den2 = 150^2 - 56^2 - 48^2 - 46^2
+
+//Test for Equality
+assert round(`mcc',0.0000001)==round(`num'/(sqrt(`den1')*sqrt(`den2')),0.0000001)	
+	
 	
 	
 	//Test multiclass R^2 (polychoric correlation)
+//Calculate R^2 using our function
+mata: st_local("r2", strofreal(mcordr2("pred", "obs", "touse")))
+
+di `r2'
+//Still need to find a formula for this one
+
+//Test for Equality
+//assert round(`r2',0.0000001)==round((`alph' - 1) / (`alph' + 1),0.0000001)
 
 
+	
+	
 	

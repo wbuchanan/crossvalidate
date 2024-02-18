@@ -92,7 +92,6 @@ mata: st_local("sens", strofreal(sensitivity("pred", "low", "touse")))
 qui: estat class
 
 //Test for Equality
-**# We may wnat to consider reporting percentages with our classification tests instead of decimals/proportions.
 //Currently the mata function is identical to the canned fn 1.0e^-6
 assert round(100*`sens',0.000001)==round(r(P_p1),0.000001)
 
