@@ -6,8 +6,8 @@
 *******************************************************************************/
 
 *! splitit
-*! v 0.0.6
-*! 03FEB2024
+*! v 0.0.7
+*! 19FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop splitit
@@ -22,6 +22,19 @@ prog def splitit, rclass
 	syntax anything(name = props id = "Split proportion(s)") [if] [in] [, 	 ///   
 		   Uid(varlist) TPoint(string asis) KFold(integer 1) SPLit(string asis) ]
 	
+	// Test for invalid KFold option
+	if `kfold' < 1 {
+		
+		// Display an error message
+		di as err "There must always be at least 1 K-Fold.  This would be "	 ///   
+		"the training set in a simple train/test split.  You specified "	 ///   
+		"`kfold' K-Folds."
+		
+		// Return error code and exit
+		err 198
+		
+	} // End IF Block for invalid K-Fold argument
+		
 	// Mark the sample to handle any if/in arguments (can now pass if `touse') 
 	// for the downstream work to handle user specified if/in conditions.
 	marksample touse
@@ -55,6 +68,18 @@ prog def splitit, rclass
 		loc validate `= `train' + `validate''
 
 	} // End IF Block for train, validation, test split	
+	
+	// Test if the user is requesting assigning all the data to the training set 
+	// without using K-Fold cv (effectively not splitting the data at all)
+	if `: word 1 of `props'' == 1 & `kfold' == 1 {
+		
+		// Display error message to the screen
+		di as err "You cannot assign all of the data to a single training split."
+		
+		// Return error code and exit
+		err 198
+		
+	} // End IF Block for invalid training proportion for non-K-Fold case
 		
 	// Define the flavor of the splits based on how the units are allocated
 	if !mi(`"`uid'"') & !mi("`tpoint'") loc flavor "Clustered & Panel Sample"

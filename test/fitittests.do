@@ -11,6 +11,9 @@ g byte splitvar = 1
 // Make sure the mata library is loaded
 run crossvalidate.mata
 
+// Test invalid number of k-folds
+rcof `"fitit "reg price mpg", res(tst) spl(splitvar) kf(-1)"' == 198
+
 // call fitit with a single fold
 fitit "reg price mpg i.foreign headroom trunk, vce(rob)", res(tst) 	 ///   
 spl(splitvar) 

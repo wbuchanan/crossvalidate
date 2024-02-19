@@ -19,6 +19,9 @@ bys make: g byte splitvar = _n
 // Make sure the mata library is loaded
 run crossvalidate.mata
 
+// Test invalid number of k-folds
+rcof `"predictit "reg price mpg", ps(pred) spl(splitvar) kf(-1)"' == 198
+
 // Test error if no estimation command and no value passed to modifin
 rcof "predictit, ps(pred) spl(splitvar)" == 197
 

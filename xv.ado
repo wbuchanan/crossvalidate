@@ -18,6 +18,9 @@ prog def xv, eclass properties(prefix xv)
 	// Stata version statement, can check for backwards compatibility later
 	version 18
 
+	// Set the prefix name for Stata to recognize it
+	set prefix xv
+
 	// Tokenize the input string
 	gettoken cv cmd : 0, parse(":") bind 
 	

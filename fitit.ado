@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! fitit
-*! v 0.0.5
-*! 12FEB2024
+*! v 0.0.6
+*! 19FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop fitit
@@ -19,8 +19,25 @@ prog def fitit, eclass
 	
 	// Syntax
 	syntax anything(name = cmd id="estimation command name"),				 ///   
-			SPLit(passthru) RESults(string asis) [ KFold(integer 1) noall ]
-			
+			SPLit(passthru) RESults(string asis) [ KFold(integer 1) noall 	 ///   
+			DISplay]
+
+	// Test for invalid KFold option
+	if `kfold' < 1 {
+		
+		// Display an error message
+		di as err "There must always be at least 1 K-Fold.  This would be "	 ///   
+		"the training set in a simple train/test split.  You specified "	 ///   
+		"`kfold' K-Folds."
+		
+		// Return error code and exit
+		err 198
+		
+	} // End IF Block for invalid K-Fold argument
+	
+	// If the user does not request results be displayed
+	if mi("`display'") loc q "qui:"
+					
 	// Create a macro to store the names of all the estimation results
 	loc estres 
 	
@@ -39,10 +56,10 @@ prog def fitit, eclass
 	forv k = 1/`kfold' {
 		
 		// Call the estimation command passed by the user
-		if !mi(`"`: char _dta[modcmd]'"') `: char _dta[modcmd]'
+		if !mi(`"`: char _dta[modcmd]'"') `q'`: char _dta[modcmd]'
 		
 		// Otherwise call the returned macro from cmdmod
-		else `r(modcmd)'
+		else `q'`r(modcmd)'
 		
 		// Add a title for standard cases
 		if `kfold' == 1 est title: Model Fit on Training Sample
@@ -68,12 +85,12 @@ prog def fitit, eclass
 		if !mi(`"`: char _dta[kfmodcmd]'"') {
 			
 			// Call the estimation command stored in the characteristic
-			`: char _dta[kfmodcmd]'
+			`q'`: char _dta[kfmodcmd]'
 		
 		} // End IF Block for estimation command in characteristic
 		
 		// Otherwise, use the returned result from cmdmod
-		else `r(kfmodcmd)'
+		else `q'`r(kfmodcmd)'
 		
 		// Test if user wants title added
 		est title: Model Fitted on All Training Folds 

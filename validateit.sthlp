@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.3 17feb2024}{...}
+{* *! version 0.0.4 19feb2024}{...}
 {viewerjumpto "Syntax" "validateit##syntax"}{...}
 {viewerjumpto "Description" "validateit##description"}{...}
 {viewerjumpto "Options" "validateit##options"}{...}
@@ -15,9 +15,9 @@
 
 {p 8 32 2}
 {cmd:validateit} {cmd:,} {cmdab:me:tric(}{it:string asis}{cmd:)} 
-{cmdab:p:red(}{it:string asis}{cmd:)} {cmdab:spl:it(}{it:varname}{cmd:)} [ 
+{cmdab:ps:tub(}{it:string asis}{cmd:)} {cmdab:spl:it(}{it:varname}{cmd:)} [ 
 {cmdab:o:bs(}{it:varname}{cmd:)} {cmdab:mo:nitors(}{it:string asis}{cmd:)} 
-{cmdab:dis:play} {cmdab:k:fold(}{it:integer}{cmd:)} {cmdab:noall}]{p_end}
+{cmdab:dis:play} {cmdab:k:fold(}{it:integer}{cmd:)} {cmdab:noall} {cmd:loo}]{p_end}
 
 {synoptset 15 tabbed}{...}
 {synoptline}
@@ -25,7 +25,7 @@
 {synoptline}
 {syntab:Required}
 {synopt :{opt me:tric}}the name of a function from {help libxv} or a user-defined function{p_end}
-{synopt :{opt p:red}}variable name stuf for predicted values{p_end}
+{synopt :{opt ps:tub}}variable name stub for predicted values{p_end}
 {synopt :{opt spl:it}}name of the variable that identifies the training split(s){p_end}
 {syntab:Optional}
 {synopt :{opt o:bs}}name of the dependent variable; default is {cmd:obs(`e(depvar)')}{p_end}
@@ -33,6 +33,7 @@
 {synopt :{opt dis:play}}display results in window; default is {cmd:off}{p_end}
 {synopt :{opt k:fold}}the number of folds in the training set; default is {cmd:kfold(1)}.{p_end}
 {synopt :{opt noall}}suppresses prediction on entire training set for K-Fold cases{p_end}
+{synopt :{opt loo}}is used only for Leave-One-Out cross-validation{p_end}
 {synoptline}
 
 
@@ -82,7 +83,7 @@ user's who may be interested in hyperparameter tuning, this would be the value
 that you would optimize with your hyperparameter tuning algorithm.
 
 {phang}
-{opt p:red} the stub name for the variable(s) that store the predicted values 
+{opt ps:tub} the stub name for the variable(s) that store the predicted values 
 after calling {help predictit}.
 
 {phang}
@@ -113,8 +114,17 @@ the K-Folds.  Additionally, it will also compute the metric and monitor values
 for the model fitted to all of the training data.
 
 {phang}
-{opt no:all} is an option to prevent evaluating model performance when using 
+{opt noall} is an option to prevent evaluating model performance when using 
 K-Fold cross-validation and also fitting the model to the full training set.
+
+{phang}
+{opt loo} is an option used to alter the underlying logic used to compute the 
+validation metrics/monitors.  Since Leave-One-Out cross-validation is a special 
+case of K-Fold CV the model fitting and predictions are generated in a manner 
+consistent with all other K-Fold cases.  However, with only a single unit in 
+each K-Fold in the LOO case computing validation metrics requires different 
+treatment.  In the LOO case the validation metric/monitors are computed using 
+the predicted and observed values for all of the training set units in aggregate.
 
 {marker custom}{...}
 {title:Custom Metrics and Monitors}
@@ -217,10 +227,10 @@ and references, please see {help libxv}.
 {title:Examples}
 
 {p 4 4 2}Without Monitors{p_end}
-{p 8 4 2}validateit, me(mse) p(pred) spl(splitvar){p_end}
+{p 8 4 2}validateit, me(mse) ps(pred) spl(splitvar){p_end}
 
 {p 4 4 2}With Monitors{p_end}
-{p 8 4 2}validateit, me(acc) p(pred) spl(splitvar) mo(npv ppv bacc f1 sens spec){p_end}
+{p 8 4 2}validateit, me(acc) ps(pred) spl(splitvar) mo(npv ppv bacc f1 sens spec){p_end}
 
 
 {marker retvals}{...}

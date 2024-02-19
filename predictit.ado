@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! predictit
-*! v 0.0.3
-*! 15FEB2024
+*! v 0.0.4
+*! 19FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop predictit
@@ -23,6 +23,19 @@ prog def predictit
 			Kfold(integer 1) THReshold(passthru) MODifin(string asis) 		 ///   
 			KFIfin(string asis) noall PMethod(string asis)]
 
+	// Test for invalid KFold option
+	if `kfold' < 1 {
+		
+		// Display an error message
+		di as err "There must always be at least 1 K-Fold.  This would be "	 ///   
+		"the training set in a simple train/test split.  You specified "	 ///   
+		"`kfold' K-Folds."
+		
+		// Return error code and exit
+		err 198
+		
+	} // End IF Block for invalid K-Fold argument
+	
 	// Test the value of the classes option
 	if `classes' < 0 {
 		
@@ -103,13 +116,13 @@ prog def predictit
 		if !ustrregexm(`"`modifin'"', "\d\$") loc modifin `modifin' \`k'
 		
 		// Stores the estimation results in a more persistent way
-		est restore *`k'
+		qui: est restore *`k'
 		
 		// Test whether this is a "regression" task
 		if `classes' == 0 {
 			
 			// If it is, predict on the validation sample:
-			predict double `pstub'`k' `modifin', `pmethod'
+			qui: predict double `pstub'`k' `modifin', `pmethod'
 			
 		} // End IF Block for "regression" tasks
 		
@@ -118,7 +131,7 @@ prog def predictit
 			
 			// Call the classification program
 			// Also need to handle the if statement here as well
-			classify `classes' `modifin', `threshold' ps(`pstub'`k')
+			qui: classify `classes' `modifin', `threshold' ps(`pstub'`k')
 				
 		} // End ELSE Block for classifcation tasks
 		
@@ -156,13 +169,13 @@ prog def predictit
 		} // End IF Block for all training sample prediction w/o all sample fit
 		
 		// Restore the estimation results
-		est restore *all
+		qui: est restore *all
 		
 		// Test whether this is a "regression" task
 		if `classes' == 0 {
 			
 			// If it is, predict on the validation sample:
-			predict double `pstub'all `kfifin', `pmethod'
+			qui: predict double `pstub'all `kfifin', `pmethod'
 			
 		} // End IF Block for "regression" tasks
 		
@@ -171,7 +184,7 @@ prog def predictit
 			
 			// Call the classification program
 			// Also need to handle the if statement here as well
-			classify `classes' `kfifin', `threshold' ps(`pstub'all)
+			qui: classify `classes' `kfifin', `threshold' ps(`pstub'all)
 				
 		} // End ELSE Block for classifcation tasks
 		

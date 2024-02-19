@@ -22,6 +22,9 @@ g int id = _n
 // Create an indicator to use to test in expressions
 g byte touse = rbinomial(1, 0.5)
 
+// Test case with unity proportion and without K-Fold
+rcof "splitit 1, spl(splitvar) kf(1)" == 198
+
 // Test for case where the user requests greater than unity for the training set
 rcof "splitit 1.2, spl(splitvar)" == 198
 
@@ -165,6 +168,9 @@ g int id = _n
 
 // Create a variable to use for if expression testing
 g byte touse = rbinomial(1, 0.5)
+
+// Test invalid number of K-Folds case
+rcof "splitit 0.8, spl(splitvar) kf(-1)" == 198
 
 // Create 4 fold training set with a 20% hold out test set
 splitit 0.8, kf(4) spl(splitvar)

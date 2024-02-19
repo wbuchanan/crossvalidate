@@ -102,8 +102,8 @@ void function cvparse(string scalar cv) {
 	// Stores the name of all the potential options across all commands
 	opts = ("metric", "monitors", "uid", "tpoint", "retain", "kfold", 		 ///   
 			 "state", "results", "grid", "params", "tuner", "seed", 		 ///   
-			 "classes", "threshold", "pstub", "split", "display", "pred",    ///   
-			 "obs", "modifin", "kfifin", "noall", "pmethod")
+			 "classes", "threshold", "pstub", "split", "display", "obs", 	 ///   
+			 "modifin", "kfifin", "noall", "pmethod")
 	
 	// Gets the number of options so we don't need to track it manually and 
 	// avoid the minor performance penalty of using cols(opts) in the loop below

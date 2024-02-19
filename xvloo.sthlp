@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.2 18feb2024}{...}
+{* *! version 0.0.1 19feb2024}{...}
 {vieweralsosee "[R] predict" "mansection R predict"}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat_classification"}{...}
 {vieweralsosee "[P] creturn" "mansection P creturn"}{...}
@@ -16,11 +16,11 @@
 {title:Syntax}
 
 {p 8 32 2}
-{cmd:xv} {it:# [#]} {cmd:,} {cmd:pstub(}{it:string asis}{cmd:)} 
+{cmd:xvloo} {it:# [#]} {cmd:,} {cmd:pstub(}{it:string asis}{cmd:)} 
 {cmd:metric(}{it:string asis}{cmd:)} 
 [{cmd:seed(}{it:integer}{cmd:)}
 {cmd:uid(}{it:varlist}{cmd:)} 
-{cmd:tpoint(}{it:string asis}{cmd:)} {cmd:kfold(}{it:integer}{cmd:)} 
+{cmd:tpoint(}{it:string asis}{cmd:)} 
 {cmd:split(}{it:string asis}{cmd:)}
 {cmd:results(}{it:string asis}{cmd:)}
 {cmd:classes(}{it:integer}{cmd:)} {cmd:threshold(}{it:real}{cmd:)} 
@@ -39,7 +39,6 @@
 {synopt :{opt seed}}to set the pseudo-random number generator seed{p_end}
 {synopt :{opt uid}}a variable list for clustered sampling/splitting{p_end}
 {synopt :{opt tpoint}}a numeric, td(), tc(), or tC() value{p_end}
-{synopt :{opt kfold}}the number of K-Folds to create in the training set; default is {cmd:kfold(1)}{p_end}
 {synopt :{opt split}}a new variable name; default is {cmd:split(_xvsplit)}{p_end}
 {syntab:Fit}
 {synopt :{opt results}}a stub for storing estimation results{p_end}
@@ -58,30 +57,31 @@
 {title:Description}
 
 {pstd}
-{cmd:xv} is a prefix command from the {help crossvalidate} suite of tools to 
-implement cross-validation methods with Stata estimation commands. The {cmd:xv} 
-prefix can be used with arbitrary estimation commands that return results using 
-{help ereturn}.  It handles all four phases of cross-validation work: splitting 
-the data into training, validation, and/or test splits (see {help splitit}); 
-fitting the model you specify with your estimation command (see {help fitit}); 
-generating out-of-sample/held-out predicted values (see {help predictit}); and 
-computing validation metrics and monitors (see {help validateit}).  {cmd:xv} is 
-a prefix that wraps the individual commands provided in the {help crossvalidate} 
-suite intended to make the process of using cross-validation seemless and easy 
-for Stata users.
+{cmd:xvloo} is a prefix command from the {help crossvalidate} suite of tools to 
+implement Leave-One-Out (LOO) cross-validation methods with Stata estimation 
+commands. The {cmd:xvloo} prefix can be used with arbitrary estimation commands 
+that return results using {help ereturn}.  It handles all four phases of 
+cross-validation work: splitting the data into training, validation, and/or test 
+splits (see {help splitit}); fitting the model you specify with your estimation 
+command (see {help fitit}); generating out-of-sample/held-out predicted values 
+(see {help predictit}); and computing validation metrics and monitors (see 
+{help validateit}).  {cmd:xvloo} is a prefix that wraps the individual commands 
+provided in the {help crossvalidate} suite intended to make the process of using 
+cross-validation seemless and easy for Stata users.
 
 {pstd}
-{cmd:xv} can be used to generate simple random sampling based train/test splits 
-or training/validation/test splits, K-Fold simple random samples, and Clustered 
-simple random sampling (panel data is a special case).  A large number of 
+{cmd:xvloo} can be used to generate simple or clustered random sampling based 
+train/test splits or training/validation/test splits.  A large number of 
 validation metrics are implemented in {help libxv} and users are also free to 
-define their own {help mata} functions that can be used by {cmd:xv} (see 
+define their own {help mata} functions that can be used by {cmd:xvloo} (see 
 {help libxv} for additional information).  
 
 {pstd}
-{cmd:IMPORTANT:} you must specify the full name of the options used by {help xv}.  
-If you attempt to pass an abbreviated option name, it will not be recognized by 
-the command and will be ignored.
+{cmd:IMPORTANT:} you must specify the full name of the options used by 
+{cmd xvloo}.  If you attempt to pass an abbreviated option name, it will not be 
+recognized by the command and will be ignored.  Additionally, while 
+{help validateit} includes a {opt:loo} option, it is unnecessary to use that 
+option with this prefix.  
 
 {marker options}{...}
 {title:Options}
@@ -122,10 +122,6 @@ expression in your estimation command.  Use of this option will result in an
 additional variable with the suffix {it:xv4} being created to identify the 
 forecasting set associated with each split/K-Fold.  This is to ensure that 
 the forecasting period data will not affect the model training.
-
-{phang}
-{opt kfold} is used to specify the number of K-Folds to create in the training 
-set. 
 
 {phang}
 {opt split} is used to specify the name of a new variable that will store the 
@@ -228,15 +224,12 @@ addition to the macros that are returned by the estimation command you specify.
 {synopt :{cmd:e(estres#)}}the name to store the estimation results on the #th fold.{p_end}
 {synopt :{cmd:e(estresnames)}}the names of all the estimation results{p_end}
 {synopt :{cmd:e(estresall)}}the name used to store the estimation results for the entire training set when K-Fold cross-validation is used.{p_end}
-{synopt :{cmd:e(predifin)}}the if expression to use when predicting on validation/test split.{p_end}
-{synopt :{cmd:e(kfpredifin)}}the if expression to use when predicting on the K-Fold hold out set.{p_end}
 {syntab:Validation Scalars}
-{synopt :{cmd:r(metric#)}}contains the metric value for the corresponding K-Fold{p_end}
-{synopt :{cmd:r(`monitors'#)}}one scalar for each monitor passed to the monitors option, named by the monitor function with a numeric value to identify the corresponding K-Fold{p_end}
-{synopt :{cmd:r(metricall)}}contains the metric value for K-Fold CV fitted to all of the K-Folds{p_end}
-{synopt :{cmd:r(`monitors'all)}}contains the monitor values for K-Fold CV fitted to all of the K-Folds{p_end}
+{synopt :{cmd:r(metric1)}}contains the metric value for the training set{p_end}
+{synopt :{cmd:r(`monitors'1)}}one scalar for each monitor passed to the monitors option, named by the monitor function for the entire training set{p_end}
+{synopt :{cmd:r(metricall)}}contains the metric value for the predictions on the validation/test set{p_end}
+{synopt :{cmd:r(`monitors'all)}}contains the monitor values for the predictions on the validation/test set{p_end}
 {synoptline}
-
 
 
 {marker additional}{...}

@@ -16,7 +16,7 @@
 {p 8 32 2}
 {cmd:fitit} {it:"estimation command"} {cmd:,} {cmdab:spl:it(}{it:passthru}{cmd:)} 
 {cmdab:res:ults(}{it:string asis}{cmd:)} [ {cmdab:k:fold(}{it:integer}{cmd:)} 
-{cmd:noall} ]{p_end}
+{cmd:noall} {cmdab:dis:play}]{p_end}
 
 {synoptset 25 tabbed}{...}
 {synoptline}
@@ -28,6 +28,7 @@
 {syntab:Optional}
 {synopt :{opt k:fold}}specifies the number of folds in the training set; default is {cmd:kfold(1)}.{p_end}
 {synopt :{opt noall}}suppresses prediction on entire training set for K-Fold cases{p_end}
+{synopt :{opt dis:play}}display results in window; default is {cmd:off}{p_end}
 {synoptline}
 
 
@@ -84,6 +85,11 @@ cross-validation where there is only a single fold.
 to the entire training set when using K-Fold cross-validation.  If this option 
 is used, {opt kfi:fin} will have no effect since the relevant predictions will 
 not be generated.
+
+{phang}
+{opt dis:play} an option to display the model fitting results in the result 
+window.  If using a large number of K-Folds, it may be useful to not print all 
+of the model fitting results to the result window.
 
 
 {marker examples}{...}

@@ -232,10 +232,14 @@ Here are things that we need to test for this program:
 * <ins>pm</ins>ethod(string asis) - the method (statistic) to predict with the out-of-sample/held-out data.
 
 ### TODO
-- [x] Need to generate tests for this command
+- [ ] Need to find a solution to call individual estimation results when \*# 
+does not work (e.g., LOO cases) 
 
 ### Testing
-- [ ] TBD
+- [x] Initial Tests 
+- [x] Tests for error codes
+- [ ] Tests related to LOO use case
+
 
 ## validateit
 `validateit [if] [in], MEtric(string asis) [MOnitors(string asis) Pred(string asis) Obs(string asis) DISplay`
@@ -261,6 +265,10 @@ console.
 - [x] Test that the display option works correctly and that output is easy to read
 - [x] Test that approach to calling the Mata functions works as intended
 
+### TODO
+- [x] Add an option for LOO that only computes validation metrics for the entire
+training sample.
+
 ## xv
 
 ### Syntax and options
@@ -275,6 +283,12 @@ console.
 ### Syntax and options
 Should have the exact same syntax as above, with the exception of no K-Fold 
 argument.  
+
+### TODO
+- [ ] Initial testing to get things running start to finish
+
+### Testing
+- [ ] Handling of `in` expressions passed to estimation commands
 
 
 
