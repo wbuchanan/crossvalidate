@@ -23,7 +23,7 @@ prog def xvloo, eclass properties(prefix xv)
 	
 	// Allocate a tempvars for the unique identifier variable and for other 
 	// options to use a default
-	tempvar uuid xvsplit xvtouse
+	tempvar uuid xvtouse
 	
 	// Tokenize the input string
 	gettoken cv cmd : 0, parse(":") bind 
@@ -31,11 +31,26 @@ prog def xvloo, eclass properties(prefix xv)
 	// Parse the prefix on the comma.  `props' will contain split proportions
 	gettoken props xvopts : cv, parse(",") bind
 	
+	// Remove the leading comma from the options for xv.
+	loc xvopts `"`= substr(`"`xvopts'"', 2, .)'"'
+
+	// Then parse the options from the remainder of the macro
+	mata: cvparse(`"`xvopts'"')
+	
+	// Get the value of classes
+	mata: getarg("`classes'")
+	
+	// If missing or the default downstream set the value to 1
+	if (mi("`argval'") | "`argval'" == "0") loc c 1
+	
+	// Otherwise set it to the number of classes being predicted
+	else loc c `argval'
+	
 	// Determine if this is TT or TVT
 	if `: word count `props'' == 1 {
 		
 		// Test the number of variables that need to be created vs allowed
-		if (`props' * `c(N)' + `c(k)' + 2) >= `c(max_k_theory)' {
+		if (`props' * `c(N)' * `c' + `c(k)' + 2) >= `c(max_k_theory)' {
 			
 			// Display error message
 			di as err "Currently, your Stata supports `c(max_k_theory)' "	 ///   
@@ -58,7 +73,7 @@ prog def xvloo, eclass properties(prefix xv)
 		loc trp `: word 1 of `props''
 		
 		// Test the number of variables that need to be created vs allowed
-		if (`trp' * `c(N)' + `c(k)' + 2) >= `c(max_k_theory)' {
+		if (`trp' * `c(N)' * `c' + `c(k)' + 2) >= `c(max_k_theory)' {
 			
 			// Display error message
 			di as err "Currently, your Stata supports `c(max_k_theory)' "	 ///   
@@ -73,12 +88,6 @@ prog def xvloo, eclass properties(prefix xv)
 		} // End IF Block for insufficient max variable
 				
 	} // End ELSE Block for TVT split case
-	
-	// Remove the leading comma from the options for xv.
-	loc xvopts `"`= substr(`"`xvopts'"', 2, .)'"'
-
-	// Then parse the options from the remainder of the macro
-	mata: cvparse(`"`xvopts'"')
 	
 	// If there is anything in the missing local throw an error message
 	if mi(`"`metric'"') | mi(`"`pstub'"') {
@@ -101,7 +110,10 @@ prog def xvloo, eclass properties(prefix xv)
 		qui: g long `uuid' = _n
 		
 		// Set the uid local to use this variable
-		loc uid "uid(\`uuid')"
+		loc uid "uid(`uuid')"
+		
+		// Set a macro for the correct flavor
+		loc flav "Simple Random Sample"
 		
 	} // End IF Block for missing 
 	
@@ -148,7 +160,7 @@ prog def xvloo, eclass properties(prefix xv)
 		loc results "results(xvres)"
 		
 		// Set a macro to automatically clean this up at the end
-		loc dropresults "estimates drop xvres*"
+		if mi("`retain'") loc dropresults "estimates drop xvres*"
 		
 	} // End IF Block to set default results values
 	
@@ -156,9 +168,21 @@ prog def xvloo, eclass properties(prefix xv)
 	if mi(`"`split'"') {
 		
 		// use the tempvar
-		loc split "split(`xvsplit')"
+		loc split "split(_xvsplit)"
 		
 	} // End IF Block for the split variable name
+	
+	// Parses the split option
+	mata: getarg("`split'")
+	
+	// Assigns the argument value to spvar
+	loc spvar `argval'
+	
+	// Parses the pstub option
+	mata: getarg("`pstub'")
+	
+	// If the user does not want to retain variables
+	if mi("`retain'") loc dropvars `spvar' `argval'*
 		
 	// Remove leading colon from the estimation command
 	loc cmd `= substr(`"`cmd'"', 2, .)'
@@ -241,7 +265,7 @@ prog def xvloo, eclass properties(prefix xv)
 	predictit, `pstub' `split' `classes' `kfold' `threshold' `all' `pmethod' 
 	
 	// Compute the validation metrics for the LOO sample
-	validateit, `metric' `pred' `split' `monitors' `display' `kfold' `all' loo
+	validateit, `metric' `pstub' `split' `monitors' `display' `kfold' `all' loo
 	
 	// Get the arguments passed to monitors
 	mata: getarg("`monitors'")
@@ -283,49 +307,71 @@ prog def xvloo, eclass properties(prefix xv)
 		
 	} // End IF Block to return scalars from the full training set
 
-	// Need to handle cleanup for any stuff we generate that the user doesn't 
-	// want to keep at this point.
+	// If the user doesn't want to retain the results
+	if mi(`"`retain'"') {
 	
-	// Return all of the macros from the state command if invoked
-	eret loc rng = "`rng'"
-	eret loc rngcurrent = "`rngcurrent'"
-	eret loc rngstate = "`rngstate'"
-	eret loc rngseed = "`rngseed'"
-	eret loc rngstream = "`rngstream'"
-	eret loc filename = "`filename'"
-	eret loc filedate = "`filedate'"
-	eret loc version = "`version'"
-	eret loc currentdate = "`currentdate'"
-	eret loc currenttime = "`currenttime'"
-	eret loc stflavor = "`stflavor'"
-	eret loc processors = "`processors'"
-	eret loc hostname = "`hostname'"
-	eret loc machinetype = "`machinetype'"
-	eret loc splitter = "`splitter'"
-	eret loc training = "`training'"
-	eret loc validation = "`validation'"
-	eret loc testing = "`testing'"
-	eret loc stype = "`stype'"
-	eret loc flavor = "`flavor'"
-	eret loc forecastset = "`forecastset'"
-
-	// Test if we need to drop results
-	if mi(`"`dropresults'"') {
-	
-		// If the user wanted to retain results (e.g., passed a value to results)
-		// Then return these macros
-		eret loc estresnames = "`estres'"
-		eret loc estresall = "`estresall'"
-		
-	} // End IF Block to return estimation result names if user wanted them
-
-	// If the user didn't provide an argument to results
-	else {
-		
-		// Remove the estimation results from the dataset
+		// Drop the stored estimation results
 		`dropresults'
 		
-	} // End ELSE Block to clean up estimation results from the dataset
+		// Drop the variables created by xvloo
+		drop `dropvars'
+		
+		// Clears all of the characteristics that may have been set 
+		char _dta[rng]
+		char _dta[rngcurrent]
+		char _dta[rngstate]
+		char _dta[rngseed]
+		char _dta[rngstream]
+		char _dta[filename]
+		char _dta[filedate]
+		char _dta[version]
+		char _dta[currentdate]
+		char _dta[currenttime]
+		char _dta[stflavor]
+		char _dta[processors]
+		char _dta[hostname]
+		char _dta[machinetype]
+		char _dta[predifin]
+		char _dta[kfpredifin]
+		char _dta[modcmd]
+		char _dta[kfmodcmd]
+			
+	} // End IF Block remove results generated by the program
+
+	// If the user wants to retain the results
+	else {
+		
+		// Return all of the macros from the state command if invoked
+		eret loc rng = "`rng'"
+		eret loc rngcurrent = "`rngcurrent'"
+		eret loc rngstate = "`rngstate'"
+		eret loc rngseed = "`rngseed'"
+		eret loc rngstream = "`rngstream'"
+		eret loc filename = "`filename'"
+		eret loc filedate = "`filedate'"
+		eret loc version = "`version'"
+		eret loc currentdate = "`currentdate'"
+		eret loc currenttime = "`currenttime'"
+		eret loc stflavor = "`stflavor'"
+		eret loc processors = "`processors'"
+		eret loc hostname = "`hostname'"
+		eret loc machinetype = "`machinetype'"
+
+		// Return the macros from splitit
+		eret loc splitter = "`splitter'"
+		eret loc training = "`training'"
+		eret loc validation = "`validation'"
+		eret loc testing = "`testing'"
+		eret loc stype = "Leave One Out"
+		if mi("`flav'") eret loc flavor = "`flavor'"
+		else eret loc flavor = "`flav'"
+		eret loc forecastset = "`forecastset'"
+
+		// Then return the macros from fitit
+		eret loc estresnames = "`estres'"
+		eret loc estresall = "`estresall'"
+	
+	} // End ELSE Block to return a few extra macros related to stored results
 	
 	// Remember to repost results
 	ereturn repost 

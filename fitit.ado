@@ -35,6 +35,19 @@ prog def fitit, eclass
 		
 	} // End IF Block for invalid K-Fold argument
 	
+	// Test whether the results option conforms to requirements to end with a 
+	// letter
+	if ustrregexm("`results'", "\d\$") {
+		
+		// Display error message
+		di as err "The argument passed to results ends in a number.  The "	 ///   
+		"last character must not be a number for this option."
+		
+		// Return error code
+		err 198
+		
+	} // End IF Block for invalid results option
+	
 	// If the user does not request results be displayed
 	if mi("`display'") loc q "qui:"
 					

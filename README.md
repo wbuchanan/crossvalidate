@@ -232,8 +232,8 @@ Here are things that we need to test for this program:
 * <ins>pm</ins>ethod(string asis) - the method (statistic) to predict with the out-of-sample/held-out data.
 
 ### TODO
-- [ ] Need to find a solution to call individual estimation results when \*# 
-does not work (e.g., LOO cases) 
+- [x] Need to find a solution to call individual estimation results when \*# 
+does not work (e.g., LOO cases)
 
 ### Testing
 - [x] Initial Tests 

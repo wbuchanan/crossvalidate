@@ -87,7 +87,12 @@ prog def predictit
 		else confirm v `split'
 		
 		// If modded if expression in characteristic use it
-		if !mi(`"`: char _dta[predifin]'"') loc modifin : char _dta[predifin]
+		if !mi(`"`: char _dta[predifin]'"') {
+			
+			// Copy the if expression to a local
+			loc modifin : char _dta[predifin]
+		
+		} // End IF Block if the prediction if expression was stored in data
 		
 		// Otherwise
 		else {
@@ -104,9 +109,41 @@ prog def predictit
 		} // End ELSE Block for missing dataset characteristics
 		
 		// If modded k-fold if expression in characteristic use it
-		if !mi(`"`: char _dta[kfpredifin]'"') loc kfifin : char _dta[kfpredifin]
+		if !mi(`"`: char _dta[kfpredifin]'"') {
+			
+			// Copy the characteristic to the local
+			loc kfifin : char _dta[kfpredifin]
+		
+		} // End IF Block to overwrite the KFold if expression if in data
 		
 	} // End IF Block for cases where the user passes the command string
+	
+	// If the user doesn't pass a command string
+	else {
+		
+		// Get the if expression from the characteristics
+		loc modifin : char _dta[predifin]
+		loc kfifin : char _dta[kfpredifin]
+		
+		// Ensure that there is a value present in modifin
+		if mi(`"`modifin'"') {
+			
+			// Display an error message
+			di as err "No modified if expression could be found.  Pass the " ///   
+			"appropriate if expression to the modifin option."
+
+			// Return error code
+			err 198
+			
+		} // End IF Block for missing if expression
+		
+	} // End ELSE Block for no command string
+	
+	// Get the names of all stored results
+	qui: estimates dir
+	
+	// Store all of the estimation result names
+	loc enames `r(names)'
 			
 	// Handles predictting for KFold and non-KFold CV
 	forv k = 1/`kfold' {
@@ -115,8 +152,17 @@ prog def predictit
 		// value and if it is missing a numeric value at the iterator
 		if !ustrregexm(`"`modifin'"', "\d\$") loc modifin `modifin' \`k'
 		
+		// Get the name by matching the value of k at the end of the string and 
+		// pass that name to the estimates restore command below.
+		if ustrregexm(`"`enames'"', "(\s?[a-zA-Z]+`k'\s)") {
+			
+			// Store the matching estimation result name
+			loc rname `"`= trim(ustrregexs(1))'"'
+			
+		} // End IF Block for matching regex
+		
 		// Stores the estimation results in a more persistent way
-		qui: est restore *`k'
+		qui: est restore `rname'
 		
 		// Test whether this is a "regression" task
 		if `classes' == 0 {

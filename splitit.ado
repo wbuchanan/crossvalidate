@@ -6,14 +6,14 @@
 *******************************************************************************/
 
 *! splitit
-*! v 0.0.7
-*! 19FEB2024
+*! v 0.0.8
+*! 20FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop splitit
 
 // Define program
-prog def splitit, rclass 
+prog def splitit, rclass sortpreserve
 
 	// Version statement 
 	version 18
@@ -43,6 +43,28 @@ prog def splitit, rclass
 	// parameters and handle as much defensive stuff up front as possible.
 	// Tokenize the first argument
 	gettoken train validate: props
+	
+	// Validate that the train value is numeric
+	if !ustrregexm("`train'", "([^-])0*\.\d+\$") {
+		
+		// Display an error message
+		di as err "Only numeric values can be passed for split proportions."
+
+		// Throw an error code
+		err 121
+		
+	} // End IF Block for invalid training split value
+	
+	// Check validation split value
+	if !mi("`validate'") & !ustrregexm("`train'", "([^-])0*\.\d+\$") {
+		
+		// Display an error message
+		di as err "Only numeric values can be passed for split proportions."
+
+		// Throw an error code
+		err 121
+		
+	} // End IF Block for invalid training split value
 	
 	// Set a macro for label use later to define the type of splitting
 	if `: word count `props'' == 1 {
@@ -252,9 +274,35 @@ prog def splitit, rclass
 	// groups
 	if `kfold' != 1 {
 		
-		// Generate the split group tempvar to create `kfold' equal groups
-		xtile `sgrp' = `uni' if `touse' & `tag' == 1 & `uni' <= `train', 	 ///   
-		n(`kfold')
+		// Get the number of cases
+		qui: count if `touse' & `tag' == 1 & `uni' <= `train'
+		
+		// If test the number of records
+		if `r(N)' <= `kfold' {
+			
+			// We need to identify the threshold that gets us to `kfold' + 1
+			qui: gsort -`tag' -`touse' +`uni'
+		
+			// Get the value of kfold + 1
+			loc kfp1 `= `kfold' + 1'
+			
+			// Get the value of `uni' at kfold + 1
+			loc ntrn `= `uni'[`kfp1']'
+
+			// Generate the split group tempvar to create `kfold' equal groups
+			xtile `sgrp' = `uni' if `touse' & `tag' == 1 & `uni' <= `ntrn',  ///   
+			n(`kfold')
+
+		} // End IF Block to handle LOO case where there are too few obs
+		
+		// For the cases where this is not a problem
+		else {
+			
+			// Generate the split group tempvar to create `kfold' equal groups
+			xtile `sgrp' = `uni' if `touse' & `tag' == 1 & `uni' <= `train', ///   
+			n(`kfold')
+			
+		} // End ELSE Block for normal K-Fold case	
 		
 		// Define the training splits
 		mata: st_local("trainsplit", invtokens(strofreal(1..`kfold')))
@@ -374,8 +422,8 @@ prog def splitit, rclass
 
 		// This should fill in the split group ID assignment for the case of 
 		// hierarchical splitting
-		bys `uid' (`sgrp'): replace `sgrp' = `sgrp'[_n - 1] if `touse'  ///   
-							& mi(`sgrp'[_n]) & !mi(`sgrp'[_n - 1]) 
+		qui: bys `uid' (`sgrp'): replace `sgrp' = `sgrp'[_n - 1] if `touse'  ///   
+										  & mi(`sgrp'[_n]) & !mi(`sgrp'[_n - 1]) 
 							
 		// For clustered sampling with panel/timeseries data
 		if !mi("`tpoint'") { 

@@ -14,6 +14,9 @@ run crossvalidate.mata
 // Test invalid number of k-folds
 rcof `"fitit "reg price mpg", res(tst) spl(splitvar) kf(-1)"' == 198
 
+// Test invalid results option
+rcof `"fitit "reg price mpg", res(tst2) spl(splitvar)"' == 198
+
 // call fitit with a single fold
 fitit "reg price mpg i.foreign headroom trunk, vce(rob)", res(tst) 	 ///   
 spl(splitvar) 

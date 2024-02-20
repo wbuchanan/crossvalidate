@@ -28,6 +28,9 @@ rcof "splitit 1, spl(splitvar) kf(1)" == 198
 // Test for case where the user requests greater than unity for the training set
 rcof "splitit 1.2, spl(splitvar)" == 198
 
+// Test for case with invalid training split value
+rcof "splitit -.5, spl(splitvar)" == 121
+
 // Create a training split with a 40% test sample and default split variable name
 splitit .6
 
@@ -92,6 +95,9 @@ g byte touse = rbinomial(1, 0.5)
 // Test for case where the user requests greater than unity for the training and 
 // validation set
 rcof "splitit .6 .6, spl(splitvar)" == 198
+
+// Test for case with invalid training split value
+rcof "splitit .5 a.87, spl(splitvar)" == 121
 
 // Create a training split with a 20% validation and 20% test sample
 splitit .6 .2, spl(splitvar)

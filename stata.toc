@@ -1,0 +1,5 @@
+*! TOC File
+v 3
+d The crossvalidate package
+
+p crossvalidate makes it possible to use cross-validation for estimation commands

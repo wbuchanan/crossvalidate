@@ -1,0 +1,54 @@
+d 'CROSSVALIDATE': A suite of tools for cross-validation in Stata
+d
+d crossvalidate is a package containing several commands to enable users to 
+d implement multiple cross-validation procedures with estiamtion commands in 
+d Stata.  There are two prefix commands -xv- and -xvloo- that are used to 
+d implement the entire cross-validation pipeline with the estimation command 
+d supplied by the user.  For users that require more fine-grained control over 
+d the cross-validation process, the commands -splitit-, -fitit-, -predictit-, &
+d -validateit- implement each phase of cross-validation discretely.  There are 
+d also several utility commands included as well.  Lastly, the included Mata 
+d library contains over 40 different evaluation functions covering binary and 
+d multi-class classification models and continuous outcome models.
+d
+d KW: cross-validation
+d KW: k-fold
+d KW: leave one out
+d KW: machine learning
+d KW: out of sample
+d KW: model evaluation
+d
+d Requires: Stata version 18
+d
+d Distribution-Date: 20240220
+d
+d Author: Billy Buchanan
+d         Sr. Research Scientist, SAG Corporation
+d         
+d         Steven Brownell
+d         , SAG Corporation
+d
+d Support: https://github.com/wbuchanan/crossvalidate
+d
+f crossvalidate.sthlp
+f crossvalidate.mata
+f classify.ado
+f classify.sthlp
+f cmdmod.ado
+f cmdmod.sthlp
+f fitit.ado
+f fitit.sthlp
+f libxv.mlib
+f libxv.sthlp
+f predictit.ado
+f predictit.sthlp
+f splitit.ado
+f splitit.sthlp
+f state.ado
+f state.sthlp
+f validateit.ado
+f validateit.sthlp
+f xv.ado
+f xv.sthlp
+f xvloo.ado
+f xvloo.sthlp
