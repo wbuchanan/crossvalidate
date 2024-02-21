@@ -47,18 +47,6 @@ prog def validateit, rclass
 	// If no argument is passed to the option but it is found in e(depvar) 
 	else if mi("`obs'") & !mi("`e(depvar)'") loc obs `e(depvar)'
 	
-	// Test for invalid kfold with loo option
-	if `kfold' <= 1 & !mi("`loo'") {
-		
-		// Display an error message
-		di as err "Leave-One-Out cross-validation cannot be used with a "	 ///   
-		"single K-Fold."
-		
-		// Return error code and exit
-		err 198
-		
-	} // End IF block for invalid kfold & loo combination
-	
 	// Test for invalid KFold option
 	if `kfold' < 1 {
 		
@@ -72,10 +60,22 @@ prog def validateit, rclass
 		
 	} // End IF Block for invalid K-Fold argument
 		
-	// Test for `pstub'all if using K-Fold and not specifying noall
+	// Test for invalid kfold with loo option
+	if `kfold' == 1 & !mi("`loo'") {
+		
+		// Display an error message
+		di as err "Leave-One-Out cross-validation cannot be used with a "	 ///   
+		"single K-Fold."
+		
+		// Return error code and exit
+		err 198
+		
+	} // End IF block for invalid kfold & loo combination
+	
+	// When using K-Fold and not specifying noall
 	if `kfold' > 1 & mi(`"`all'"') {
 		
-		// Capture the code from confirming the variable's presence
+		// Capture the code from confirming the *all variable's presence
 		cap: confirm v `pstub'all
 		
 		// If this fails
@@ -84,8 +84,8 @@ prog def validateit, rclass
 			// Print an error message to the console
 			di as err "The variable `pstub'all was not found and you are "	 ///   
 			"requesting evaluating metrics that require that variable." _n   ///   
-			"You can either pass the noall option, or need to predict the "	 ///   
-			"values from your models again to generate that variable."
+			"You can either pass the noall option or predict the values "	 ///   
+			"from your models again to generate the `pstub'all variable."
 			
 			// Throw an error code and exit
 			err 111
@@ -98,12 +98,15 @@ prog def validateit, rclass
 	if `: word count `metric'' > 1 {
 		
 		// Display an error message
-		di as err "Users can only specify a single metric for hyperparameter optimization".
+		di as err "Users can only specify a single metric."
 		
 		// Throw an error code
 		err 134
 		
 	} // End IF Block for invalid number of metric
+	
+	// Create macro to store all returned scalar names
+	loc allnms
 	
 	// Mark the sample that will be used to compute the validation metrics for 
 	// each K-Fold
@@ -112,23 +115,23 @@ prog def validateit, rclass
 	// Create the tempvariable used to identify the set to use for validation
 	qui: g byte `touse' = 0
 	
+	// Figure out the number of splits used in the dataset
+	mata: st_numscalar("vals", rows(uniqrows(st_data(., "`split'"))))
+	
+	// There will be two ID values > kfold in a TVT split
+	if `vals' - `kfold' == 2 loc ditxt "Validation Set"
+	
+	// Otherwise it should be a TT split
+	else loc ditxt "Test Set"
+	
 	// Set display related macros
 	if !mi("`display'") {
-		
-		// Figure out the number of splits used in the dataset
-		mata: st_numscalar("vals", rows(uniqrows(st_data(., "`split'"))))
 		
 		// Defines macros to use to construct the display strings used below
 		loc kfditxt "for K-Fold #\`k'"
 		loc kfalttxt "for results on entire Training Set"
 		loc montxt "Monitor Results"
 		loc metrictxt "Metric Result"
-		
-		// If there are two splits it is a train/test split
-		if vals == 2 loc ditxt "for the Test Set"
-		
-		// If there are more than two splits (3) the second split is validation
-		else loc ditxt "for the Validation Set"
 		
 	} // End IF Block for user requested display
 	
@@ -137,8 +140,33 @@ prog def validateit, rclass
 
 		// Set the touse tempvariable
 		qui: replace `touse' = cond(`split' == 2, 1, 0)
+		
+		// Calls subroutine to compute all of the validation metrics/monitors
+		// and return them
+		getstats, me(`metric') p(`pstub') o(`obs') t(`touse') st(xv) 		 ///   
+		monitors(`monitors') 
 	
-		// Display the header for the results
+		// Adds the names so all monitor/metric names can be returned
+		loc allnms `r(names)'
+		
+		// Loop over the returned names
+		foreach i in `r(names)' {
+			
+			// Return the corresponding scalars
+			ret sca `i' = r(`i')
+						
+		} // End Loop over the returned scalars
+		
+		// Return the matrix with all of the results
+		matrix res = r(mtrx) 
+		
+		// Set the rownames 
+		mat rownames res = `monitors' `metric'
+		
+		// Set the column name
+		mat colnames res = "`ditxt'"
+	
+/*		// Display the header for the results
 		if !mi("`display'") & !mi(`"`monitors'"') di as res _n "`montxt' `ditxt'" _n
 		
 		// Count the words in monitors
@@ -178,7 +206,7 @@ prog def validateit, rclass
 		
 		// Sets the return value for the scalar
 		return scalar metric = `= `metric'sc'
-		
+*/		
 	} // End IF Block for no-K-Folds
 	
 	// If this involves K-Fold CV
@@ -187,10 +215,77 @@ prog def validateit, rclass
 		// Loop over the K-Folds
 		forv k = 1/`kfold' {
 			
+			// Sets local macro with column names
+			loc colnms `colnms' "Fold `k'"
+			
 			// Set the value of the touse tempvariable
 			qui: replace `touse' = cond(`split' == `k', 1, 0)
+
+			// Calls subroutine to compute all of the validation metrics/monitors
+			// and return them
+			getstats, me(`metric') p(`pstub') o(`obs') t(`touse') st(xv) 	 ///   
+			monitors(`monitors') sf(`k')
+		
+			// Adds the names so all monitor/metric names can be returned
+			loc allnms `r(names)'
 			
-			// Test for display of metrics/monitors
+			// Loop over the returned names
+			foreach i in `r(names)' {
+				
+				// Return the corresponding scalars
+				ret sca `i' = r(`i')
+							
+			} // End Loop over the returned scalars
+			
+			// Gets the matrix returned by getstats
+			if `k' == 1 mat res = r(mtrx)
+			
+			// Return the matrix with all of the results
+			else mat res = (res, r(mtrx)) 
+
+			// Resets the value of this macro
+			loc rnames 
+
+			// If the user does not specify noall
+			if `k' == `kfold' & mi(`"`all'"') {
+				
+				// Adds the last column name
+				loc colnms `colnms' "`ditxt'"
+				
+				// Update the variable that IDs the sample to use for the metrics
+				qui: replace `touse' = cond(`split' == `= `kfold' + 1', 1, 0)
+				
+				// Call the subroutine with modified arguments (note the use of all)
+				getstats, me(`metric') p(`pstub'all) o(`obs') t(`touse') st(xv)  ///   
+				monitors(`monitors') sf(all)
+
+				// Adds the names of these scalars to the allnms macro
+				loc allnms `allnms' `r(names)'
+				
+				// Loop over the returned scalar names
+				foreach i in `r(names)' {
+					
+					// Return those scalars
+					ret sca `i' = r(`i')
+					
+				} // End Loop over the returned scalars
+				
+				// Update the matrix to include the additional results from the 
+				// validation/test split
+				matrix res = (res, r(mtrx))
+				
+			} // End IF Block to compute metrics on the validation/test split
+
+		} // End Loop over K-Folds
+			
+		// Set rownames for the returned matrix based on the monitors/metrics
+		mat rownames res = `monitors' `metric'
+		
+		// Set the column names for the returned matrix based on the number of 
+		// K-Folds and what style of split is used
+		mat colnames res = `colnms'
+					
+/*			// Test for display of metrics/monitors
 			if !mi("`display'") & !mi(`"`monitors'"') di as res _n "`montxt' `kfditxt': " _n
 			
 			// Count the words in monitors
@@ -279,8 +374,7 @@ prog def validateit, rclass
 				return scalar metricall = `= `metric'sc'
 				
 			} // End IF Block for K-Fold case
-			
-		} // End Loop over K-Folds
+*/			
 		
 	} // End ELSE Block for K-Fold CV
 	
@@ -288,100 +382,145 @@ prog def validateit, rclass
 	else if `kfold' > 1 & !mi("`loo'") {
 		
 		// Set the value of the touse tempvariable
-		qui: replace `touse' = cond(`split' <= `= `kfold'', 1, 0)
+		qui: replace `touse' = cond(`split' <= `kfold', 1, 0)
 
-		// Test for display of metrics/monitors
-		if !mi("`display'") & !mi(`"`monitors'"') di as res _n "`montxt' `kfalttxt': " _n
+		// Calls subroutine to compute all of the validation metrics/monitors
+		// and return them
+		getstats, me(`metric') p(`pstub') o(`obs') t(`touse') st(xv) 		 ///   
+		monitors(`monitors') sf(1)
+	
+		// Adds the names so all monitor/metric names can be returned
+		loc allnms `r(names)'
 		
-		// Count the words in monitors
-		loc mons : word count `monitors'
+		// Loop over the returned names
+		foreach i in `r(names)' {
+			
+			// Return the corresponding scalars
+			ret sca `i' = r(`i')
+						
+		} // End Loop over the returned scalars
 		
-		// Loop over the monitors
-		forv i = 1/`mons' {
-			
-			// Get the name of the function for monitoring
-			loc monnm : word `i' of `monitors'
-			
-			// Call the mata function
-			mata: monval = `monnm'("`pstub'", "`obs'", "`touse'")
-			
-			// Print the monitor to the console if requested
-			if !mi("`display'") mata: printf("%s = %9.0g\n", "`monnm' `kfalttxt'", monval)
-			
-			// Creates a Stata scalar with the appropriate value
-			mata: st_numscalar("`monnm'sc", monval)
-			
-			// Sets the return value for the scalar
-			return scalar `monnm'1 = `= `monnm'sc'
-			
-		} // End loop over monitors
-		
-		// Test for display of metrics/monitors
-		if !mi("`display'") di as res _n "`metrictxt' `kfalttxt': " _n
+		// Return the matrix with all of the results
+		matrix res = r(mtrx) 
 
-		// Call the mata function for the metric
-		mata: metval = `metric'("`pstub'", "`obs'", "`touse'")
-		
-		// Print the monitor to the console if requested
-		if !mi("`display'") mata: printf("%s = %9.0g\n", "`metric' `kfalttxt'", metval)
-			
-		// Push the value into a scalar
-		mata: st_numscalar("`metric'sc", metval)
-		
-		// Sets the return value for the scalar
-		return scalar metric1 = `= `metric'sc'
-		
-		// Test for the all option
+		// Resets the value of this macro
+		loc rnames 
+
+		// If the user does not specify noall
 		if mi(`"`all'"') {
 			
-			// Set the value of the touse tempvariable
+			// Update the variable that IDs the sample to use for the metrics
 			qui: replace `touse' = cond(`split' == `= `kfold' + 1', 1, 0)
+			
+			// Call the subroutine with modified arguments (note the use of all)
+			getstats, me(`metric') p(`pstub'all) o(`obs') t(`touse') st(xv)  ///   
+			monitors(`monitors') sf(all)
 
-			// Test for display of metrics/monitors
-			if !mi("`display'") & !mi(`"`monitors'"') di as res _n "`montxt' `kfalttxt': " _n
+			// Adds the names of these scalars to the allnms macro
+			loc allnms `allnms' `r(names)'
 			
-			// Count the words in monitors
-			loc mons : word count `monitors'
+			// Loop over the returned scalar names
+			foreach i in `r(names)' {
+				
+				// Return those scalars
+				ret sca `i' = r(`i')
+				
+			} // End Loop over the returned scalars
 			
-			// Loop over the monitors
-			forv i = 1/`mons' {
-				
-				// Get the name of the function for monitoring
-				loc monnm : word `i' of `monitors'
-				
-				// Call the mata function
-				mata: monval = `monnm'("`pstub'all", "`obs'", "`touse'")
-				
-				// Print the monitor to the console if requested
-				if !mi("`display'") mata: printf("%s = %9.0g\n", "`monnm' `kfalttxt'", monval)
-				
-				// Creates a Stata scalar with the appropriate value
-				mata: st_numscalar("`monnm'sc", monval)
-				
-				// Sets the return value for the scalar
-				return scalar `monnm'all = `= `monnm'sc'
-				
-			} // End loop over monitors
+			// Update the matrix to include the additional results from the 
+			// validation/test split
+			matrix res = (res, r(mtrx))
 			
-			// Test for display of metrics/monitors
-			if !mi("`display'") di as res _n "`metrictxt' `kfalttxt': " _n
-
-			// Call the mata function for the metric
-			mata: metval = `metric'("`pstub'all", "`obs'", "`touse'")
-			
-			// Print the monitor to the console if requested
-			if !mi("`display'") mata: printf("%s = %9.0g\n", "`metric' `kfalttxt'", metval)
-				
-			// Push the value into a scalar
-			mata: st_numscalar("`metric'sc", metval)
-			
-			// Sets the return value for the scalar
-			return scalar metricall = `= `metric'sc'
-			
-		} // End IF Block for K-Fold case		
+		} // End IF Block to compute metrics on the validation/test split
+		
+		// Set rownames for the returned matrix based on the monitors/metrics
+		mat rownames res = `monitors' `metric'
+		
+		// Set column names for the returned matrix based on the samples
+		mat colnames res = "Leave-One-Out" "`ditxt'"
 		
 	} // End ELSEIF Block for LOO CV case
+	
+	// Returns a macro containing the names of all scalars returned
+	ret loc allnames = "`allnms'"
+	
+	// Returns a matrix containing all of the results
+	ret mat xv = res
+	
+	// If the display option is passed
+	if !mi("`display'") mat li res
 
 // End of program definition
 end
+
+
+
+
+// Subroutine to compute all of the stats and build a matrix that will persist 
+// over all of the loops to return results as a table instead of printing 
+// individually
+prog def getstats, rclass
+
+	// Defines the syntax for the sub-routine
+	syntax , MEtric(string asis) Pstub(string asis) Obs(string asis) 		 ///  
+			 Touse(string asis) STo(string asis) 							 ///   
+			[ MOnitors(string asis) SFx(string asis)]
+	
+	// Count the words in monitors
+	loc mons : word count `monitors'
+	
+	// Create index for matrix
+	loc m `= `mons' + 1'
+	
+	// Initialize the storage matrix in mata
+	mata: `sto' = J(`m', 1, .)
+	
+	// Create a macro with the names that get return
+	loc rnms 
+	
+	// Loop over the monitors
+	forv i = 1/`mons' {
+		
+		// Get the name of the function for monitoring
+		loc monnm : word `i' of `monitors'
+		
+		// Call the mata function
+		mata: `sto'[`i', 1] = `monnm'("`pstub'", "`obs'", "`touse'")
+		
+		// Creates a Stata scalar with the appropriate value
+		mata: st_numscalar("`monnm'`sfx'", `sto'[`i', 1])
+		
+		// Sets the return value for the scalar
+		return scalar `monnm'`sfx' = `= `monnm'`sfx''
+		
+		// Add this name to rnms
+		loc rnms `rnms' `monnm'`sfx'
+		
+	} // End loop over monitors
+	
+	// Call the mata function for the metric
+	mata: `sto'[`m', 1] = `metric'("`pstub'", "`obs'", "`touse'")
+	
+	// Push the value into a scalar
+	mata: st_numscalar("`metric'sc", `sto'[`m', 1])
+	
+	// Sets the return value for the scalar
+	return scalar metric`sfx' = `= `metric'sc'
+	
+	// Add this name to rnms
+	loc rnms `rnms' metric`sfx'
+
+	// Return the column from the matrix of results to a stata matrix
+	mata: st_matrix("vmat", `sto')
+	
+	// Sets the return matrix value
+	return matrix mtrx = vmat
+	
+	// Returns the name of the metrics/monitors
+	ret loc names = "`rnms'"
+	
+// End of subroutine to compute the statistics			
+end
+
+
 

@@ -113,7 +113,7 @@ void function cvparse(string scalar cv) {
 	for(i = 1; i <= nopts; i++) {
 		
 		// Test for matches for each of the options
-		if (ustrregexm(cv, "(" + opts[1, i] + `"(\([a-zA-Z\p{P}0-9]+\))?)"', 1)) {
+		if (ustrregexm(cv, "(" + opts[1, i] + `"(\([^)]*\))?)"', 1)) {
 			
 			// Returns the option name and argument(s) in a local with the same 
 			// name (e.g., kfold might contain kfold(10))
@@ -181,6 +181,129 @@ real matrix confusion(string scalar pred, string scalar obs, 				 ///
 	return(conf)
 	
 } // End function definition for confusion matrix
+
+// Defines a struct object to store a richer representation of the data used for
+// classification metrics
+struct Crosstab {
+	
+	// The confusion matrix
+	real matrix conf
+	
+	// The row margins (sums of predicted categories)
+	real colvector rowm
+	
+	// The diagonal from the confusion matrix (correctly classified cells)
+	real colvector correct
+	
+	// The vector storing each of the values in the matrix in ascending order
+	real colvector values
+	
+	// The column margins (sums of observed categories)
+	real rowvector colm
+	
+	// The total number of observations
+	real scalar n
+	
+	// The total number of true positive (correctly classified) cases
+	real scalar tp
+	
+	// The number of categories in the confusion matrix
+	real scalar levs
+	
+} // End of Struct definition returned by xtab
+
+// Defines a function to compute cross tabulations and return the cross tab
+// as a Mata matrix
+struct Crosstab scalar xtab(string scalar pred, string scalar obs, 			 ///   
+							string scalar touse) {
+	
+	// Creates the struct that gets returned
+	struct Crosstab scalar c
+	
+	// Allocates column vectors to store the unique values; the predicted and 
+	// observed values of the dependent variable; the indices for the relevant
+	// rows in the dataset; and the row margins
+	real colvector vals, yhat, y, idx, rowm
+	
+	// Allocates a row vector to store the column margins
+	real rowvector colm
+	
+	// Defines the matrix that will store the confusion matrix
+	real matrix conf
+	
+	// Defines scalars that store the number of unique levels of the variable of 
+	// interest, and two iterators for the rows and columns of the matrix
+	real scalar levs, i, j
+	
+	// Gets the predicted values of the variable of interest
+	yhat = st_data(., pred, touse)
+	
+	// Gets the observed values of the variable of interest
+	y = st_data(., obs, touse)
+	
+	// Gets the unique values across both sets of values ordered from lowest to 
+	// highest values
+	vals = uniqrows(yhat \ y)
+	
+	// Stores the unique values in the struct element values
+	c.values = vals
+	
+	// Gets the number of unique values
+	levs = rows(vals)	
+	
+	// Stores the number of unique values in the struct element levs
+	c.levs = levs
+	
+	// Creates a square matrix with missing values 
+	conf = J(levs, levs, .)
+	
+	// Creates column vector with missing values
+	rowm = J(levs, 1, .)
+	
+	// Creates row vector with missing values
+	colm = J(1, levs, .)
+	
+	// Loop over the values of the predicted variable
+	for(i = 1; i <= levs; i++) {
+		
+		// Gets the indices from the predicted variable that have the first 
+		// value from the set of all values
+		idx = selectindex(yhat :== vals[i, 1])
+		
+		// Gets the total number of cases predicted to be in the ith class
+		rowm[i, 1] = rows(idx)
+		
+		// Gets the total number of cases observed in the ith class
+		colm[1, i] = rows(selectindex(y :== vals[i, 1]))
+		
+		// Loop over the values of the observed variable and count the number of 
+		// cases with the ith predicted value that have the jth observed value
+		for(j = 1; j <= levs; j++) conf[i, j] = rows(selectindex(y[idx, 1] :== vals[j, 1]))
+		
+	} // End Loop over the rows of the confusion matrix
+	
+	// Stores the column margins in the struct element colm
+	c.colm = colm
+	
+	// Stores the row margins in the struct element rowm
+	c.rowm = rowm
+	
+	// Stores the confusion matrix in the struct element conf
+	c.conf = conf
+	
+	// Stores the total number of observations in the struct element n
+	c.n = sum(conf)
+	
+	// Stores count of correctly predicted classes in the struct element correct 
+	c.correct = diagonal(conf)
+	
+	// Stores the total correctly classified cases in the struct element tp
+	c.tp = sum(diagonal(conf))
+	
+	// Returns the struct with all of this information precomputed
+	return(c)
+	
+} // End definition of cross-tabulation function
 
 // Create a function to implement the Poisson density function
 real colvector dpois(real colvector events, real colvector means, | 		 ///   

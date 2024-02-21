@@ -267,46 +267,17 @@ prog def xvloo, eclass properties(prefix xv)
 	// Compute the validation metrics for the LOO sample
 	validateit, `metric' `pstub' `split' `monitors' `display' `kfold' `all' loo
 	
-	// Get the arguments passed to monitors
-	mata: getarg("`monitors'")
+	// Loops over the names of the scalars created by validate it
+	foreach i in `r(allnames)' {
+		
+		// Returns all of the scalars in e()
+		eret sca `i' = r(`i')
+		
+	} // End Loop over the returned scalars
 	
-	// If there are monitors, loop over them
-	if !mi(`"`argval'"') {
-		
-		// Loop over all the monitors
-		foreach m of loc argval {
-			
-			// Return the scalars from the monitors for each iteration
-			eret scalar `m'1 = `r(`m'1)'
-			
-		} // End Loop over the monitors
-
-	} // End IF Block to test for presence of monitors
+	// Need to assign returned matrix to a new matrix
+	mat xv = r(xv)
 	
-	// Return the metrics
-	eret scalar metric1 = `r(metric1)'
-		
-	// Test if the user allowed computation on the full training set
-	if mi("`all'") {
-		
-		// If there are monitors, loop over them
-		if !mi(`"`argval'"') {
-			
-			// Loop over all the monitors
-			foreach m of loc argval {
-				
-				// Return the scalars from the monitors for the full training set
-				eret scalar `m'all = `r(`m'all)'
-				
-			} // End Loop over the monitors
-
-		} // End IF Block to test for presence of monitors
-		
-		// Return the metric for the full training set
-		eret scalar metricall = `r(metricall)'
-		
-	} // End IF Block to return scalars from the full training set
-
 	// If the user doesn't want to retain the results
 	if mi(`"`retain'"') {
 	
@@ -375,6 +346,10 @@ prog def xvloo, eclass properties(prefix xv)
 	
 	// Remember to repost results
 	ereturn repost 
+	
+	// Returns the matrix containing all of the validation/test metrics and 
+	// monitors
+	eret mat xv = xv
 
 // End definition of ttsplit prefix command	
 end 

@@ -2,13 +2,13 @@
 
 
 ## Example:
-`xv 0.8, ps(pred) metric(mse): reg price mpg length if foreign != 1`
+`xv 0.8, pstub(pred) metric(mse): reg price mpg length if foreign != 1`
 
 
 ## Commands to write for this package
 - [x] xv - Cross validation using train/test, train/validation/test, or K-Fold 
 cross-validation methods.
-- [ ] xvloo - Leave One Out cross-validation 
+- [x] xvloo - Leave One Out cross-validation 
 - [x] state - a program that will handle getting and writing important information 
 about the state of the software when starting up for replication purposes.  It 
 should either add dataset characteristics or notes.
@@ -285,7 +285,7 @@ Should have the exact same syntax as above, with the exception of no K-Fold
 argument.  
 
 ### TODO
-- [ ] Initial testing to get things running start to finish
+- [x] Initial testing to get things running start to finish
 
 ### Testing
 - [ ] Handling of `in` expressions passed to estimation commands

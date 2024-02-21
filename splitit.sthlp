@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.2 08feb2024}{...}
+{* *! version 0.0.3 20feb2024}{...}
 {viewerjumpto "Syntax" "splitit##syntax"}{...}
 {viewerjumpto "Description" "splitit##description"}{...}
 {viewerjumpto "Options" "splitit##options"}{...}
@@ -66,7 +66,8 @@ set.
 
 {phang}
 {opt spl:it} is used to specify the name of a new variable that will store the 
-identifiers for the splits in the data.
+identifiers for the splits in the data.  If no argument is passed to this option 
+{cmd splitit} will store the result in a variable named {it:_xvsplit}.
 
 
 {marker examples}{...}
