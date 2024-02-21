@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! validateit
-*! v 0.0.7
-*! 19FEB2024
+*! v 0.0.8
+*! 21FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop validateit

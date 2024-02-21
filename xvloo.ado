@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! xvloo
-*! v 0.0.1
-*! 19FEB2023
+*! v 0.0.2
+*! 21FEB2023
 
 // Drop program from memory if already loaded
 cap prog drop xvloo
