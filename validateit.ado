@@ -135,6 +135,9 @@ prog def validateit, rclass
 		
 	} // End IF Block for user requested display
 	
+	// Create a collection 
+	qui: collect create xv, replace
+	
 	// If there is only a single fold
 	if `kfold' == 1 & mi("`loo'") {
 
@@ -166,47 +169,6 @@ prog def validateit, rclass
 		// Set the column name
 		mat colnames res = "`ditxt'"
 	
-/*		// Display the header for the results
-		if !mi("`display'") & !mi(`"`monitors'"') di as res _n "`montxt' `ditxt'" _n
-		
-		// Count the words in monitors
-		loc mons : word count `monitors'
-		
-		// Loop over the monitors
-		forv i = 1/`mons' {
-			
-			// Get the name of the function for monitoring
-			loc monnm : word `i' of `monitors'
-			
-			// Call the mata function
-			mata: monval = `monnm'("`pstub'", "`obs'", "`touse'")
-			
-			// Print the monitor to the console if requested
-			if !mi("`display'") mata: printf("%s = %9.0g\n", "`monnm' `ditxt'", monval)
-			
-			// Creates a Stata scalar with the appropriate value
-			mata: st_numscalar("`monnm'sc", monval)
-			
-			// Sets the return value for the scalar
-			return scalar `monnm' = `= `monnm'sc'
-			
-		} // End loop over monitors
-		
-		// Test for display of metrics/monitors
-		if !mi("`display'") di as res _n "`metrictxt' `ditxt': " _n
-
-		// Call the mata function for the metric
-		mata: metval = `metric'("`pstub'", "`obs'", "`touse'")
-		
-		// Print the monitor to the console if requested
-		if !mi("`display'") mata: printf("%s = %9.0g\n", "`metric' `ditxt'", metval)
-			
-		// Push the value into a scalar
-		mata: st_numscalar("`metric'sc", metval)
-		
-		// Sets the return value for the scalar
-		return scalar metric = `= `metric'sc'
-*/		
 	} // End IF Block for no-K-Folds
 	
 	// If this involves K-Fold CV
@@ -285,97 +247,6 @@ prog def validateit, rclass
 		// K-Folds and what style of split is used
 		mat colnames res = `colnms'
 					
-/*			// Test for display of metrics/monitors
-			if !mi("`display'") & !mi(`"`monitors'"') di as res _n "`montxt' `kfditxt': " _n
-			
-			// Count the words in monitors
-			loc mons : word count `monitors'
-			
-			// Loop over the monitors
-			forv i = 1/`mons' {
-				
-				// Get the name of the function for monitoring
-				loc monnm : word `i' of `monitors'
-				
-				// Call the mata function
-				mata: monval = `monnm'("`pstub'", "`obs'", "`touse'")
-				
-				// Print the monitor to the console if requested
-				if !mi("`display'") mata: printf("%s = %9.0g\n", "`monnm' `kfditxt'", monval)
-				
-				// Creates a Stata scalar with the appropriate value
-				mata: st_numscalar("`monnm'sc", monval)
-				
-				// Sets the return value for the scalar
-				return scalar `monnm'`k' = `= `monnm'sc'
-				
-			} // End loop over monitors
-			
-			// Test for display of metrics/monitors
-			if !mi("`display'") di as res _n "`metrictxt' `kfditxt': " _n
-
-			// Call the mata function for the metric
-			mata: metval = `metric'("`pstub'", "`obs'", "`touse'")
-			
-			// Print the monitor to the console if requested
-			if !mi("`display'") mata: printf("%s = %9.0g\n", "`metric' `kfditxt'", metval)
-				
-			// Push the value into a scalar
-			mata: st_numscalar("`metric'sc", metval)
-			
-			// Sets the return value for the scalar
-			return scalar metric`k' = `= `metric'sc'
-			
-			// If this is a K-Fold CV case
-			if mi(`"`all'"') & `k' == `kfold' {
-				
-				// Set the value of the touse tempvariable
-				qui: replace `touse' = cond(`split' == `= `kfold' + 1', 1, 0)
-
-				// Test for display of metrics/monitors
-				if !mi("`display'") & !mi(`"`monitors'"') di as res _n "`montxt' `kfalttxt': " _n
-				
-				// Count the words in monitors
-				loc mons : word count `monitors'
-				
-				// Loop over the monitors
-				forv i = 1/`mons' {
-					
-					// Get the name of the function for monitoring
-					loc monnm : word `i' of `monitors'
-					
-					// Call the mata function
-					mata: monval = `monnm'("`pstub'all", "`obs'", "`touse'")
-					
-					// Print the monitor to the console if requested
-					if !mi("`display'") mata: printf("%s = %9.0g\n", "`monnm' `kfalttxt'", monval)
-					
-					// Creates a Stata scalar with the appropriate value
-					mata: st_numscalar("`monnm'sc", monval)
-					
-					// Sets the return value for the scalar
-					return scalar `monnm'all = `= `monnm'sc'
-					
-				} // End loop over monitors
-				
-				// Test for display of metrics/monitors
-				if !mi("`display'") di as res _n "`metrictxt' `kfalttxt': " _n
-
-				// Call the mata function for the metric
-				mata: metval = `metric'("`pstub'all", "`obs'", "`touse'")
-				
-				// Print the monitor to the console if requested
-				if !mi("`display'") mata: printf("%s = %9.0g\n", "`metric' `kfalttxt'", metval)
-					
-				// Push the value into a scalar
-				mata: st_numscalar("`metric'sc", metval)
-				
-				// Sets the return value for the scalar
-				return scalar metricall = `= `metric'sc'
-				
-			} // End IF Block for K-Fold case
-*/			
-		
 	} // End ELSE Block for K-Fold CV
 	
 	// Otherwise it will be for leave-one-out CV
@@ -438,23 +309,40 @@ prog def validateit, rclass
 		
 		// Set column names for the returned matrix based on the samples
 		mat colnames res = "Leave-One-Out" "`ditxt'"
-		
+				
 	} // End ELSEIF Block for LOO CV case
 	
 	// Returns a macro containing the names of all scalars returned
 	ret loc allnames = "`allnms'"
 	
 	// Returns a matrix containing all of the results
-	ret mat xv = res
+	ret mat xv = res, copy
 	
 	// If the display option is passed
-	if !mi("`display'") mat li res
+	if !mi("`display'") {
+		
+		// Get the row names
+		loc rnames : rown res, quoted
+		
+		// Get the column names
+		loc cnames : coln res, quoted
+		
+		// Get the resulting matrix into the collection
+		collect get xv = res, name(xv)
+		
+		// Create a title for the display
+		collect title "Cross-Validation Results", name(xv)
+		
+		// Create a layout
+		qui: collect layout (rowname[`rnames'])(colname[`cnames'])(cmdset)
+		
+		// Display the metrics in a not horrible layout
+		collect preview
+		
+	} // End IF Block to display results if requested by the user
 
 // End of program definition
 end
-
-
-
 
 // Subroutine to compute all of the stats and build a matrix that will persist 
 // over all of the loops to return results as a table instead of printing 

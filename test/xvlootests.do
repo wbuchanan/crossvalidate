@@ -49,5 +49,13 @@ run crossvalidate.mata
 * individual commands.                                                         *
 *******************************************************************************/
 
+// Fit the model to 80% of the cases for training and retain the created 
+// variables 
+xvloo 0.8, metric(mse) pstub(pred) monitors(mae mape) display retain: reg mpg price i.rep78, vce(rob)
 
+// There should be 59 stored estimation results, pred, predall, and _xvsplit 
+// added as variables
+
+// There should be values in e(splitter), e(training), e(validation), 
+// e(stype), e(flavor), e(estresname), e(estresall)
 

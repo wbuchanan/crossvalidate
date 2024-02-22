@@ -20,7 +20,7 @@ d KW: model evaluation
 d
 d Requires: Stata version 18
 d
-d Distribution-Date: 20240220
+d Distribution-Date: 20240222
 d
 d Author: Billy Buchanan
 d         Sr. Research Scientist, SAG Corporation
@@ -52,3 +52,9 @@ f xv.ado
 f xv.sthlp
 f xvloo.ado
 f xvloo.sthlp
+f xvphase-split.ihlp
+f xvphase-fit.ihlp
+f xvphase-predict.ihlp
+f xvphase-validate.ihlp
+f xvphases.ihlp
+

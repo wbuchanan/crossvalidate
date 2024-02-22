@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.4 19feb2024}{...}
+{* *! version 0.0.5 22feb2024}{...}
 {viewerjumpto "Syntax" "validateit##syntax"}{...}
 {viewerjumpto "Description" "validateit##description"}{...}
 {viewerjumpto "Options" "validateit##options"}{...}
@@ -235,25 +235,33 @@ and references, please see {help libxv}.
 
 {marker retvals}{...}
 {title:Returned Values}
+
 {pstd}
-The following lists the names of the r-scalars and their contents:
+The following are returned by {cmd:validateit}:
 
 {synoptset 25 tabbed}{...}
 {synoptline}
 {synopthdr}
 {synoptline}
+{syntab:Scalars}
 {synopt :{cmd:r(metric[#])}}contains the metric value for the corresponding K-Fold{p_end}
 {synopt :{cmd:r(`monitors'[#])}}one scalar for each monitor passed to the monitors option, named by the monitor function with a numeric value to identify the corresponding K-Fold{p_end}
 {synopt :{cmd:r(metricall)}}contains the metric value for K-Fold CV fitted to all of the K-Folds{p_end}
 {synopt :{cmd:r(`monitors'all)}}contains the monitor values for K-Fold CV fitted to all of the K-Folds{p_end}
+{syntab:Matrices}
+{synopt :{cmd:r(xv)}}contains all of the monitor and metric values{p_end}
 {synoptline}
 
 {pstd}
 Note, when used with ordinary train/test or train/validate/test splits, no 
 numeric value will be appended to the name of the returned scalars.  The numeric 
-suffix is only used in the context of K-Fold cross-validation in order to 
-provide information specific to each of the K-Folds.
-
+suffix is only used in the contexts of K-Fold and Leave-One-Out cross-validation.
+  In the case of K-Fold cross-validation, the numeric suffix indicates the fold 
+identifier; the number identifies which fold is the held-out set among the 
+K-folds in the training set.  In the case of Leave-One-Out cross-validation, a 
+value of 1 indicates that the metrics are computed using the held out cases from 
+the training split.
+  
 {marker additional}{...}
 {title:Additional Information}
 {p 4 4 8}If you have questions, comments, or find bugs, please submit an issue in the {browse "https://github.com/wbuchanan/crossvalidate":crossvalidate GitHub repository}.{p_end}

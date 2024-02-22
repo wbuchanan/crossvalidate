@@ -18,6 +18,10 @@ prog def xvloo, eclass properties(prefix xv)
 	// Stata version statement, can check for backwards compatibility later
 	version 18
 	
+	// Add handling of case where splitvariable is present so splitit does not 
+	// get called again (basically to skip the splitting phase and use the 
+	// existing splits)
+	
 	// Set the prefix name for Stata to recognize it
 	set prefix xvloo
 	
