@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.2 15feb2024}{...}
+{* *! version 0.0.3 23feb2024}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat_classification"}{...}
 {vieweralsosee "" "--"}{...}
 {viewerjumpto "Syntax" "predictit##syntax"}{...}
@@ -40,23 +40,7 @@
 {marker description}{...}
 {title:Description}
 
-{pstd}
-{cmd:predictit} is part of the {help crossvalidate} suite of tools to 
-implement crossvalidation methods with Stata estimation commands. 
-{cmd:predictit} is used to generate the predicted values for validation after 
-fitting the models to the data. {cmd:predictit} depends on {help cmdmod} and 
-{help classify}, which are also included with {help crossvalidate}.
-
-{pstd}
-{cmd:predictit} can take the entire estimation command (options and all) as the 
-first argument.  In that case, users are required to pass the split variable 
-name to the {opt spl:it} option.  Internally, {help cmdmod} is used to generate 
-the necessary if expression based on the estimation command to ensure that any 
-user specified constraints are satisfied in the predictions as well.  
-
-{pstd}
-{cmd:predictit} will use the dataset {help char:characteristics} created by 
-previous calls to {help cmdmod} to construct the necessary syntax
+INCLUDE help xvphase-predict
 
 {marker options}{...}
 {title:Options}

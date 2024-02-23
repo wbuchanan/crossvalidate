@@ -51,7 +51,7 @@
 {synopt :{opt threshold}}positive outcome threshold; default is {cmd:threshold(0.5)}{p_end}
 {synopt :{opt noall}}suppresses prediction on entire training set for K-Fold cases{p_end}
 {syntab:Validate}
-{synopt :{opt monitors}}zero or more function names from {help libxv} or user-defined functions; default is {cmd monitors()}{p_end}
+{synopt :{opt monitors}}zero or more function names from {help libxv} or user-defined functions; default is {cmd:monitors()}{p_end}
 {syntab:General}
 {synopt :{opt display}}display results in window; default is off{p_end}
 {synopt :{opt retain}}retains the variables and stored estimation results{p_end}
@@ -74,21 +74,14 @@ command (see {help fitit}); generating out-of-sample/held-out predicted values
 provided in the {help crossvalidate} suite intended to make the process of using 
 cross-validation seemless and easy for Stata users.
 
-INCLUDE help xvphases
-
-{pstd}
-{cmd:xvloo} can be used to generate simple or clustered random sampling based 
-train/test splits or training/validation/test splits.  A large number of 
-validation metrics are implemented in {help libxv} and users are also free to 
-define their own {help mata} functions that can be used by {cmd:xvloo} (see 
-{help libxv} for additional information).  
-
 {pstd}
 {cmd:IMPORTANT:} you must specify the full name of the options used by 
-{cmd xvloo}.  If you attempt to pass an abbreviated option name, it will not be 
+{cmd:xvloo}.  If you attempt to pass an abbreviated option name, it will not be 
 recognized by the command and will be ignored.  Additionally, while 
-{help validateit} includes a {opt:loo} option, it is unnecessary to use that 
+{help validateit} includes a {opt loo} option, it is unnecessary to use that 
 option with this prefix.  
+
+INCLUDE help xvphases
 
 {marker options}{...}
 {title:Options}

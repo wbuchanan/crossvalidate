@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! predictit
-*! v 0.0.4
-*! 19FEB2024
+*! v 0.0.5
+*! 22FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop predictit
@@ -68,7 +68,7 @@ prog def predictit
 	} // End IF Block for insufficient information for the command	 
 				 
 	// If the user passes a command string 
-	if !mi(`"`cmd'"') {
+	else if !mi(`"`cmd'"') {
 		
 		// Make sure a split variable is passed
 		if mi("`split'") {
@@ -86,58 +86,60 @@ prog def predictit
 		// If there is something passed to split confirm it exists
 		else confirm v `split'
 		
-		// If modded if expression in characteristic use it
-		if !mi(`"`: char _dta[predifin]'"') {
+		// Generate the modified if expressions for predictions
+		cmdmod `cmd', split(`split') kf(`kfold')
+	
+		// Then substitute the individual split case to modifin
+		loc modifin : char _dta[predifin]
+		
+		// And substitute the K-Fold case for the entire training set
+		loc kfifin : char _dta[kfpredifin]
 			
-			// Copy the if expression to a local
-			loc modifin : char _dta[predifin]
-		
-		} // End IF Block if the prediction if expression was stored in data
-		
-		// Otherwise
-		else {
-			
-			// Generate the modified if expressions for predictions
-			cmdmod `cmd', split(`split') kf(`kfold')
-		
-			// Then substitute the individual split case to modifin
-			loc modifin `r(predifin)'
-			
-			// And substitute the K-Fold case for the entire training set
-			loc kfifin `r(kfpredifin)'
-			
-		} // End ELSE Block for missing dataset characteristics
-		
-		// If modded k-fold if expression in characteristic use it
-		if !mi(`"`: char _dta[kfpredifin]'"') {
-			
-			// Copy the characteristic to the local
-			loc kfifin : char _dta[kfpredifin]
-		
-		} // End IF Block to overwrite the KFold if expression if in data
-		
 	} // End IF Block for cases where the user passes the command string
 	
 	// If the user doesn't pass a command string
-	else {
+	else if mi(`"`cmd'"') & !mi(`"`modifin'"') {
 		
-		// Get the if expression from the characteristics
+		// Check if kfold is > 1 and the noall option is missing
+		if `kfold' > 1 & mi(`"`all'"') {
+			
+			// Check for the modified kf if expression
+			if mi(`"`kfifin'"') & mi(`"`: char _dta[kfpredifin]'"') {
+				
+				// Display an error message
+				di as err "A modified if expression for the validation/test" ///   
+				" predictions is required.  No values were passed to the "	 ///   
+				"kfifin option and the characteristic created by cmdmod "	 ///   
+				"was not found.  Include the noall option, provide an "  	 ///   
+				"argument to the kfifin option, or ensure cmdmod is called."
+				
+				// Return error code
+				err 198
+				
+			} // End IF Block for missing kfifin/char when potentially applicable
+			
+			// If the characteristic isn't missing
+			else if mi(`"`kfifin'"') & !mi(`"`: char _dta[kfpredifin]'"') {
+				
+				// Set the macro using the characteristic
+				loc kfifin : char _dta[kfpredifin]
+				
+			} // End ELSEIF block for missing arg but available characteristic
+			
+		} // End IF Block for checking for macro for KF all case
+		
+	} // End ELSE Block for no command string and present modifin
+	
+	// And the case to use if no command or modified if/in exp is passed
+	else if mi(`"`cmd'`modifin'"') & !mi(`"`: char _dta[predifin]'"') {
+		
+		// Then substitute the individual split case to modifin
 		loc modifin : char _dta[predifin]
+		
+		// And substitute the K-Fold case for the entire training set
 		loc kfifin : char _dta[kfpredifin]
-		
-		// Ensure that there is a value present in modifin
-		if mi(`"`modifin'"') {
 			
-			// Display an error message
-			di as err "No modified if expression could be found.  Pass the " ///   
-			"appropriate if expression to the modifin option."
-
-			// Return error code
-			err 198
-			
-		} // End IF Block for missing if expression
-		
-	} // End ELSE Block for no command string
+	} // End ELSEIF Block for the default case
 	
 	// Get the names of all stored results
 	qui: estimates dir

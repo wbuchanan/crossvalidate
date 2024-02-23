@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.1 22feb2024}{...}
+{* *! version 0.0.2 23feb2024}{...}
 {pstd}
 In this phase, your estimation command is implemented to fit the model you 
 specified to one or more folds of the data in the training set.  The commands in 
@@ -17,9 +17,9 @@ training set.
 
 {pstd}
 The model is then fitted to all of the training folds sequentially based on the 
-value provided to the {opt:kfold} option.  This option defaults to a value of 1.  
+value provided to the {opt kfold} option.  This option defaults to a value of 1.  
 If you are using one of the prefix commands ({help xv} or {help xvloo}), you 
-{bf:do not} need to specify the {opt:kfold} option more than once.  The 
+{bf:do not} need to specify the {opt kfold} option more than once.  The 
 estimation results are stored for each iteration and you are required to provide 
 a {it:stubname} for the estimation results; {bf:Note:} {it:if you are using one} 
 {it:of the prefix commands ({help xv} or {help xvloo}), a default name is} 
@@ -32,11 +32,11 @@ number.
 {pstd} 
 In the case where you are attempting to tune the hyperparameters or select 
 among competing models, you may want to use results from the validation set of 
-a TVT split.  The {opt:noall} option can be useful in this scenario.  By default 
+a TVT split.  The {opt noall} option can be useful in this scenario.  By default 
 the command will fit the model to each fold of the training set and then will 
-fit the model to the entire training set, when {opt:kfold} is > 1.  When you 
+fit the model to the entire training set, when {opt kfold} is > 1.  When you 
 plan on testing multiple models or performing hyperparameter tuning, use the 
-{opt:noall} option while engaged in this preliminary work.  Once you have a 
-candidate model, call the command again without the {opt:noall} option.  This 
+{opt noall} option while engaged in this preliminary work.  Once you have a 
+candidate model, call the command again without the {opt noall} option.  This 
 will fit the model on the entire training set and that model fit will be used to 
 generate the predicted values on the validation set.

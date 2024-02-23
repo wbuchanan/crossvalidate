@@ -30,11 +30,11 @@ By default, the {opt kfold} option is set to 1.
 Next, the splitting process needs to determine how the units will be allocated 
 among these sets: simple random sampling w/o replacement (SRS) or clustered 
 random sampling w/o replacement (CRS).  By default, the splitting process will 
-use SRS.  If you pass a value to the {opt:uid} parameter, CRS will be used.  
-The {opt:tpoint} option, although documented and available, should likely not be 
+use SRS.  If you pass a value to the {opt uid} parameter, CRS will be used.  
+The {opt tpoint} option, although documented and available, should likely not be 
 used at this time for most use cases.  It will implement CRS for panel data if 
 the data are {help xtset} but creates an additional variable based on the time 
-point passed to {opt:tpoint} to define the records that should be used for 
+point passed to {opt tpoint} to define the records that should be used for 
 forecasting.  At this time, forecasting methods are not supported by the 
 {help crossvalidate} package, but the option exists for users who wish to handle 
 those use cases on their own.
@@ -48,7 +48,8 @@ will likely lead to tuning the model to the test set.  In that case, the
 evaluation metrics will be overly optimistic compared to what should be 
 reasonably expected for completely new data.
 
-{title:LOO Considerations}
+{pstd}
+{bf:LOO Considerations}
 {pstd}
 {help xvloo} should generally only be used when you have a small to moderate 
 amount of data.  With large datasets, the model will be fitted to the data a 

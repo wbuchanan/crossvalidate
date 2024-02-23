@@ -1209,6 +1209,42 @@ real scalar pll(string scalar pred, string scalar obs, string scalar touse) {
 	
 } // End of function definition for Poisson Log Loss
 
+// Defines function for ratio of performance to interquartile range
+// based on: https://github.com/tidymodels/yardstick/blob/main/R/num-rpiq.R
+real scalar rpiq(string scalar pred, string scalar obs, string scalar touse) {
+
+	// Declares scalar to store the iqr
+	real scalar iqr
+	
+	// quietly calls the summarize command on the observed values
+	stata("qui: su " + obs + " if " + touse + " == 1, de")
+	
+	// Get the interquartile range
+	iqr = st_numscalar("r(p75)") - st_numscalar("r(p25)")
+
+	// Returns the ratio of performance to interquartile range
+	return(iqr / rmse(pred, obs, touse))
+	
+} // End of function definition for Poisson Log Loss
+
+// Defines function for "Traditional" R^2
+// based on: https://github.com/tidymodels/yardstick/blob/main/R/num-rsq_trad.R
+real scalar r2ss(string scalar pred, string scalar obs, string scalar touse) {
+	
+	// Declares a scalar to store the mean of the observed values
+	real scalar mu
+	
+	// Mean of the observed values
+	mu = mean(st_data(., obs, touse))
+
+	// Returns 1 - (Residual SS / Total SS)
+	return(1 - (sum((st_data(., obs, touse) - st_data(., pred, touse)):^2) / ///   
+				sum((st_data(., obs, touse) :- mu):^2)))
+
+} // End of function definition for "Traditional" R^2
+
+
+
 // End mata interpreter
 end
 

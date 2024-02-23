@@ -1,5 +1,16 @@
 # Stata Cross-Validation
 
+## TODO:
+- [ ] Look into the possibility of creating multiple collections and consider 
+using that to collect the estimation results generated in `fitit`
+- [ ] If this is possible add a `replay` option to the prefix commands
+- [ ] Investigate saving and loading collection labels to label the output from 
+`validateit` with more descriptive names than the function names
+- [ ] Add logic to prefix to bypass `splitit` if the split variable is already 
+defined to allow users to test multiple specifications with the same split
+
+
+
 
 ## Example:
 `xv 0.8, pstub(pred) metric(mse): reg price mpg length if foreign != 1`
@@ -35,7 +46,7 @@ made on the validation/test set only.
 - [ ] Finish writing test cases for ADO commands
 - [x] Start writing help file for the package
 - [x] Start writing help file for the Mata library
-- [x] Finish writing help file for the package
+- [ ] Finish writing help file for the package
 - [ ] Finish writing help file for the Mata library
 - [x] Update help file for cmdmod related to characteristics
 - [x] Update help file for predictit with info about characteristics
@@ -125,7 +136,7 @@ lmbuild libxv, replace
 - [x] Test function for Mean Absolute Error
 - [x] Test function for Bias
 - [x] Test function for MBE
-- [x] Test function for R^2
+- [x] Test function for R^2 (Pearson Correlation Coefficient)
 - [x] Test function for Root Mean Squared Error
 - [x] Test function for Mean Absolute Percentage Error
 - [x] Test function for Symmetric Mean Absolute Percentage Error
@@ -137,6 +148,8 @@ lmbuild libxv, replace
 - [ ] Test function for Pseudo-Huber Loss
 - [ ] Test function for Poisson Log Loss
 - [ ] Test function for Huber Loss
+- [ ] Test function for Ratio of Performance to Interquartile Range
+- [ ] Test function for Traditional R^2
  
 # Main Commands 
 

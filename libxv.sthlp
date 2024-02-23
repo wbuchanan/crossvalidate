@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.1 17feb2024}{...}
+{* *! version 0.0.2 23feb2024}{...}
 {vieweralsosee "[R] predict" "mansection R predict"}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat_classification"}{...}
 {vieweralsosee "[P] creturn" "mansection P creturn"}{...}
@@ -52,8 +52,35 @@ the {help xv} prefix instead to let the computer do the work.
 {title:Utility Functions}
 
 {pstd}
-This should provide a bit of description for each of the utility functions 
-what they are, what they do, the use case, etc...
+{cmd:getifin}
+
+
+{pstd}
+{cmd:getnoifin}
+
+
+{pstd}
+{cmd:hasoptions}
+
+
+{pstd}
+{cmd:cvparse}
+
+
+{pstd}
+{cmd:getarg}
+
+
+{pstd}
+{cmd:confusion}
+
+
+{pstd}
+{cmd:struct Crosstab}
+
+
+{pstd}
+{cmd:xtab}
 
 
 {marker classification}{...}
@@ -71,77 +98,14 @@ scenarios (with the specifics being reserved to the sections below).
 {marker binary}{...}
 {title:Binary Metrics}
 
-{* * for each function there is a section below where we can define the math/implementation of that metric and provide in-text citations for reference (we can just use the yardstick package in R as short hand and then provide the link to that repository as the reference to make it a bit easier/more manageable)}
 {synoptset 15 tabbed}{...}
 {synoptline}
 {synopthdr:Name}
 {synoptline}
-{synopt :{opt sens}}Sensitivity{p_end}
-{synopt :{opt prec}}Precision{p_end}
-{synopt :{opt recall}}Recall{p_end}
-{synopt :{opt spec}}Specificity{p_end}
-{synopt :{opt prev}}Prevalence{p_end}
-{synopt :{opt ppv}}Positive Predictive Value{p_end}
-{synopt :{opt npv}}Negative Predictive Value{p_end}
-{synopt :{opt acc}}Accuracy{p_end}
-{synopt :{opt bacc}}Balanced Accuracy{p_end}
-{synopt :{opt mcc}}Matthews Correlation Coefficient{p_end}
-{synopt :{opt f1}}F1 Statistic{p_end}
-{synopt :{opt jindex}}Youden's J Statistic{p_end}
-{synopt :{opt binr2}}Tetrachoric Correlation Coefficient{p_end}
+INCLUDE help xvbintab
 {synoptline}
 
-{phang}
-{opt sens}
-
-
-{phang}
-{opt prec}
-
-
-{phang}
-{opt recall}
-
-
-{phang}
-{opt spec}
-
-
-{phang}
-{opt prev}
-
-
-{phang}
-{opt ppv}
-
-
-{phang}
-{opt npv}
-
-
-{phang}
-{opt acc}
-
-
-{phang}
-{opt bacc}
-
-
-{phang}
-{opt mcc}
-
-
-{phang}
-{opt f1}
-
-
-{phang}
-{opt jindex}
-
-
-{phang}
-{opt binr2}
-
+INCLUDE help xvbinmtrx
 
 {marker multiclass}{...}
 {title:Multiclass Metrics}
@@ -151,83 +115,11 @@ scenarios (with the specifics being reserved to the sections below).
 {synoptline}
 {synopthdr:Name}
 {synoptline}
-{synopt :{opt mcsens}}Multiclass Sensitivity{p_end}
-{synopt :{opt mcprec}}Multiclass Precision{p_end}
-{synopt :{opt mcrecall}}Multiclass Recall{p_end}
-{synopt :{opt mcspec}}Multiclass Specificity{p_end}
-{synopt :{opt mcprev}}Multiclass Prevalence{p_end}
-{synopt :{opt mcppv}}Multiclass Positive Predictive Value{p_end}
-{synopt :{opt mcnpv}}Multiclass Negative Predictive Value{p_end}
-{synopt :{opt mcacc}}Multiclass Accuracy{p_end}
-{synopt :{opt mcbacc}}Multiclass Balanced Accuracy{p_end}
-{synopt :{opt mcmcc}}Multiclass Matthews Correlation Coefficient{p_end}
-{synopt :{opt mcf1}}Multiclass F1 Statistic{p_end}
-{synopt :{opt mcjindex}}Multiclass Youden's J Statistic{p_end}
-{synopt :{opt mcordr2}}Polychoric Correlation Coefficient {opt ***}{p_end}
-{synopt :{opt mcdetect}}Multiclass Detection Prevalence{p_end}
-{synopt :{opt mckappa}}Multiclass Kappa{p_end}
+INCLUDE help xvmctab
 {synoptline}
+{synopt :{opt ***}  {it:Note this requires installation of {search polychoric}}}
 
-{phang}
-{opt mcsens}
-
-
-{phang}
-{opt mcprec}
-
-
-{phang}
-{opt mcrecall}
-
-
-{phang}
-{opt mcspec}
-
-
-{phang}
-{opt mcprev}
-
-
-{phang}
-{opt mcppv}
-
-
-{phang}
-{opt mcnpv}
-
-
-{phang}
-{opt mcacc}
-
-
-{phang}
-{opt mcbacc}
-
-
-{phang}
-{opt mcmcc}
-
-
-{phang}
-{opt mcf1}
-
-
-{phang}
-{opt mcjindex}
-
-
-{phang}
-{opt mcordr2}
-
-
-{phang}
-{opt mcdetect}
-
-
-{phang}
-{opt mckappa}
-
-
+INCLUDE help xvmcmtrx
 
 {marker regression}{...}
 {title:Regression Metrics}
@@ -237,88 +129,10 @@ scenarios (with the specifics being reserved to the sections below).
 {synoptline}
 {synopthdr:Name}
 {synoptline}
-{synopt :{opt mse}}Mean Squared Error{p_end}
-{synopt :{opt rmse}}Root Mean Squared Error{p_end}
-{synopt :{opt mae}}Mean Absolute Error{p_end}
-{synopt :{opt bias}}Total (Bias) Error{p_end}
-{synopt :{opt mbe}}Mean (Bias) Error{p_end}
-{synopt :{opt r2}}Pearson Correlation Coefficient{p_end}
-{synopt :{opt mape}}Mean Absolute Percentage Error{p_end}
-{synopt :{opt smape}}Symmetric Mean Absolute Percentage Error{p_end}
-{synopt :{opt msle}}Mean Squared Log Error{p_end}
-{synopt :{opt rmsle}}Root Mean Squared Log Error{p_end}
-{synopt :{opt rpd}}Ratio of Performance to Deviation{p_end}
-{synopt :{opt iic}}Index of Ideality of Correlation{p_end}
-{synopt :{opt ccc}}Concordance Correlation Coefficient{p_end}
-{synopt :{opt huber}}Huber Loss{p_end}
-{synopt :{opt phl}}Pseudo-Huber Loss{p_end}
-{synopt :{opt pll}}Poisson Log Loss{p_end}
+INCLUDE help xvconttab
 {synoptline}
 
-
-{phang}
-{opt mse}
-
-
-{phang}
-{opt rmse}
-
-
-{phang}
-{opt mae}
-
-
-{phang}
-{opt bias}
-
-
-{phang}
-{opt mbe}
-
-
-{phang}
-{opt r2}
-
-
-{phang}
-{opt mape}
-
-
-{phang}
-{opt smape}
-
-
-{phang}
-{opt msle}
-
-
-{phang}
-{opt rmsle}
-
-
-{phang}
-{opt rpd}
-
-
-{phang}
-{opt iic}
-
-
-{phang}
-{opt ccc}
-
-
-{phang}
-{opt huber}
-
-
-{phang}
-{opt phl}
-
-
-{phang}
-{opt pll}
-
+INCLUDE help xvcontmtrx
 
 {marker custom}{...}
 {title:Custom Metrics}

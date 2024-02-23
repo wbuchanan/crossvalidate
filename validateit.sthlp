@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.5 22feb2024}{...}
+{* *! version 0.0.5 23feb2024}{...}
 {viewerjumpto "Syntax" "validateit##syntax"}{...}
 {viewerjumpto "Description" "validateit##description"}{...}
 {viewerjumpto "Options" "validateit##options"}{...}
@@ -40,35 +40,7 @@
 {marker description}{...}
 {title:Description}
 
-{pstd} 
-{cmd:validateit} is part of the {help crossvalidate} suite of tools to implement 
-cross-validation methods with Stata estimation commands. {cmd:validateit} is 
-used to compute the validation metric and monitors.  For additional information 
-about the measurement functions available in {help crossvalidate} please see 
-help {help libxv}.
-
-{pstd}
-{cmd:validateit} makes a distinction between statistics used to monitor the 
-performance and/or characteristics of the model fit to the out-of-sample, or 
-held-out, set and statistics used as metrics for hyperparameter tuning.  While 
-{help crossvalidate} does not currently provide any options for hyperparameter 
-tuning, this distinction is important for an users who wish to implement any 
-existing hyperparameter tuning algorithms that optimize a single value.  
-
-{pstd}
-{cmd:validateit} will only produce results for a test set in the context of a 
-train/test split without K-Fold cross-validation.  It is possible to suppress 
-using the test split with K-Fold cross-validation using the {opt:noall} option. 
-Because the test set should only be used for a single evaluation of the model's 
-performance, we leave it to the user to perform that final evaluation when the 
-user has created a validation set for cross-validation.  Naturally, this implies 
-that hyperparameter tuning should not be attempted with a train/test split, 
-since it will inevitably lead to overfitting on the test set thus defeating the 
-purpose of the held out set.  As the package evolves we will provide additional 
-guidance to users on alternative strategies they may consider (e.g., calling 
-{help splitit} to generate K-Folds then calling it again while passing the first 
-{opt split} variable as an option to {opt uid} to generate a set of K-Folds 
-within each K-Fold). 
+INCLUDE help xvphase-validate
 
 {marker options}{...}
 {title:Options}
@@ -172,56 +144,26 @@ and references, please see {help libxv}.
 {synoptline}
 {synopthdr:Name}
 {synoptline}
-{syntab:Binary Classification Metrics}
-{synopt :{opt sens}}Sensitivity{p_end}
-{synopt :{opt prec}}Precision{p_end}
-{synopt :{opt recall}}Recall{p_end}
-{synopt :{opt spec}}Specificity{p_end}
-{synopt :{opt prev}}Prevalence{p_end}
-{synopt :{opt ppv}}Positive Predictive Value{p_end}
-{synopt :{opt npv}}Negative Predictive Value{p_end}
-{synopt :{opt acc}}Accuracy{p_end}
-{synopt :{opt bacc}}Balanced Accuracy{p_end}
-{synopt :{opt mcc}}Matthews Correlation Coefficient{p_end}
-{synopt :{opt f1}}F1 Statistic{p_end}
-{synopt :{opt jindex}}Youden's J Statistic{p_end}
-{synopt :{opt binr2}}Tetrachoric Correlation Coefficient{p_end}
-{syntab:Multinomial/Ordinal Classification Metrics}
-{synopt :{opt mcsens}}Multiclass Sensitivity{p_end}
-{synopt :{opt mcprec}}Multiclass Precision{p_end}
-{synopt :{opt mcrecall}}Multiclass Recall{p_end}
-{synopt :{opt mcspec}}Multiclass Specificity{p_end}
-{synopt :{opt mcprev}}Multiclass Prevalence{p_end}
-{synopt :{opt mcppv}}Multiclass Positive Predictive Value{p_end}
-{synopt :{opt mcnpv}}Multiclass Negative Predictive Value{p_end}
-{synopt :{opt mcacc}}Multiclass Accuracy{p_end}
-{synopt :{opt mcbacc}}Multiclass Balanced Accuracy{p_end}
-{synopt :{opt mcmcc}}Multiclass Matthews Correlation Coefficient{p_end}
-{synopt :{opt mcf1}}Multiclass F1 Statistic{p_end}
-{synopt :{opt mcjindex}}Multiclass Youden's J Statistic{p_end}
-{synopt :{opt mcordr2}}Polychoric Correlation Coefficient {opt ***}{p_end}
-{synopt :{opt mcdetect}}Multiclass Detection Prevalence{p_end}
-{synopt :{opt mckappa}}Multiclass Kappa{p_end}
-{syntab:Non-Classification Metrics}
-{synopt :{opt mse}}Mean Squared Error{p_end}
-{synopt :{opt rmse}}Root Mean Squared Error{p_end}
-{synopt :{opt mae}}Mean Absolute Error{p_end}
-{synopt :{opt bias}}Total (Bias) Error{p_end}
-{synopt :{opt mbe}}Mean (Bias) Error{p_end}
-{synopt :{opt r2}}Pearson Correlation Coefficient{p_end}
-{synopt :{opt mape}}Mean Absolute Percentage Error{p_end}
-{synopt :{opt smape}}Symmetric Mean Absolute Percentage Error{p_end}
-{synopt :{opt msle}}Mean Squared Log Error{p_end}
-{synopt :{opt rmsle}}Root Mean Squared Log Error{p_end}
-{synopt :{opt rpd}}Ratio of Performance to Deviation{p_end}
-{synopt :{opt iic}}Index of Ideality of Correlation{p_end}
-{synopt :{opt ccc}}Concordance Correlation Coefficient{p_end}
-{synopt :{opt huber}}Huber Loss{p_end}
-{synopt :{opt phl}}Pseudo-Huber Loss{p_end}
-{synopt :{opt pll}}Poisson Log Loss{p_end}
+INCLUDE help xvbintab
+INCLUDE help xvmctab
+INCLUDE help xvconttab
 {synoptline}
 {synopt :{opt ***}  {it:Note this requires installation of {search polychoric}}}
 
+{marker binmtrx}
+{title:Binary Metric Details}
+
+INCLUDE help xvbinmtrx
+
+{marker mcmtrx}
+{title:Multiclass Metric Details}
+
+INCLUDE help xvmcmtrx
+
+{marker contmtrx}
+{title:Continuous Metric Details}
+
+INCLUDE help xvcontmtrx
 
 {marker examples}{...}
 {title:Examples}

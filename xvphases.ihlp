@@ -55,5 +55,5 @@ k-fold).  In those cases, you will need to do a bit more coding.
 If anyone using {help crossvalidate} is interested in implementing methods for 
 hyperparameter tuning, please feel free to reach out to us.  We have already 
 allowed for some option names to be used to define a grid of values, the 
-parameters to be tuned, and tuning methods in the {opt:cvparse} function of 
+parameters to be tuned, and tuning methods in the {opt cvparse} function of 
 {help libxv}.  

@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.3 20feb2024}{...}
+{* *! version 0.0.4 23feb2024}{...}
 {viewerjumpto "Syntax" "splitit##syntax"}{...}
 {viewerjumpto "Description" "splitit##description"}{...}
 {viewerjumpto "Options" "splitit##options"}{...}
@@ -30,15 +30,7 @@
 {marker description}{...}
 {title:Description}
 
-{pstd}
-{cmd:splitit} is part of the {help crossvalidate} suite of tools to implement 
-cross-validation methods with Stata estimation commands. {cmd:splitit} is used 
-to create the train/test or train/validation/test splits in the dataset. It also 
-supports K-Fold splitting of the training set.  Depending on the options 
-specified by the user, {cmd:splitit} will split randomly across all observations
-, using panel variables or time variables with panel data, using clusters, or 
-a combination of clustered and panel sampling strategies. In all cases, the 
-sampling is based on pseudo-random number generators implemented in Stata.
+INCLUDE help xvphase-split
 
 
 {marker options}{...}
