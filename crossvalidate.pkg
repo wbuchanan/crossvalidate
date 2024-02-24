@@ -16,17 +16,17 @@ d KW: k-fold
 d KW: leave one out
 d KW: machine learning
 d KW: out of sample
-d KW: model evaluation
+d KW: evaluation
 d
 d Requires: Stata version 18
 d
 d Distribution-Date: 20240222
 d
-d Author: Billy Buchanan
+d Author: Billy Buchanan, Ph.D.
 d         Sr. Research Scientist, SAG Corporation
 d         
-d         Steven Brownell
-d         , SAG Corporation
+d         Steven D. Brownell, Ph.D.
+d         Economist, SAG Corporation
 d
 d Support: https://github.com/wbuchanan/crossvalidate
 d
@@ -57,4 +57,12 @@ f xvphase-fit.ihlp
 f xvphase-predict.ihlp
 f xvphase-validate.ihlp
 f xvphases.ihlp
+f xvbinmtrx.ihlp
+f xvmcmtrx.ihlp
+f xvcontmtrx.ihlp
+f xvbintab.ihlp
+f xvmctab.ihlp
+f xvconttab.ihlp
+f xvlabels.stjson
+
 

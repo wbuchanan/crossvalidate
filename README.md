@@ -1,13 +1,15 @@
 # Stata Cross-Validation
 
 ## TODO:
-- [ ] Look into the possibility of creating multiple collections and consider 
+- [x] Look into the possibility of creating multiple collections and consider 
 using that to collect the estimation results generated in `fitit`
 - [ ] If this is possible add a `replay` option to the prefix commands
 - [ ] Investigate saving and loading collection labels to label the output from 
 `validateit` with more descriptive names than the function names
-- [ ] Add logic to prefix to bypass `splitit` if the split variable is already 
+- [x] Add logic to prefix to bypass `splitit` if the split variable is already 
 defined to allow users to test multiple specifications with the same split
+- [ ] Add note in the documentation about display and exporting results using 
+collect export
 
 
 

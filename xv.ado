@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! xv
-*! v 0.0.1
-*! 18FEB2023
+*! v 0.0.3
+*! 24FEB2023
 
 // Drop program from memory if already loaded
 cap prog drop xv
@@ -58,22 +58,6 @@ prog def xv, eclass properties(prefix xv)
 		
 	} // End IF Block for missing required parameters
 		
-	// Check for uid variable.  If none, create a unique ID as _n in a tempvar
-	// and pass that as uid to splitit
-	if mi(`"`uid'"') {
-		
-		// Generate the unique identifier if the user is not using clusters for 
-		// the LOO CV
-		qui: g long `uuid' = _n
-		
-		// Set the uid local to use this variable
-		loc uid "uid(`uuid')"
-		
-		// Set a macro for the correct flavor
-		loc flav "Simple Random Sample"
-		
-	} // End IF Block for missing uid
-	
 	// Test if results is missing a value
 	if mi(`"`results'"') {
 		
@@ -99,16 +83,54 @@ prog def xv, eclass properties(prefix xv)
 	// Assigns the argument value to spvar
 	loc spvar `argval'
 	
+	// Check to see if the split variable already exists
+	cap confirm new v `spvar'
+	
+	// If the variable already exists set the do split local to 0
+	if _rc != 0 loc dosplit 0
+	
+	// If it doesn't exist set do split to 1
+	else loc dosplit 1
+		
 	// Parses the pstub option
 	mata: getarg("`pstub'")
 	
 	// If the user does not want to retain variables
 	if mi("`retain'") loc dropvars `spvar' `argval'*
 		
+	// Check to see if predict stub variable is present
+	cap confirm new v `argval'all
+	
+	// If the variable exists
+	if _rc != 0 {
+		
+		// Display an error message
+		di as err "The variable `argval'all already exists.  You can drop "  ///
+		"the variable, or specify a new predict value stubname." 
+		
+		// Throw an error and exit
+		err 110
+		
+	} // End IF Block for existing `pstub'all variable
+		
+	// Check to see if the predicted variable is present
+	cap confirm new v `argval'
+	
+	// If the variable exists
+	if _rc != 0 {
+		
+		// Display an error message
+		di as err "The variable `argval' already exists.  You can drop "     ///
+		"the variable, or specify a new predict value stubname." 
+		
+		// Throw an error and exit
+		err 110
+		
+	} // End IF Block for existing `pstub'all variable
+			
 	// Remove leading colon from the estimation command
 	loc cmd `= substr(`"`cmd'"', 2, .)'
 
-	
 	// Check for if/in conditions
 	mata: getifin(`"`cmd'"')
 	
@@ -175,20 +197,25 @@ prog def xv, eclass properties(prefix xv)
 	eret loc estres`i' "`results'`i'").  
 	*/
 	
-	// Split the dataset into train/test or train/validation/test splits
-	splitit `props' `ifin', `uid' `tpoint' `kfold' `split'
-	
-	// Capture the returned values so they can be returned at the end
-	loc splitter `r(splitter)'
-	loc training `r(training)'
-	loc validation `r(validation)'
-	loc testing `r(testing)'
-	loc stype `r(stype)'
-	loc flavor `r(flavor)'
-	loc forecastset `r(forecastset)'
-	
+	// If the split variable is not already present split the data
+	if `dosplit' {
+
+		// Split the dataset into train/test or train/validation/test splits
+		splitit `props' `ifin', `uid' `tpoint' `kfold' `split'
+		
+		// Capture the returned values so they can be returned at the end
+		loc splitter `r(splitter)'
+		loc training `r(training)'
+		loc validation `r(validation)'
+		loc testing `r(testing)'
+		loc stype `r(stype)'
+		loc flavor `r(flavor)'
+		loc forecastset `r(forecastset)'
+		
+	} // End IF Block for optional splitting
+
 	// Call the command to fit the model to the data
-	fitit `"`cmd'"', `split' `results' `kfold' `all'
+	fitit `"`cmd'"', `split' `results' `kfold' `all' `display'
 	
 	// Capture the macros that get returned
 	loc estresnames `e(estres)'
@@ -272,9 +299,8 @@ prog def xv, eclass properties(prefix xv)
 		eret loc training = "`training'"
 		eret loc validation = "`validation'"
 		eret loc testing = "`testing'"
-		eret loc stype = "Leave One Out"
-		if mi("`flav'") eret loc flavor = "`flavor'"
-		else eret loc flavor = "`flav'"
+		eret loc stype = "`stype'"
+		eret loc flavor = "`flavor'"
 		eret loc forecastset = "`forecastset'"
 
 		// Then return the macros from fitit

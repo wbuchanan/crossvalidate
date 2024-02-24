@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! validateit
-*! v 0.0.9
-*! 22FEB2024
+*! v 0.0.10
+*! 24FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop validateit
@@ -137,6 +137,17 @@ prog def validateit, rclass
 	
 	// Create a collection 
 	qui: collect create xv, replace
+	
+	// Locate the labels for the metrics
+	cap: findfile xvlabels.stjson
+	
+	// If the file is located
+	if _rc == 0 {
+		
+		// Load the capture labels
+		collect label use `"`r(fn)'"', name(xv)
+		
+	} // End IF Block to load collection labels for validation metrics
 	
 	// If there is only a single fold
 	if `kfold' == 1 & mi("`loo'") {

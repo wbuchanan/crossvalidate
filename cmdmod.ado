@@ -6,8 +6,8 @@
 *******************************************************************************/
 
 *! cmdmod
-*! v 0.0.7
-*! 17FEB2024
+*! v 0.0.8
+*! 24FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop cmdmod
@@ -47,7 +47,7 @@ prog def cmdmod, rclass
 				
 				// Generate the modified if expression w/o a trailing comma for 
 				// the individual K-Folds
-				loc modifin " if `split' != \`k'"
+				loc modifin " if `split' != \`k' & `split' <= `kfold'"
 				
 			} // End IF Block for options present
 			
@@ -56,7 +56,7 @@ prog def cmdmod, rclass
 				
 				// Generate the modified if expression w/a trailing comma for 
 				// the individual K-Folds
-				loc modifin " if `split' != \`k',"
+				loc modifin " if `split' != \`k' & `split' <= `kfold',"
 					
 			} // End ELSE Block for no options
 			
@@ -160,7 +160,7 @@ prog def cmdmod, rclass
 				
 				// Generate the modified if expression w/o a trailing comma for 
 				// the individual K-Folds
-				loc modifin "`ifin' & `split' != \`k'"
+				loc modifin "`ifin' & `split' != \`k' & `split' <= `kfold'"
 				
 			} // End IF Block for options present
 			
@@ -169,7 +169,7 @@ prog def cmdmod, rclass
 				
 				// Generate the modified if expression w/a trailing comma for 
 				// the individual K-Folds
-				loc modifin "`ifin' & `split' != \`k',"
+				loc modifin "`ifin' & `split' != \`k' & `split' <= `kfold',"
 					
 			} // End ELSE Block for no options
 			

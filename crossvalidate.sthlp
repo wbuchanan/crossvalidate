@@ -134,10 +134,10 @@ pseudo-random number generator if requested.
 {title:Contact}
 {p 4 4 8}William R. Buchanan, Ph.D.{p_end}
 {p 4 4 8}Sr. Research Scientist, SAG Corporation{p_end}
-{p 4 4 6}{browse "https://www.sagcorp.com":SAG Corporation}{p_end}
+{p 4 4 8}{browse "https://www.sagcorp.com":SAG Corporation}{p_end}
 {p 4 4 8}wbuchanan at sagcorp [dot] com{p_end}
 
 {p 4 4 8}Steven D. Brownell, Ph.D.{p_end}
 {p 4 4 8}Economist, SAG Corporation{p_end}
-{p 4 4 6}{browse "https://www.sagcorp.com":SAG Corporation}{p_end}
+{p 4 4 8}{browse "https://www.sagcorp.com":SAG Corporation}{p_end}
 {p 4 4 8}sbrownell at sagcorp [dot] com{p_end}

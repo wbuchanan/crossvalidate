@@ -6,8 +6,8 @@
 *******************************************************************************/
 
 *! splitit
-*! v 0.0.8
-*! 20FEB2024
+*! v 0.0.9
+*! 24FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop splitit
@@ -20,7 +20,8 @@ prog def splitit, rclass sortpreserve
 	
 	// Syntax for the splitit subroutine
 	syntax anything(name = props id = "Split proportion(s)") [if] [in] [, 	 ///   
-		   Uid(varlist) TPoint(string asis) KFold(integer 1) SPLit(string asis) ]
+		   Uid(varlist) TPoint(string asis) KFold(integer 1) 				 ///   
+		   SPLit(string asis) loo ]
 	
 	// Test for invalid KFold option
 	if `kfold' < 1 {
@@ -272,38 +273,12 @@ prog def splitit, rclass sortpreserve
 	
 	// For the kfold case, we'll use xtile on the random uniform to create the 
 	// groups
-	if `kfold' != 1 {
+	if `kfold' != 1 & mi("`loo'") {
 		
-		// Get the number of cases
-		qui: count if `touse' & `tag' == 1 & `uni' <= `train'
-		
-		// If test the number of records
-		if `r(N)' <= `kfold' {
+		// Generate the split group tempvar to create `kfold' equal groups
+		xtile `sgrp' = `uni' if `touse' & `tag' == 1 & `uni' <= `train',	 ///   
+		n(`kfold')
 			
-			// We need to identify the threshold that gets us to `kfold' + 1
-			qui: gsort -`tag' -`touse' +`uni'
-		
-			// Get the value of kfold + 1
-			loc kfp1 `= `kfold' + 1'
-			
-			// Get the value of `uni' at kfold + 1
-			loc ntrn `= `uni'[`kfp1']'
-
-			// Generate the split group tempvar to create `kfold' equal groups
-			xtile `sgrp' = `uni' if `touse' & `tag' == 1 & `uni' <= `ntrn',  ///   
-			n(`kfold')
-
-		} // End IF Block to handle LOO case where there are too few obs
-		
-		// For the cases where this is not a problem
-		else {
-			
-			// Generate the split group tempvar to create `kfold' equal groups
-			xtile `sgrp' = `uni' if `touse' & `tag' == 1 & `uni' <= `train', ///   
-			n(`kfold')
-			
-		} // End ELSE Block for normal K-Fold case	
-		
 		// Define the training splits
 		mata: st_local("trainsplit", invtokens(strofreal(1..`kfold')))
 				
@@ -351,7 +326,71 @@ prog def splitit, rclass sortpreserve
 		} // End ELSE Block for kfold CV with validation and test splits
 		
 	} // End IF block to handle splitting the training set
+	
+	// For Leave-One-Out cross-validation splits
+	else if `kfold' > 1 & !mi("`loo'") {
+		
+		// Sort the data so all of the tagged cases appear first and the random
+		// uniform is sorted in ascending order
+		qui: gsort -`tag' -`touse' +`uni'
+		
+		// Now the _n should correspond with the order of the random uniform
+		// value and won't produce duplicates.  We'll use a long here just to 
+		// be safe but will compress before returning from the command.
+		qui: g long `sgrp' = _n if `touse' & `tag' == 1 & `uni' <= `train' &  ///   
+							_n <= `kfold'
+		
+		// Define the training splits
+		mata: st_local("trainsplit", invtokens(strofreal(1..`kfold')))
+				
+		// Set number of levels for the splits
+		deflabs, val(`trainsplit') t(Training)
+		
+		// If there is no validation split 
+		if mi("`validate'") {
 			
+			// Define the test split
+			loc testsplit `= `kfold' + 1'
+			
+			// Add the testsplit ID to the variable for the test cases
+			qui: replace `sgrp' = `testsplit' if `touse' & `tag' == 1 & 	 ///   
+												 `uni' > `train' & !mi(`uni')
+			
+			// Generate the value label for the test split
+			deflabs, val(`testsplit') t(Test)
+			
+		} // End IF Block for KFold CV train/test split
+		
+		// If the user also wants to use kfold for a validation set as well:
+		else {
+			
+			// Create a macro with the validation splits
+			loc validsplit `= `kfold' + 1'
+			
+			// Set the value for the test set
+			loc testsplit `= `validsplit' + 1'
+			
+			// Add the validation group to the existing variable
+			qui: replace `sgrp' = `validsplit' if `touse' & `tag' == 1 &	 ///   
+										(`uni' > `train' & `uni' <= `validate')
+
+			// Create the test split in a similar fashion
+			qui: replace `sgrp' = `testsplit' if `touse' & `tag' == 1 &		 ///   
+												 (`uni' > `validate')
+			
+			// Generate value labels for the validation set
+			deflabs, val(`validsplit') t(Validation)
+			
+			// Generate value labels for the test set
+			deflabs, val(`testsplit') t(Test)
+				
+		} // End ELSE Block for kfold CV with validation and test splits
+		
+		// Compress the group identifier
+		qui: compress `sgp'
+		
+	} // End ELSEIF block for the LOO-CV case
+	
 	// For the other cases we can generate the train and validation splits 
 	// in a single step
 	else {
@@ -450,7 +489,10 @@ prog def splitit, rclass sortpreserve
 							& mi(`sgrp'[_n]) & !mi(`sgrp'[_n - 1]) 
 							
 		// Create the forecast identifier
-		qui: g byte `split'xv4 = `sgrp' if `touse' & `tvar' > `tpoint'
+		qui: g long `split'xv4 = `sgrp' if `touse' & `tvar' > `tpoint'
+		
+		// Compress the forecast identifier
+		qui: compress `split'xv4
 		
 		// Label the variable
 		la var `split'xv4 "Forecasting sample for the corresponding split"

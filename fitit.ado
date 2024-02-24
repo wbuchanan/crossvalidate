@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! fitit
-*! v 0.0.6
-*! 19FEB2024
+*! v 0.0.7
+*! 24FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop fitit
@@ -22,6 +22,9 @@ prog def fitit, eclass
 			SPLit(passthru) RESults(string asis) [ KFold(integer 1) noall 	 ///   
 			DISplay]
 
+	// Create a collection to store estimation results
+	qui: collect create xvfit, replace
+			
 	// Test for invalid KFold option
 	if `kfold' < 1 {
 		
@@ -48,9 +51,6 @@ prog def fitit, eclass
 		
 	} // End IF Block for invalid results option
 	
-	// If the user does not request results be displayed
-	if mi("`display'") loc q "qui:"
-					
 	// Create a macro to store the names of all the estimation results
 	loc estres 
 	
@@ -64,21 +64,40 @@ prog def fitit, eclass
 	// Does the same with the macro used for the all training set component when
 	// used with K-Fold CV
 	loc kfpredifin `r(kfpredifin)'
+	
+	// Create a null local to store column names for results if displayed
+	loc modord
 
 	// Handles fitting for KFold and non-KFold CV
 	forv k = 1/`kfold' {
 		
 		// Call the estimation command passed by the user
-		if !mi(`"`: char _dta[modcmd]'"') `q'`: char _dta[modcmd]'
+		if !mi(`"`: char _dta[modcmd]'"') qui: collect, name(xvfit):`: char _dta[modcmd]'
 		
 		// Otherwise call the returned macro from cmdmod
-		else `q'`r(modcmd)'
+		else qui: collect, name(xvfit):`r(modcmd)'
 		
-		// Add a title for standard cases
-		if `kfold' == 1 est title: Model Fit on Training Sample
+		// For simple train/test splits
+		if `kfold' == 1 {
+			
+			// Add an appropriate title to the estimation results
+			est title: Model Fit on Training Sample
+		
+			// Add corresponding title for display
+			loc modord `modord' `k' "Training Set"
+		
+		} // End IF Block for simple train/test splits
 		
 		// Add a title for K-Fold cases
-		else est title: Model fit on Fold #`k'
+		else {
+			
+			// Adds an appropriate title to the estimation results
+			est title: Model fit on Fold #`k'
+			
+			// Builds the titles for the display option
+			loc modord `modord' `k' `"Fold #`k'"'
+		
+		} // End ELSE Block for K-Fold and LOO cases
 		
 		// Stores the estimation results in a more persistent way
 		est sto `results'`k'
@@ -98,15 +117,18 @@ prog def fitit, eclass
 		if !mi(`"`: char _dta[kfmodcmd]'"') {
 			
 			// Call the estimation command stored in the characteristic
-			`q'`: char _dta[kfmodcmd]'
+			qui: collect, name(xvfit):`: char _dta[kfmodcmd]'
 		
 		} // End IF Block for estimation command in characteristic
 		
 		// Otherwise, use the returned result from cmdmod
-		else `q'`r(kfmodcmd)'
+		else qui: collect, name(xvfit):`r(kfmodcmd)'
 		
 		// Test if user wants title added
 		est title: Model Fitted on All Training Folds 
+		
+		// Adds a title to for the display option
+		loc modord `modord' `= `kfold' + 1' "Whole Training Set"
 		
 		// Stores the estimation results in a more persistent way
 		est sto `results'all
@@ -138,6 +160,71 @@ prog def fitit, eclass
 		
 	// Repost the estimation results to return them to users
 	ereturn repost
+	
+	// Check for the display option
+	if !mi("`display'") {
+		
+		// Collects standardized results from all models
+		qui: collect style autolevels result _r_b _r_se N ll ll_0 r2 r2_a 	 ///   
+										   rmse rss mss df_m df_r F, name(xvfit)
+										   
+		// Don't display omitted levels in the results 
+		qui: collect style showomit off, name(xvfit)
+		
+		// Don't display the base level of factor variables in the results
+		qui: collect style showbase off, name(xvfit)
+		
+		// Don't display results for empty factor cells/interactions
+		qui: collect style showempty off, name(xvfit)
+		
+		// Shows standard errors in parentheses
+		qui: collect style cell result[_r_se], sformat("(%s)") name(xvfit)
+		
+		// Aligns the cell contents
+		qui: collect style cell cell_type[item column-header], name(xvfit)	 ///   
+															   halign(center)
+		
+		// Omits the labels for coefficients and standard errors in the output
+		qui: collect style header result[_r_b _r_se], level(hide) name(xvfit)
+		
+		// Adds a little additional horizontal spacing between columns
+		qui: collect style column, extraspace(1) name(xvfit)
+		
+		// Stacks the coefficients, SE, and other results and uses x as an 
+		// interaction delimiter
+		qui: collect style row stack, spacer delimiter(" x ") name(xvfit)	 ///   
+									  atdelimiter(" x ") bardelimiter(" x ")
+									  
+		// Defines levels for significance stars and adds a note to the end of 
+		// the table with the definitions
+		qui: collect stars _r_p 0.001 "***" 0.01 "**" 0.05 "*", attach(_r_b) ///   
+															shownote name(xvfit)
+		
+		// Relabels some of the longer named model results to save space
+		collect label levels result N "N" r2 "R^2" r2_a "Adj. R^2" 			 ///   
+										 F "F stat." rss "Residual SS" 		 ///   
+										 ll_0 "Log Likelihood, null model"   ///   
+										 mss "Model SS", name(xvfit) modify
+
+		// Sets the numeric display format for all result cells to use a comma 
+		// for the thousands delimiter and to display 3 significant digits
+		qui: collect style cell result, name(xvfit) nformat(%24.3gc)
+		
+		// This attaches the labels for the results created during the model 
+		// fitting above to the column headers
+		qui: collect label levels cmdset `modord', name(xvfit)
+		
+		// This specifies how the results should be laid out.  The interaction 
+		// in the first parenthetical is how the results for the coefficients 
+		// and SE get displayed as rows and the second result provides the 
+		// general model fit statistics.  The second parenthetical is used to 
+		// say that there will be one column per estimation command collected.
+		qui: collect layout (colname#result result)(cmdset)
+		
+		// Display the results
+		collect preview
+
+	} // End IF Block for display option
 	
 // End definition of the command
 end

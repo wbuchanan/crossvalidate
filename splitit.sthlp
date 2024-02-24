@@ -14,7 +14,7 @@
 {p 8 32 2}
 {cmd:splitit} # [#] {ifin} [{cmd:,} {cmdab:u:id(}{it:varlist}{cmd:)} 
 {cmdab:tp:oint(}{it:string asis}{cmd:)} {cmdab:k:fold(}{it:integer}{cmd:)} 
-{cmdab:spl:it(}{it:string asis}{cmd:)}]{p_end}
+{cmdab:spl:it(}{it:string asis}{cmd:)} {cmd:loo}]{p_end}
 
 {synoptset 15 tabbed}{...}
 {synoptline}
@@ -24,6 +24,7 @@
 {synopt :{opt tp:oint}}a numeric, td(), tc(), or tC() value{p_end}
 {synopt :{opt k:fold}}the number of K-Folds to create in the training set; default is {cmd:kfold(1)}{p_end}
 {synopt :{opt spl:it}}a new variable name; default is {cmd:split(_xvsplit)}{p_end}
+{synopt :{opt loo}}is used only for Leave-One-Out cross-validation{p_end}
 {synoptline}
 
 
@@ -61,6 +62,14 @@ set.
 identifiers for the splits in the data.  If no argument is passed to this option 
 {cmd splitit} will store the result in a variable named {it:_xvsplit}.
 
+{phang}
+{opt loo} is an option used to alter the underlying logic used to compute the 
+validation metrics/monitors.  Since Leave-One-Out cross-validation is a special 
+case of K-Fold CV the model fitting and predictions are generated in a manner 
+consistent with all other K-Fold cases.  However, with only a single unit in 
+each K-Fold in the LOO case computing validation metrics requires different 
+treatment.  In the LOO case the validation metric/monitors are computed using 
+the predicted and observed values for all of the training set units in aggregate.
 
 {marker examples}{...}
 {title:Examples}
@@ -119,10 +128,10 @@ identifiers for the splits in the data.  If no argument is passed to this option
 {title:Contact}
 {p 4 4 8}William R. Buchanan, Ph.D.{p_end}
 {p 4 4 8}Sr. Research Scientist, SAG Corporation{p_end}
-{p 4 4 6}{browse "https://www.sagcorp.com":SAG Corporation}{p_end}
+{p 4 4 8}{browse "https://www.sagcorp.com":SAG Corporation}{p_end}
 {p 4 4 8}wbuchanan at sagcorp [dot] com{p_end}
 
-{p 4 4 8}Steven Brownell{p_end}
-{p 4 4 8}, SAG Corporation{p_end}
-{p 4 4 6}{browse "https://www.sagcorp.com":SAG Corporation}{p_end}
+{p 4 4 8}Steven D. Brownell, Ph.D.{p_end}
+{p 4 4 8}Economist, SAG Corporation{p_end}
+{p 4 4 8}{browse "https://www.sagcorp.com":SAG Corporation}{p_end}
 {p 4 4 8}sbrownell at sagcorp [dot] com{p_end}

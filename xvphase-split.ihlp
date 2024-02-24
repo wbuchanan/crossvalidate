@@ -21,10 +21,11 @@ You can control whether to use TT or TVT splits based on the number of arguments
 you initially pass to the command.  If you pass a single proportion, a TT split 
 will result and if you include two proportions a TVT split will result.  To 
 define how many folds the training set will have, use the {opt kfold} option.  
-By default, the {opt kfold} option is set to 1.  
-{bf:CAUTION:}{it: if you want to use LOO cross-validation, the number of folds} 
-{it:will need to be equal to to number of sampling units allocated to the} 
-{it:training set; {help xvloo} will manage this for you}.  
+By default, the {opt kfold} option is set to 1.  {bf:CAUTION:} if you want to 
+use LOO cross-validation, the number of folds must be equal to to number of 
+sampling units in the training set.  Additionally, you need to use the {opt loo} 
+option for {help splitit}; however, the {help xvloo} prefix will manage all of 
+this for you.  See the note at the end of this section for more information.
 
 {pstd}
 Next, the splitting process needs to determine how the units will be allocated 
@@ -49,14 +50,24 @@ evaluation metrics will be overly optimistic compared to what should be
 reasonably expected for completely new data.
 
 {pstd}
-{bf:LOO Considerations}
+{bf:Leave-one-out cross-valiation} should generally only be used when you have a 
+small to moderately sized dataset.  With large datasets, the model is fitted to 
+the data n - 1 times, with a sample size of n - 1, where n is the number of 
+sampling units in the training set; this is analogous to using {help jackknife}.  
+The amount of time it will take to get results can rapidly increase.  
+Additionally, we encourage you to use the {opt difficult} option for models that 
+use {help ml:maximum likelihood}, as well as specifying the number of iterations 
+and/or convergence criterion in your estimation command.  This can mitigate the 
+risk of encountering a flat region or saddle point in the likelihood that may 
+stall or halt progress in your model fitting otherwise.
+
 {pstd}
-{help xvloo} should generally only be used when you have a small to moderate 
-amount of data.  With large datasets, the model will be fitted to the data a 
-n - 1 times each with a sample size of n - 1, where n is the number of 
-sampling units in the training set.  The amount of time it will take to get 
-results can rapidly increase.  Additionally, if the model you are fitting does 
-not have a closed-form solution, it is likely a good idea to consider using the 
-{opt difficult} option for models that use {help ml:maximum likelihood}, as well 
-as specifying the number of iterations and/or convergence criterion in your 
-estimation command.  
+The {opt loo} option is required to implement LOO splitting of the training set 
+due to the manner in which the folds are created.  For all other instances where 
+the number of folds, k, is greater than one, we use {help xtile} to generate 
+approximately equal sized folds in the training set.  However, LOO requires 
+exactly one sampling unit to be omitted from each fold.  In this case, ties that 
+may result from {help xtile} can lead to the incorrect number of sampling units 
+being omitted from each fold.  The {opt loo} option is used to implement 
+alternative logic that ensures a single sampling unit will be omitted from each 
+fold.

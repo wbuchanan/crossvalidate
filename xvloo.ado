@@ -5,15 +5,15 @@
 *******************************************************************************/
 
 *! xvloo
-*! v 0.0.2
-*! 21FEB2023
+*! v 0.0.4
+*! 24FEB2023
 
 // Drop program from memory if already loaded
 cap prog drop xvloo
 
 // Defines the program; properties lists the applicable options for this prefix 
 // The tpoint option is only valid for panel/time-series cross-validation
-prog def xvloo, eclass properties(prefix xv)
+prog def xvloo, eclass properties(prefix xv) sortpreserve
 
 	// Stata version statement, can check for backwards compatibility later
 	version 18
@@ -54,7 +54,7 @@ prog def xvloo, eclass properties(prefix xv)
 	if `: word count `props'' == 1 {
 		
 		// Test the number of variables that need to be created vs allowed
-		if (`props' * `c(N)' * `c' + `c(k)' + 2) >= `c(max_k_theory)' {
+		if (`props' * `c(N)' + `c' + `c(k)' + 2) >= `c(max_k_theory)' {
 			
 			// Display error message
 			di as err "Currently, your Stata supports `c(max_k_theory)' "	 ///   
@@ -173,7 +173,7 @@ prog def xvloo, eclass properties(prefix xv)
 		
 		// use the tempvar
 		loc split "split(_xvsplit)"
-		
+				
 	} // End IF Block for the split variable name
 	
 	// Parses the split option
@@ -182,12 +182,51 @@ prog def xvloo, eclass properties(prefix xv)
 	// Assigns the argument value to spvar
 	loc spvar `argval'
 	
+	// Check to see if the split variable already exists
+	cap confirm new v `spvar'
+	
+	// If the variable already exists set the do split local to 0
+	if _rc != 0 loc dosplit 0
+	
+	// If it doesn't exist set do split to 1
+	else loc dosplit 1
+	
 	// Parses the pstub option
 	mata: getarg("`pstub'")
 	
 	// If the user does not want to retain variables
 	if mi("`retain'") loc dropvars `spvar' `argval'*
 		
+	// Check to see if predict stub variable is present
+	cap confirm new v `argval'all
+	
+	// If the variable exists
+	if _rc != 0 {
+		
+		// Display an error message
+		di as err "The variable `argval'all already exists.  You can drop "  ///
+		"the variable, or specify a new predict value stubname." 
+		
+		// Throw an error and exit
+		err 110
+		
+	} // End IF Block for existing `pstub'all variable
+		
+	// Check to see if the predicted variable is present
+	cap confirm new v `argval'
+	
+	// If the variable exists
+	if _rc != 0 {
+		
+		// Display an error message
+		di as err "The variable `argval' already exists.  You can drop "     ///
+		"the variable, or specify a new predict value stubname." 
+		
+		// Throw an error and exit
+		err 110
+		
+	} // End IF Block for existing `pstub'all variable
+			
 	// Remove leading colon from the estimation command
 	loc cmd `= substr(`"`cmd'"', 2, .)'
 	
@@ -246,20 +285,25 @@ prog def xvloo, eclass properties(prefix xv)
 		
 	} // End IF Block to call the state command
 
-	// Split the dataset into train/test or train/validation/test splits
-	splitit `props' `ifin', `uid' `tpoint' `kfold' `split'
+	// If the split variable doesn't exist
+	if `dosplit' {
+		
+		// Split the dataset into train/test or train/validation/test splits
+		splitit `props' `ifin', `uid' `tpoint' `kfold' `split' loo
 	
-	// Capture the returned values so they can be returned at the end
-	loc splitter `r(splitter)'
-	loc training `r(training)'
-	loc validation `r(validation)'
-	loc testing `r(testing)'
-	loc stype `r(stype)'
-	loc flavor `r(flavor)'
-	loc forecastset `r(forecastset)'
-	
+		// Capture the returned values so they can be returned at the end
+		loc splitter `r(splitter)'
+		loc training `r(training)'
+		loc validation `r(validation)'
+		loc testing `r(testing)'
+		loc stype `r(stype)'
+		loc flavor `r(flavor)'
+		loc forecastset `r(forecastset)'
+
+	} // End IF Block to create split variable
+		
 	// Call the command to fit the model to the data
-	fitit `"`cmd'"', `split' `results' `kfold' `all'
+	fitit `"`cmd'"', `split' `results' `kfold' `all' `display'
 	
 	// Capture the macros that get returned
 	loc estresnames `e(estres)'
