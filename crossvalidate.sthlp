@@ -22,7 +22,7 @@ a bit more control over the process.  In those cases, the lower level commands
 provide a way for users to avoid programming the entire cross-validation process 
 while retaining the benefits that these commands provide.
 
-{ptsd}
+{pstd}
 This help file provides an overview of the commands included in the crossvalidate 
 package.  We leave detailed information to the documentation for each of the 
 individual commands.
@@ -137,7 +137,7 @@ pseudo-random number generator if requested.
 {p 4 4 6}{browse "https://www.sagcorp.com":SAG Corporation}{p_end}
 {p 4 4 8}wbuchanan at sagcorp [dot] com{p_end}
 
-{p 4 4 8}Steven Brownell{p_end}
-{p 4 4 8}, SAG Corporation{p_end}
+{p 4 4 8}Steven D. Brownell, Ph.D.{p_end}
+{p 4 4 8}Economist, SAG Corporation{p_end}
 {p 4 4 6}{browse "https://www.sagcorp.com":SAG Corporation}{p_end}
 {p 4 4 8}sbrownell at sagcorp [dot] com{p_end}
