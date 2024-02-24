@@ -180,8 +180,8 @@ defined in a library that Mata will search automatically}.
 {p 4 4 6}{browse "https://www.sagcorp.com":SAG Corporation}{p_end}
 {p 4 4 8}wbuchanan at sagcorp [dot] com{p_end}
 
-{p 4 4 8}Steven Brownell{p_end}
-{p 4 4 8}, SAG Corporation{p_end}
+{p 4 4 8}Steven D. Brownell, Ph.D.{p_end}
+{p 4 4 8}Economist, SAG Corporation{p_end}
 {p 4 4 6}{browse "https://www.sagcorp.com":SAG Corporation}{p_end}
 {p 4 4 8}sbrownell at sagcorp [dot] com{p_end}
 
