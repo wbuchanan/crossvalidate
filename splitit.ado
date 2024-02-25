@@ -6,8 +6,8 @@
 *******************************************************************************/
 
 *! splitit
-*! v 0.0.9
-*! 24FEB2024
+*! v 0.0.10
+*! 25FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop splitit
@@ -337,7 +337,7 @@ prog def splitit, rclass sortpreserve
 		// Now the _n should correspond with the order of the random uniform
 		// value and won't produce duplicates.  We'll use a long here just to 
 		// be safe but will compress before returning from the command.
-		qui: g long `sgrp' = _n if `touse' & `tag' == 1 & `uni' <= `train' &  ///   
+		qui: g long `sgrp' = _n if `touse' & `tag' == 1 & `uni' <= `train' & ///   
 							_n <= `kfold'
 		
 		// Define the training splits
@@ -354,7 +354,7 @@ prog def splitit, rclass sortpreserve
 			
 			// Add the testsplit ID to the variable for the test cases
 			qui: replace `sgrp' = `testsplit' if `touse' & `tag' == 1 & 	 ///   
-												 `uni' > `train' & !mi(`uni')
+												 mi(`sgrp') & !mi(`uni') //`uni' > `train' & 
 			
 			// Generate the value label for the test split
 			deflabs, val(`testsplit') t(Test)
@@ -372,11 +372,11 @@ prog def splitit, rclass sortpreserve
 			
 			// Add the validation group to the existing variable
 			qui: replace `sgrp' = `validsplit' if `touse' & `tag' == 1 &	 ///   
-										(`uni' > `train' & `uni' <= `validate')
+							mi(`sgrp') & (`uni' > `train' & `uni' <= `validate') 
 
 			// Create the test split in a similar fashion
 			qui: replace `sgrp' = `testsplit' if `touse' & `tag' == 1 &		 ///   
-												 (`uni' > `validate')
+											   mi(`sgrp') & (`uni' > `validate') 
 			
 			// Generate value labels for the validation set
 			deflabs, val(`validsplit') t(Validation)

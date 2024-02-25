@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! xvloo
-*! v 0.0.4
-*! 24FEB2023
+*! v 0.0.5
+*! 25FEB2023
 
 // Drop program from memory if already loaded
 cap prog drop xvloo
@@ -27,7 +27,7 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 	
 	// Allocate a tempvars for the unique identifier variable and for other 
 	// options to use a default
-	tempvar uuid xvtouse
+	tempvar uuid xvtouse xvpred xvsplit
 	
 	// Tokenize the input string
 	gettoken cv cmd : 0, parse(":") bind 
@@ -172,27 +172,66 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 	if mi(`"`split'"') {
 		
 		// use the tempvar
-		loc split "split(_xvsplit)"
-				
+		loc split "split(`xvsplit')"
+
+		// Set the default split variable name
+		loc spvar _xvsplit
+		
+		// Check for default name
+		cap confirm new v _xvsplit
+	
+		// If the variable already exists
+		if _rc != 0 {
+			
+			// Don't split the data again
+			loc dosplit 0
+			
+			// Change the split local to point at the default split variable
+			loc split "split(_xvsplit)"
+			
+		} // End IF Block for existing split
+		
+		// If it doesn't exist set do split to 1
+		else loc dosplit 1
+
 	} // End IF Block for the split variable name
 	
-	// Parses the split option
-	mata: getarg("`split'")
-	
-	// Assigns the argument value to spvar
-	loc spvar `argval'
-	
-	// Check to see if the split variable already exists
-	cap confirm new v `spvar'
-	
-	// If the variable already exists set the do split local to 0
-	if _rc != 0 loc dosplit 0
-	
-	// If it doesn't exist set do split to 1
-	else loc dosplit 1
-	
+	// If not missing the split option
+	else {
+		
+		// Parses the split option
+		mata: getarg("`split'")
+		
+		// Assigns the argument value to spvar
+		loc spvar `argval'
+		
+		// Now set the split variable to use the tempvar
+		loc split "split(`xvsplit')"
+		
+		// Check to see if the split variable already exists
+		cap confirm new v `spvar'
+		
+		// If the variable already exists set the do split local to 0
+		if _rc != 0 {
+			
+			// Don't split the data again
+			loc dosplit 0
+			
+			// Update the split local with the existing variable name
+			loc split `split'
+			
+		} // End IF Block for existing split variable handling
+		
+		// If it doesn't exist set do split to 1
+		else loc dosplit 1
+				
+	} // End ELSE Block for present split option
+
 	// Parses the pstub option
 	mata: getarg("`pstub'")
+	
+	// Store the pstub
+	loc prvar `argval'
 	
 	// If the user does not want to retain variables
 	if mi("`retain'") loc dropvars `spvar' `argval'*
@@ -226,7 +265,10 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 		err 110
 		
 	} // End IF Block for existing `pstub'all variable
-			
+	
+	// Set the predict stub to use the tempvar
+	loc pstub "pstub(`xvpred')"
+	
 	// Remove leading colon from the estimation command
 	loc cmd `= substr(`"`cmd'"', 2, .)'
 	
@@ -359,6 +401,16 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 
 	// If the user wants to retain the results
 	else {
+		
+		// Reassign the temp splitvar to the user requested or default only when 
+		// we are already splitting the data.
+		if `dosplit' qui: clonevar `spvar' = `xvsplit'
+		
+		// Reassign the temp pstub to the user requested name
+		qui: clonevar `prvar' = `xvpred'
+		
+		// If the all option is missing
+		if mi(`"`all'"') qui: clonevar `prvar'all = `xvpred'all
 		
 		// Return all of the macros from the state command if invoked
 		eret loc rng = "`rng'"

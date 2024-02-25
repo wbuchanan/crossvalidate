@@ -1,7 +1,7 @@
 # Stata Cross-Validation
 
 ## TODO:
-- [ ] Use tempvars for split and pstub values in the prefix commands and map to 
+- [x] Use tempvars for split and pstub values in the prefix commands and map to 
 variables that are returned to the user at the end of the commands.
 - [ ] Add a `replay` option to the prefix commands
 - [x] Look into the possibility of creating multiple collections and consider 
@@ -44,13 +44,13 @@ made on the validation/test set only.
 
 ## TODO
 - [ ] Standardize language in help files
-- [ ] Add Steven's Job Title to help files
+- [x] Add Steven's Job Title to help files
 - [x] Standardize API (e.g., change retain to split)
 - [ ] Finish writing test cases for Mata functions
 - [ ] Finish writing test cases for ADO commands
 - [x] Start writing help file for the package
 - [x] Start writing help file for the Mata library
-- [ ] Finish writing help file for the package
+- [x] Finish writing help file for the package
 - [ ] Finish writing help file for the Mata library
 - [x] Update help file for cmdmod related to characteristics
 - [x] Update help file for predictit with info about characteristics
