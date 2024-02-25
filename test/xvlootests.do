@@ -19,7 +19,7 @@ run crossvalidate.mata
 *******************************************************************************/
 
 // Test that correct error code is thrown when 
-rcof "xvloo 0.7, pstub(pred) metric(mse) classes(12): mlogit industry south" == 1002
+rcof "xvloo 0.98, pstub(pred) metric(mse) classes(12): mlogit industry south" == 1002
 
 // Test that error code is thrown for missing metric
 rcof "xvloo 0.7, pstub(pred): reg wage i.industry" == 198

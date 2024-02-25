@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! validateit
-*! v 0.0.10
-*! 24FEB2024
+*! v 0.0.11
+*! 25FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop validateit
@@ -136,7 +136,7 @@ prog def validateit, rclass
 	} // End IF Block for user requested display
 	
 	// Create a collection 
-	qui: collect create xv, replace
+	qui: collect create xvval, replace
 	
 	// Locate the labels for the metrics
 	cap: findfile xvlabels.stjson
@@ -145,7 +145,7 @@ prog def validateit, rclass
 	if _rc == 0 {
 		
 		// Load the capture labels
-		collect label use `"`r(fn)'"', name(xv)
+		collect label use `"`r(fn)'"', name(xvval)
 		
 	} // End IF Block to load collection labels for validation metrics
 	
@@ -339,10 +339,10 @@ prog def validateit, rclass
 		loc cnames : coln res, quoted
 		
 		// Get the resulting matrix into the collection
-		collect get xv = res, name(xv)
+		collect get xv = res, name(xvval)
 		
 		// Create a title for the display
-		collect title "Cross-Validation Results", name(xv)
+		collect title "Cross-Validation Results", name(xvval)
 		
 		// Create a layout
 		qui: collect layout (rowname[`rnames'])(colname[`cnames'])(cmdset)

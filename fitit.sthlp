@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.3 12feb2024}{...}
+{* *! version 0.0.4 25feb2024}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat_classification"}{...}
 {vieweralsosee "" "--"}{...}
 {viewerjumpto "Syntax" "fitit##syntax"}{...}
@@ -114,7 +114,18 @@ of the model fitting results to the result window.
 
 {marker additional}{...}
 {title:Additional Information}
-{p 4 4 8}If you have questions, comments, or find bugs, please submit an issue in the {browse "https://github.com/wbuchanan/crossvalidate":crossvalidate GitHub repository}.{p_end}
+{pstd}
+The {cmdab dis:play} option in validateit is enabled by 
+{help collect_preview:collect preview}.  In addition to providing a convient way 
+for us to structure the display in a useful way, it also makes it easy for you - 
+the user - to export the validation results into any of several formats.  The 
+results from {help fitit} are all stored in the collection named 
+{cmd:xvfit}.  For more information on how to export these results into the 
+format of your choosing, please see {help collect_export:collect export}.
+
+{pstd}
+If you have questions, comments, or find bugs, please submit an issue in the 
+{browse "https://github.com/wbuchanan/crossvalidate":crossvalidate GitHub repository}.
 
 
 {marker contact}{...}

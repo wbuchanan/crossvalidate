@@ -1,14 +1,16 @@
 # Stata Cross-Validation
 
 ## TODO:
+- [ ] Use tempvars for split and pstub values in the prefix commands and map to 
+variables that are returned to the user at the end of the commands.
+- [ ] Add a `replay` option to the prefix commands
 - [x] Look into the possibility of creating multiple collections and consider 
 using that to collect the estimation results generated in `fitit`
-- [ ] If this is possible add a `replay` option to the prefix commands
-- [ ] Investigate saving and loading collection labels to label the output from 
+- [x] Investigate saving and loading collection labels to label the output from 
 `validateit` with more descriptive names than the function names
 - [x] Add logic to prefix to bypass `splitit` if the split variable is already 
 defined to allow users to test multiple specifications with the same split
-- [ ] Add note in the documentation about display and exporting results using 
+- [x] Add note in the documentation about display and exporting results using 
 collect export
 
 
