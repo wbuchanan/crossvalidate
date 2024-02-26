@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! fitit
-*! v 0.0.7
-*! 24FEB2024
+*! v 0.0.8
+*! 26FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop fitit
@@ -20,10 +20,13 @@ prog def fitit, eclass
 	// Syntax
 	syntax anything(name = cmd id="estimation command name"),				 ///   
 			SPLit(passthru) RESults(string asis) [ KFold(integer 1) noall 	 ///   
-			DISplay]
+			DISplay NAme(string asis)]
 
+	// Check for missing name option
+	if mi(`"`name'"') loc name xvfit
+			
 	// Create a collection to store estimation results
-	qui: collect create xvfit, replace
+	qui: collect create `name', replace
 			
 	// Test for invalid KFold option
 	if `kfold' < 1 {
@@ -72,10 +75,10 @@ prog def fitit, eclass
 	forv k = 1/`kfold' {
 		
 		// Call the estimation command passed by the user
-		if !mi(`"`: char _dta[modcmd]'"') qui: collect, name(xvfit):`: char _dta[modcmd]'
+		if !mi(`"`: char _dta[modcmd]'"') qui: collect, name(`name'):`: char _dta[modcmd]'
 		
 		// Otherwise call the returned macro from cmdmod
-		else qui: collect, name(xvfit):`r(modcmd)'
+		else qui: collect, name(`name'):`r(modcmd)'
 		
 		// For simple train/test splits
 		if `kfold' == 1 {
@@ -117,12 +120,12 @@ prog def fitit, eclass
 		if !mi(`"`: char _dta[kfmodcmd]'"') {
 			
 			// Call the estimation command stored in the characteristic
-			qui: collect, name(xvfit):`: char _dta[kfmodcmd]'
+			qui: collect, name(`name'):`: char _dta[kfmodcmd]'
 		
 		} // End IF Block for estimation command in characteristic
 		
 		// Otherwise, use the returned result from cmdmod
-		else qui: collect, name(xvfit):`r(kfmodcmd)'
+		else qui: collect, name(`name'):`r(kfmodcmd)'
 		
 		// Test if user wants title added
 		est title: Model Fitted on All Training Folds 
@@ -166,53 +169,53 @@ prog def fitit, eclass
 		
 		// Collects standardized results from all models
 		qui: collect style autolevels result _r_b _r_se N ll ll_0 r2 r2_a 	 ///   
-										   rmse rss mss df_m df_r F, name(xvfit)
+										   rmse rss mss df_m df_r F, name(`name')
 										   
 		// Don't display omitted levels in the results 
-		qui: collect style showomit off, name(xvfit)
+		qui: collect style showomit off, name(`name')
 		
 		// Don't display the base level of factor variables in the results
-		qui: collect style showbase off, name(xvfit)
+		qui: collect style showbase off, name(`name')
 		
 		// Don't display results for empty factor cells/interactions
-		qui: collect style showempty off, name(xvfit)
+		qui: collect style showempty off, name(`name')
 		
 		// Shows standard errors in parentheses
-		qui: collect style cell result[_r_se], sformat("(%s)") name(xvfit)
+		qui: collect style cell result[_r_se], sformat("(%s)") name(`name')
 		
 		// Aligns the cell contents
-		qui: collect style cell cell_type[item column-header], name(xvfit)	 ///   
+		qui: collect style cell cell_type[item column-header], name(`name')	 ///   
 															   halign(center)
 		
 		// Omits the labels for coefficients and standard errors in the output
-		qui: collect style header result[_r_b _r_se], level(hide) name(xvfit)
+		qui: collect style header result[_r_b _r_se], level(hide) name(`name')
 		
 		// Adds a little additional horizontal spacing between columns
-		qui: collect style column, extraspace(1) name(xvfit)
+		qui: collect style column, extraspace(1) name(`name')
 		
 		// Stacks the coefficients, SE, and other results and uses x as an 
 		// interaction delimiter
-		qui: collect style row stack, spacer delimiter(" x ") name(xvfit)	 ///   
+		qui: collect style row stack, spacer delimiter(" x ") name(`name')	 ///   
 									  atdelimiter(" x ") bardelimiter(" x ")
 									  
 		// Defines levels for significance stars and adds a note to the end of 
 		// the table with the definitions
 		qui: collect stars _r_p 0.001 "***" 0.01 "**" 0.05 "*", attach(_r_b) ///   
-															shownote name(xvfit)
+															shownote name(`name')
 		
 		// Relabels some of the longer named model results to save space
 		collect label levels result N "N" r2 "R^2" r2_a "Adj. R^2" 			 ///   
 										 F "F stat." rss "Residual SS" 		 ///   
 										 ll_0 "Log Likelihood, null model"   ///   
-										 mss "Model SS", name(xvfit) modify
+										 mss "Model SS", name(`name') modify
 
 		// Sets the numeric display format for all result cells to use a comma 
 		// for the thousands delimiter and to display 3 significant digits
-		qui: collect style cell result, name(xvfit) nformat(%24.3gc)
+		qui: collect style cell result, name(`name') nformat(%24.3gc)
 		
 		// This attaches the labels for the results created during the model 
 		// fitting above to the column headers
-		qui: collect label levels cmdset `modord', name(xvfit)
+		qui: collect label levels cmdset `modord', name(`name')
 		
 		// This specifies how the results should be laid out.  The interaction 
 		// in the first parenthetical is how the results for the coefficients 

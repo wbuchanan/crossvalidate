@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.4 25feb2024}{...}
+{* *! version 0.0.5 26feb2024}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat_classification"}{...}
 {vieweralsosee "" "--"}{...}
 {viewerjumpto "Syntax" "fitit##syntax"}{...}
@@ -16,7 +16,7 @@
 {p 8 32 2}
 {cmd:fitit} {it:"estimation command"} {cmd:,} {cmdab:spl:it(}{it:passthru}{cmd:)} 
 {cmdab:res:ults(}{it:string asis}{cmd:)} [ {cmdab:k:fold(}{it:integer}{cmd:)} 
-{cmd:noall} {cmdab:dis:play}]{p_end}
+{cmd:noall} {cmdab:dis:play} {cmdab:na:me(}{it:string asis}{cmd:)}]{p_end}
 
 {synoptset 25 tabbed}{...}
 {synoptline}
@@ -29,6 +29,7 @@
 {synopt :{opt k:fold}}specifies the number of folds in the training set; default is {cmd:kfold(1)}.{p_end}
 {synopt :{opt noall}}suppresses prediction on entire training set for K-Fold cases{p_end}
 {synopt :{opt dis:play}}display results in window; default is {cmd:off}{p_end}
+{synopt :{opt na:me}}is used to name the collection storing the results; default is {cmd:name(xvfit)}.{p_end}
 {synoptline}
 
 
@@ -78,6 +79,12 @@ not be generated.
 {opt dis:play} an option to display the model fitting results in the result 
 window.  If using a large number of K-Folds, it may be useful to not print all 
 of the model fitting results to the result window.
+
+{phang}
+{opt na:me} is an option to pass a name to the collection created to store the 
+results.  When {cmd fitit} is executed, it will initialize a new collection 
+or replace the existing collection with the same name.  If you want to retain 
+the validation results from multiple executions, pass an argument to this option.
 
 
 {marker examples}{...}

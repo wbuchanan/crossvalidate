@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! validateit
-*! v 0.0.11
-*! 25FEB2024
+*! v 0.0.12
+*! 26FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop validateit
@@ -19,7 +19,8 @@ prog def validateit, rclass
 	
 	// Syntax
 	syntax , MEtric(string asis) PStub(string asis) SPLit(varname) 			 ///   
-	[ Obs(varname) MOnitors(string asis) DISplay KFold(integer 1) noall loo ]
+	[ Obs(varname) MOnitors(string asis) DISplay KFold(integer 1) noall loo  ///   
+	NAme(string asis) ]
 	
 	// Test to ensure the metric is not included in the monitor
 	if `: list metric in monitors' {
@@ -135,9 +136,12 @@ prog def validateit, rclass
 		
 	} // End IF Block for user requested display
 	
-	// Create a collection 
-	qui: collect create xvval, replace
+	// Check if the name parameter is missing or not
+	if mi(`"`name'"') loc name xvval
 	
+	// Create a collection using the default name
+	qui: collect create `name', replace
+		
 	// Locate the labels for the metrics
 	cap: findfile xvlabels.stjson
 	
@@ -145,7 +149,7 @@ prog def validateit, rclass
 	if _rc == 0 {
 		
 		// Load the capture labels
-		collect label use `"`r(fn)'"', name(xvval)
+		collect label use `"`r(fn)'"', name(`name')
 		
 	} // End IF Block to load collection labels for validation metrics
 	
@@ -339,10 +343,10 @@ prog def validateit, rclass
 		loc cnames : coln res, quoted
 		
 		// Get the resulting matrix into the collection
-		collect get xv = res, name(xvval)
+		collect get xv = res, name(`name')
 		
 		// Create a title for the display
-		collect title "Cross-Validation Results", name(xvval)
+		collect title "Cross-Validation Results", name(`name')
 		
 		// Create a layout
 		qui: collect layout (rowname[`rnames'])(colname[`cnames'])(cmdset)

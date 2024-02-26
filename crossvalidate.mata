@@ -103,7 +103,8 @@ void function cvparse(string scalar cv) {
 	opts = ("metric", "monitors", "uid", "tpoint", "retain", "kfold", 		 ///   
 			 "state", "results", "grid", "params", "tuner", "seed", 		 ///   
 			 "classes", "threshold", "pstub", "split", "display", "obs", 	 ///   
-			 "modifin", "kfifin", "noall", "pmethod")
+			 "modifin", "kfifin", "noall", "pmethod", "replay", "name", 	 ///   
+			 "fitnm", "validnm")
 	
 	// Gets the number of options so we don't need to track it manually and 
 	// avoid the minor performance penalty of using cols(opts) in the loop below
@@ -113,7 +114,7 @@ void function cvparse(string scalar cv) {
 	for(i = 1; i <= nopts; i++) {
 		
 		// Test for matches for each of the options
-		if (ustrregexm(cv, "(" + opts[1, i] + `"(\([^)]*\))?)"', 1)) {
+		if (ustrregexm(cv, "(" + opts[1, i] + `"(\([^)]*\)+)?)"', 1)) {
 			
 			// Returns the option name and argument(s) in a local with the same 
 			// name (e.g., kfold might contain kfold(10))
@@ -126,61 +127,27 @@ void function cvparse(string scalar cv) {
 } // End of function definition to parse prefix options for crossvalidate package
 
 // Defines a function to retrieve the argument(s) passed to a parameter with an 
-// option to pass the name of the parameter; It might be worth considering using 
-// an AssociativeArray object for the return value where the key would be the 
-// parameter name and the value could be the argument passed to the parameter.
-// This would avoid calling this on each possible parameter, but would mean we 
-// would need to keep track of that object on the Mata stack.
-void function getarg(string scalar param, | string scalar pname) {
+// option to specify the name of the returned macro
+void function getarg(string scalar param, | string scalar rname) {
 	
 	// String scalar to store the argument(s)
-	string scalar retval
+	string scalar retval, retnm
 	
-	// If the parameter name is supplied to the function
-	if (args() == 2) {
-		
-		// subinstr removes the parameter name, and regex replace should remove
-		// the parentheses
-		retval = ustrregexrf(subinstr(param, pname, ""), "[\(\)]", "")
+	// Determines whether to use the default return name or a user supplied 
+	// return name
+	retnm = (rname == "" ? "argval" : rname)
 	
-	// If the parameter name is not supplied to the function
-	} else {
+	// Removes everything up to the opening parentheses with the regex, then 
+	// removes the closing parenthesis with subinstr
+	retval = ustrregexrf(ustrregexrf(param, "[a-z]+\(", ""), "\)", "")
 		
-		// Removes everything up to the opening parentheses with the regex, then 
-		// removes the closing parenthesis with subinstr
-		retval = ustrregexrf(ustrregexrf(param, "[a-z]+\(", ""), "\)", "")
-		
-	} // End ELSE Block for no parameter name supplied
-	
 	// If the parameter doesn't include any parentheses just return it as is
-	if (ustrregexm(param, "[\(\)]") == 0) st_local("argval", param)
+	if (ustrregexm(param, "[\(\)]") == 0) st_local(retnm, param)
 	
 	// Returns the argument value in a local macro
-	else st_local("argval", retval)
+	else st_local(retnm, retval)
 	
 } // End of function definition to get argument value from a parameter
-
-// Create a function to return a confusion matrix from the predicted/observed 
-// value variables and a third variable to identify which records to subset.  
-// We'll use this same signature for all metrics and monitors to make it easier 
-// for others to create their own metrics/monitors as well.  The difference is 
-// that metrics and monitors should generally return a scalar.
-real matrix confusion(string scalar pred, string scalar obs, 				 ///   
-					  string scalar touse) {
-	
-	// Initialize matrix to store the confusion matrix
-	real matrix conf
-	
-	// Create and call the tabulation command
-	stata("ta " + pred + " " + obs + " if " + touse + ", matcell(c)", 1)
-
-	// Access the Stata matrix with the confusion matrix
-	conf = st_matrix("c")
-	
-	// Return the confusion matrix
-	return(conf)
-	
-} // End function definition for confusion matrix
 
 // Defines a struct object to store a richer representation of the data used for
 // classification metrics
@@ -347,21 +314,21 @@ mata:
 // For others in this section see other pages from above			
 real scalar sens(string scalar pred, string scalar obs, string scalar touse) {
 	
-	// Declares a matrix to store the confusion matrix
-	real matrix conf
+	// Creates the struct that gets returned
+	struct Crosstab scalar c
 	
 	// Declares a scalar to store the resulting metric
 	real scalar result
 	
 	// Creates the confusion matrix
-	conf = confusion(pred, obs, touse)
+	c = xtab(pred, obs, touse)
 	
 	// For now, at least, we'll restrict these metrics to only the binary case
 	// so this assertion will make sure that we have a binary confusion matrix
-	assert(rows(conf) == 2 & cols(conf) == 2)
+	assert(rows(c.conf) == 2 & cols(c.conf) == 2)
 	
 	// Computes the metric from the confusion matrix
-	result = conf[2, 2] / colsum(conf[, 2])
+	result = c.conf[2, 2] / colsum(c.conf[, 2])
 	
 	// Returns the metric as a scalar
 	return(result)
@@ -372,21 +339,21 @@ real scalar sens(string scalar pred, string scalar obs, string scalar touse) {
 // https://yardstick.tidymodels.org/reference/precision.html for the formula
 real scalar prec(string scalar pred, string scalar obs, string scalar touse) {
 	
-	// Declares a matrix to store the confusion matrix
-	real matrix conf
+	// Creates the struct that gets returned
+	struct Crosstab scalar c
 	
 	// Declares a scalar to store the resulting metric
 	real scalar result
 	
 	// Creates the confusion matrix
-	conf = confusion(pred, obs, touse)
+	c = xtab(pred, obs, touse)
 	
 	// For now, at least, we'll restrict these metrics to only the binary case
 	// so this assertion will make sure that we have a binary confusion matrix
-	assert(rows(conf) == 2 & cols(conf) == 2)
+	assert(rows(c.conf) == 2 & cols(c.conf) == 2)
 	
 	// Computes the metric from the confusion matrix
-	result = conf[2, 2] / rowsum(conf[2, ])
+	result = c.conf[2, 2] / c.rowm[2, ]
 
 	// Returns the metric
 	return(result)
@@ -413,21 +380,21 @@ real scalar recall(string scalar pred, string scalar obs, string scalar touse) {
 real scalar spec(string scalar pred, string scalar obs, 				 ///   
 					  string scalar touse) {
 	
-	// Declares a matrix to store the confusion matrix
-	real matrix conf
+	// Creates the struct that gets returned
+	struct Crosstab scalar c
 	
 	// Declares a scalar to store the resulting metric
 	real scalar result
 	
 	// Creates the confusion matrix
-	conf = confusion(pred, obs, touse)
+	c = xtab(pred, obs, touse)
 	
 	// For now, at least, we'll restrict these metrics to only the binary case
 	// so this assertion will make sure that we have a binary confusion matrix
-	assert(rows(conf) == 2 & cols(conf) == 2)
+	assert(rows(c.conf) == 2 & cols(c.conf) == 2)
 	
 	// Computes the metric from the confusion matrix
-	result = conf[1, 1] / colsum(conf[, 1])
+	result = c.conf[1, 1] / c.colm[, 1]
 	
 	// Returns the metric
 	return(result)
@@ -438,21 +405,21 @@ real scalar spec(string scalar pred, string scalar obs, 				 ///
 // See: https://yardstick.tidymodels.org/reference/ppv.html for the formula
 real scalar prev(string scalar pred, string scalar obs, string scalar touse) {
 	
-	// Declares a matrix to store the confusion matrix
-	real matrix conf
+	// Creates the struct that gets returned
+	struct Crosstab scalar c
 	
 	// Declares a scalar to store the resulting metric
 	real scalar result
 	
 	// Creates the confusion matrix
-	conf = confusion(pred, obs, touse)
+	c = xtab(pred, obs, touse)
 	
 	// For now, at least, we'll restrict these metrics to only the binary case
 	// so this assertion will make sure that we have a binary confusion matrix
-	assert(rows(conf) == 2 & cols(conf) == 2)
+	assert(rows(c.conf) == 2 & cols(c.conf) == 2)
 	
 	// Computes the metric from the confusion matrix
-	result = colsum(conf[, 2]) / sum(conf)
+	result = c.colm[, 2] / c.n
 
 	// Returns the metric
 	return(result)
@@ -462,9 +429,6 @@ real scalar prev(string scalar pred, string scalar obs, string scalar touse) {
 // Defines a function to compute positive predictive value.
 // See: https://yardstick.tidymodels.org/reference/ppv.html for the formula
 real scalar ppv(string scalar pred, string scalar obs, string scalar touse) {
-	
-	// Declares a matrix to store the confusion matrix
-	real matrix conf
 	
 	// Declares a scalar to store the resulting metric, sensitivity, 
 	// specificity, and prevalence (used to compute the metric)
@@ -491,9 +455,6 @@ real scalar ppv(string scalar pred, string scalar obs, string scalar touse) {
 // See: https://yardstick.tidymodels.org/reference/ppv.html for the formula
 real scalar npv(string scalar pred, string scalar obs, string scalar touse) {
 	
-	// Declares a matrix to store the confusion matrix
-	real matrix conf
-	
 	// Declares a scalar to store the resulting metric, sensitivity, 
 	// specificity, and prevalence (used to compute the metric)
 	real scalar result, sens, spec, prev
@@ -518,20 +479,20 @@ real scalar npv(string scalar pred, string scalar obs, string scalar touse) {
 // Defines a function to compute accuracy.
 real scalar acc(string scalar pred, string scalar obs, string scalar touse) {
 	
-	// Declares a matrix to store the confusion matrix
-	real matrix conf
+	// Creates the struct that gets returned
+	struct Crosstab scalar c
 	
 	// Declares a scalar to store the resulting metric
-	real scalar result
+	// real scalar result
 	
 	// Creates the confusion matrix
-	conf = confusion(pred, obs, touse)
+	c = xtab(pred, obs, touse)
 	
 	// Computes the metric from the confusion matrix
-	result = sum(diagonal(conf)) / sum(conf)
+	// result = c.tp / c.n
 
 	// Returns the metric
-	return(result)
+	return(c.tp / c.n)
 	
 } // End of function definition for accuracy
 
@@ -539,12 +500,9 @@ real scalar acc(string scalar pred, string scalar obs, string scalar touse) {
 // See https://yardstick.tidymodels.org/reference/bal_accuracy.html for more info
 real scalar bacc(string scalar pred, string scalar obs, string scalar touse) {
 	
-	// Declares a matrix to store the confusion matrix
-	real matrix conf
-	
 	// Declares a scalar to store the resulting metric, sensitivity, 
 	// specificity, and prevalence (used to compute the metric)
-	real scalar result, sens, spec, prev
+	real scalar result, sens, spec
 	
 	// Computes sensitivity 
 	sens = sens(pred, obs, touse)
@@ -563,9 +521,6 @@ real scalar bacc(string scalar pred, string scalar obs, string scalar touse) {
 // Defines function to compute the F1 statistic
 // Based on second equation here: https://www.v7labs.com/blog/f1-score-guide
 real scalar f1(string scalar pred, string scalar obs, string scalar touse) {
-	
-	// Declares a matrix to store the confusion matrix
-	real matrix conf
 	
 	// Declares a scalar to store the resulting metric, precision, and recall
 	real scalar result, prec, rec
@@ -608,8 +563,8 @@ real scalar binr2(string scalar pred, string scalar obs, string scalar touse) {
 // based on: https://en.wikipedia.org/wiki/Phi_coefficient#Multiclass_case
 real scalar mcc(string scalar pred, string scalar obs, string scalar touse) {
 		
-	// To store the confusion matrix
-	real matrix conf
+	// Creates the struct that gets returned
+	struct Crosstab scalar c
 	
 	// To store the row margins
 	real colvector rowm
@@ -621,22 +576,22 @@ real scalar mcc(string scalar pred, string scalar obs, string scalar touse) {
 	real scalar i, num, den1, den2
 	
 	// Stores confusion matrix
-	conf = confusion(pred, obs, touse)
+	c = xtab(pred, obs, touse)
 	
 	// If the confusion matrix isn't square return a missing value.
-	if (rows(conf) != cols(conf)) return(.)
+	if (rows(c.conf) != cols(c.conf)) return(.)
 	
 	// Stores the row margins
-	rowm = rowsum(conf)
+	rowm = c.rowm
 	
 	// Stores the column margins
-	colm = colsum(conf)
+	colm = c.colm
 	
 	// Stores the first term for the numerator (correct classified * n)
-	num = sum(diagonal(conf)) * sum(conf)
+	num = c.tp * c.n
 		
 	// Initializes the denominator terms
-	den1 = sum(conf)^2
+	den1 = c.n^2
 	den2 = den1
 	
 	// Loop over the dimension for the margins
@@ -677,8 +632,8 @@ mata:
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-spec.R
 real scalar mcspec(string scalar pred, string scalar obs, string scalar touse) {
 	
-	// Declares a matrix to store the confusion matrix
-	real matrix conf
+	// Creates the struct that gets returned
+	struct Crosstab scalar c
 	
 	// Declares column vectors to store the total sample size in a J(x, 1, n) 
 	// sized column vector, , true positive counts,
@@ -688,20 +643,20 @@ real scalar mcspec(string scalar pred, string scalar obs, string scalar touse) {
 	real colvector n, tp, tpfp, tpfn, tn, fp, num, den
 	
 	// Get the confusion matrix
-	conf = confusion(pred, obs, touse)
+	c = xtab(pred, obs, touse)
 	
 	// Store the total sample size in a column vector with the sample size in 
 	// each element
-	n = J(rows(conf), 1, sum(conf))
+	n = J(rows(c.conf), 1, c.n)
 	
 	// Get the vector of true positives
-	tp = diagonal(conf)
+	tp = c.correct
 	
 	// Get the true positive + false positive counts
-	tpfp = rowsum(conf)
+	tpfp = c.rowm
 	
 	// Get the true positive + false negative counts and transpose the result
-	tpfn = colsum(conf)'
+	tpfn = c.colm'
 	
 	// Get the count of true negatives
 	tn = n - (tpfp + tpfn - tp)
@@ -718,14 +673,14 @@ real scalar mcspec(string scalar pred, string scalar obs, string scalar touse) {
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-sens.R
 real scalar mcsens(string scalar pred, string scalar obs, string scalar touse) {
 	
-	// Declares a matrix to store the confusion matrix
-	real matrix conf
+	// Creates the struct that gets returned
+	struct Crosstab scalar c
 	
 	// Get the confusion matrix
-	conf = confusion(pred, obs, touse)
+	c = xtab(pred, obs, touse)
 
 	// Return the micro averaged sensitivity
-	return(sum(diagonal(conf)) / sum(colsum(conf)))
+	return(c.tp / sum(c.colm))
 
 } // End of function definition for multiclass sensitivity
 
@@ -742,14 +697,14 @@ real scalar mcrecall(string scalar pred, string scalar obs, string scalar touse)
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-precision.R
 real scalar mcprec(string scalar pred, string scalar obs, string scalar touse) {
 	
-	// Declares a matrix to store the confusion matrix
-	real matrix conf
+	// Creates the struct that gets returned
+	struct Crosstab scalar c
 	
 	// Get the confusion matrix
-	conf = confusion(pred, obs, touse)
+	c = xtab(pred, obs, touse)
 
 	// Return the micro averaged precision
-	return(sum(diagonal(conf)) / sum(rowsum(conf)))
+	return(c.tp / sum(c.rowm))
 
 } // End of function definition for multiclass precision
 
@@ -770,8 +725,8 @@ real scalar mcppv(string scalar pred, string scalar obs, string scalar touse) {
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-npv.R
 real scalar mcnpv(string scalar pred, string scalar obs, string scalar touse) {
 	
-	// Declares a matrix to store the confusion matrix
-	real matrix conf
+	// Creates the struct that gets returned
+	struct Crosstab scalar c
 	
 	// Declares column vectors to store the total sample size in a J(x, 1, n) 
 	// sized column vector and true positive + false negative counts
@@ -781,14 +736,14 @@ real scalar mcnpv(string scalar pred, string scalar obs, string scalar touse) {
 	real scalar prev, sens, spec, num, den
 	
 	// Get the confusion matrix
-	conf = confusion(pred, obs, touse)
+	c = xtab(pred, obs, touse)
 	
 	// Store the total sample size in a column vector with the sample size in 
 	// each element
-	n = J(rows(conf), 1, sum(conf))
+	n = J(c.levs, 1, c.n)
 	
 	// Get the true positive + false negative counts and transpose the result
-	tpfn = colsum(conf)'
+	tpfn = c.colm'
 	
 	// Compute prevalence
 	prev = sum(tpfn) / sum(n)
@@ -832,14 +787,14 @@ real scalar mcf1(string scalar pred, string scalar obs, string scalar touse) {
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-detection_prevalence.R
 real scalar mcdetect(string scalar pred, string scalar obs, string scalar touse) {
 	
-	// Declares scalars to store intermediate results
-	real matrix conf
+	// Creates the struct that gets returned
+	struct Crosstab scalar c
 	
 	// Compute the confusion matrix
-	conf = confusion(pred, obs, touse)
+	c = xtab(pred, obs, touse)
 	
 	// Return the micro averaged detection prevalence
-	return(sum(rowsum(conf)) / sum(J(rows(conf), 1, sum(conf))))
+	return(sum(c.rowm) / sum(J(c.levs, 1, c.n)))
 
 } // End of function definition for multiclass detection prevalence
 
@@ -884,35 +839,29 @@ real scalar mcbacc(string scalar pred, string scalar obs, string scalar touse) {
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-kap.R
 real scalar mckappa(string scalar pred, string scalar obs, string scalar touse) {
 	
+	// Creates the struct that gets returned
+	struct Crosstab scalar c
+
 	// Declares matrix to store random chance outcome
-	real matrix chnc, conf, expected
+	real matrix wgts, conf, expected
 	
 	// Declares scalars to store the intermediate results
-	real scalar n, rsum, csum, wgts, i
+	real scalar i
 	
 	// Get the confusion matrix
-	conf = confusion(pred, obs, touse)
-	
-	// Gets total sample size
-	n = sum(conf)
-	
-	// Gets the row margins
-	rsum = rowsum(conf)
-	
-	// Gets the column margins
-	csum = colsum(conf)
+	c = xtab(pred, obs, touse)
 	
 	// Normalizes the outer product of row margins * col margins
-	expected = (rsum * csum) :/ n
+	expected = (c.rowm * c.colm) :/ c.n
 	
 	// Generates the weighting matrix for the no-weighting case
-	wgts = J(rows(conf), cols(conf), 1)
+	wgts = J(c.levs, c.levs, 1)
 	
 	// Will need to replace the diagonal with 0s for wgts
 	for(i = 1; i <= rows(wgts); i++) wgts[i, i] = 0
 	
 	// Return the metric 
-	return(1 - sum(wgts * conf) / sum(wgts * expected))
+	return(1 - sum(wgts * c.conf) / sum(wgts * expected))
 	
 } // End of function definition for multiclass Kappa 
 

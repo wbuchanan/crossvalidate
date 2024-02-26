@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! xvloo
-*! v 0.0.5
-*! 25FEB2023
+*! v 0.0.6
+*! 26FEB2023
 
 // Drop program from memory if already loaded
 cap prog drop xvloo
@@ -40,6 +40,26 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 
 	// Then parse the options from the remainder of the macro
 	mata: cvparse(`"`xvopts'"')
+	
+	// Test to see if replay option is invoked
+	if !mi("`replay'") {
+		
+		// Test whether or not there are values in the fit macro
+		if !mi(`"`e(fitnm)'"') // preview that collection
+		
+		// Test if there is a value in the validation macro
+		if !mi(`"`e(valnm)'"') // preview that collection
+		
+		// Then exit xvloo
+		
+	} // End IF Block to replay results and exit
+	
+	// Get the fitnm and valnm macros
+	mata: getarg("`fitnm'", "fitnm")
+	mata: getarg("`valnm'", "valnm")
+	
+	if mi(`"`fitnm'"') loc fitnm xvfit
+	if mi(`"`valnm'"') loc valnm xvval
 	
 	// Get the value of classes
 	mata: getarg("`classes'")
@@ -345,7 +365,7 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 	} // End IF Block to create split variable
 		
 	// Call the command to fit the model to the data
-	fitit `"`cmd'"', `split' `results' `kfold' `all' `display'
+	fitit `"`cmd'"', `split' `results' `kfold' `all' `display' na(`fitnm')
 	
 	// Capture the macros that get returned
 	loc estresnames `e(estres)'
@@ -355,7 +375,8 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 	predictit, `pstub' `split' `classes' `kfold' `threshold' `all' `pmethod' 
 	
 	// Compute the validation metrics for the LOO sample
-	validateit, `metric' `pstub' `split' `monitors' `display' `kfold' `all' loo
+	validateit, `metric' `pstub' `split' `monitors' `display' `kfold' `all'  ///   
+				loo na(`valnm')
 	
 	// Loops over the names of the scalars created by validate it
 	foreach i in `r(allnames)' {
@@ -441,6 +462,10 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 		// Then return the macros from fitit
 		eret loc estresnames = "`estres'"
 		eret loc estresall = "`estresall'"
+		eret loc fitnm = "`fitnm'"
+		
+		// Return macros related to validation
+		eret loc valnm = "`valnm'"
 	
 	} // End ELSE Block to return a few extra macros related to stored results
 	

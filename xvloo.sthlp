@@ -30,7 +30,10 @@
 {cmd:results(}{it:string asis}{cmd:)}
 {cmd:classes(}{it:integer}{cmd:)} {cmd:threshold(}{it:real}{cmd:)} 
 {cmd:noall} {cmd:monitors(}{it:string asis}{cmd:)} 
-{cmd:display} {cmd:retain}] {cmd::} {cmd:{it:estimation command}}{p_end}
+{cmd:display} {cmd:retain}
+{cmd:fitnm(}{it:string asis}{cmd:)} 
+{cmd:valnm(}{it:string asis}{cmd:)} 
+] {cmd::} {cmd:{it:estimation command}}{p_end}
 
 {synoptset 25 tabbed}{...}
 {synoptline}
@@ -50,8 +53,10 @@
 {synopt :{opt classes}}is used to specify the number of classes for classification models; default is {cmd:classes(0)}.{p_end}
 {synopt :{opt threshold}}positive outcome threshold; default is {cmd:threshold(0.5)}{p_end}
 {synopt :{opt noall}}suppresses prediction on entire training set for K-Fold cases{p_end}
+{synopt :{opt fitnm}}is used to name the collection storing the results; default is {cmd:fitnm(xvfit)}.{p_end}
 {syntab:Validate}
 {synopt :{opt monitors}}zero or more function names from {help libxv} or user-defined functions; default is {cmd:monitors()}{p_end}
+{synopt :{opt valnm}}is used to name the collection storing the results; default is {cmd:valnm(xvval)}.{p_end}
 {syntab:General}
 {synopt :{opt display}}display results in window; default is off{p_end}
 {synopt :{opt retain}}retains the variables and stored estimation results{p_end}
@@ -141,6 +146,13 @@ recover the estimation results for that fold.  The fold number identifies the
 held-out fold.  So, the number 1 will recover the model that was fitted to all 
 of the training folds except number 1.
 
+{phang}
+{opt fitnm} is an option to pass a name to the collection created to store the 
+results.  When {cmd fitit} is executed, it will initialize a new collection 
+or replace the existing collection with the same name.  If you want to retain 
+the validation results from multiple executions, pass an argument to this option.
+
+
 {dlgtab:Predicting Out-of-Sample Results}
 
 {phang}
@@ -169,6 +181,12 @@ with the function signature described in {help libxv:help libxv} used to
 evaluate the fit of the model on the held-out data.  These should not be used 
 when attempting to tune hyper parameters, but can still provide useful 
 information regarding the model fit characteristics.
+
+{phang}
+{opt valnm} is an option to pass a name to the collection created to store the 
+results.  When {cmd validateit} is executed, it will initialize a new collection 
+or replace the existing collection with the same name.  If you want to retain 
+the validation results from multiple executions, pass an argument to this option.
 
 {dlgtab:General Options}
 
@@ -229,11 +247,13 @@ by the estimation command you specify.
 {synopt :{cmd:e(estres#)}}the name to store the estimation results on the #th fold.{p_end}
 {synopt :{cmd:e(estresnames)}}the names of all the estimation results{p_end}
 {synopt :{cmd:e(estresall)}}the name used to store the estimation results for the entire training set when K-Fold cross-validation is used.{p_end}
+{synopt :{cmd:e(fitnm)}}the name used for the collection containing model fit results.{p_end}
 {syntab:Validation Scalars}
 {synopt :{cmd:e(metric1)}}contains the metric value for the training set{p_end}
 {synopt :{cmd:e(`monitors'1)}}one scalar for each monitor passed to the monitors option, named by the monitor function for the entire training set{p_end}
 {synopt :{cmd:e(metricall)}}contains the metric value for the predictions on the validation/test set{p_end}
 {synopt :{cmd:e(`monitors'all)}}contains the monitor values for the predictions on the validation/test set{p_end}
+{synopt :{cmd:e(valnm)}}the name used for the collection containing model validation results.{p_end}
 {syntab:Matrices}
 {synopt :{cmd:e(xv)}}contains all of the monitor and metric values{p_end}
 {synoptline}

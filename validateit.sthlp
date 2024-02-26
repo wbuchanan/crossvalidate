@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.6 25feb2024}{...}
+{* *! version 0.0.7 26feb2024}{...}
 {viewerjumpto "Syntax" "validateit##syntax"}{...}
 {viewerjumpto "Description" "validateit##description"}{...}
 {viewerjumpto "Options" "validateit##options"}{...}
@@ -17,7 +17,8 @@
 {cmd:validateit} {cmd:,} {cmdab:me:tric(}{it:string asis}{cmd:)} 
 {cmdab:ps:tub(}{it:string asis}{cmd:)} {cmdab:spl:it(}{it:varname}{cmd:)} [ 
 {cmdab:o:bs(}{it:varname}{cmd:)} {cmdab:mo:nitors(}{it:string asis}{cmd:)} 
-{cmdab:dis:play} {cmdab:k:fold(}{it:integer}{cmd:)} {cmdab:noall} {cmd:loo}]{p_end}
+{cmdab:dis:play} {cmdab:k:fold(}{it:integer}{cmd:)} {cmdab:noall} {cmd:loo} 
+{cmdab:na:me(}{it:string asis}{cmd:)}]{p_end}
 
 {synoptset 15 tabbed}{...}
 {synoptline}
@@ -34,6 +35,7 @@
 {synopt :{opt k:fold}}the number of folds in the training set; default is {cmd:kfold(1)}.{p_end}
 {synopt :{opt noall}}suppresses prediction on entire training set for K-Fold cases{p_end}
 {synopt :{opt loo}}is used only for Leave-One-Out cross-validation{p_end}
+{synopt :{opt na:me}}is used to name the collection storing the results; default is {cmd:name(xvval)}.{p_end}
 {synoptline}
 
 
@@ -97,6 +99,13 @@ consistent with all other K-Fold cases.  However, with only a single unit in
 each K-Fold in the LOO case computing validation metrics requires different 
 treatment.  In the LOO case the validation metric/monitors are computed using 
 the predicted and observed values for all of the training set units in aggregate.
+
+{phang}
+{opt na:me} is an option to pass a name to the collection created to store the 
+results.  When {cmd validateit} is executed, it will initialize a new collection 
+or replace the existing collection with the same name.  If you want to retain 
+the validation results from multiple executions, pass an argument to this option.
+
 
 {marker custom}{...}
 {title:Custom Metrics and Monitors}
