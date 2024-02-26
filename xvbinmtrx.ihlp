@@ -44,8 +44,7 @@
 {opt f1} is used to calculate the F1 score. The F1 score is an alternate measure of a model's accuracy.  F1 score is calculated as the harmonic mean of the model precision and recall metrics.  For more details see the {browse "https://yardstick.tidymodels.org/reference/f_meas.html":yardstick} reference page.
 
 {phang}
-{opt jindex} is used to calculate Youden's J statistic (J-index). J statistic is defined as 
-the sum of the model's Sensitivity and Specificity minus one and ranges from [0, 1].  For more details see the {browse "https://yardstick.tidymodels.org/reference/j_index.html":yardstick} reference page. 
+{opt jindex} is used to calculate Youden's J statistic (J-index). The J statistic is defined as the sum of the model's Sensitivity and Specificity minus one and ranges from [0, 1].  For more details see the {browse "https://yardstick.tidymodels.org/reference/j_index.html":yardstick} reference page. 
 
 
 {phang}
