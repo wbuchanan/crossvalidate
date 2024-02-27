@@ -45,20 +45,26 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 	if !mi("`replay'") {
 		
 		// Test whether or not there are values in the fit macro
-		if !mi(`"`e(fitnm)'"') // preview that collection
+		if !mi(`"`e(fitnm)'"') collect preview, name(`e(fitnm)')
 		
 		// Test if there is a value in the validation macro
-		if !mi(`"`e(valnm)'"') // preview that collection
+		if !mi(`"`e(valnm)'"') collect preview, name(`e(valnm)')
 		
-		// Then exit xvloo
+		// Exit the program
+		exit
 		
 	} // End IF Block to replay results and exit
 	
-	// Get the fitnm and valnm macros
+	// Get any argument passed to fitnm
 	mata: getarg("`fitnm'", "fitnm")
+	
+	// Get any argument passed to valnm
 	mata: getarg("`valnm'", "valnm")
 	
+	// Assign default collection name if the user doesn't pass one for fitit
 	if mi(`"`fitnm'"') loc fitnm xvfit
+	
+	// Assign default collection name if the user doesn't pass one for validateit
 	if mi(`"`valnm'"') loc valnm xvval
 	
 	// Get the value of classes

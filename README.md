@@ -1,37 +1,57 @@
-# Stata Cross-Validation
+![Stata Crossvalidation](crossvalidate-hex.png)
+# crossvalidation
+The crossvalidate package includes several commands and a Mata library that 
+provide a range of possible cross-validation techniques that can be used with 
+any Stata estimation command returning results in `e()`.  For the majority of 
+users and use cases, the prefix commands (see `xv` and `xvloo`) should handle 
+your needs.  If, however, you need to implement something a bit different from 
+generic use cases, the package also includes lower level commands that can save 
+you time from having to code the entire cross-validation process.  These 
+commands are named after the four-steps found in all cross-validation work:
+`splitit`, `fitit`, `predictit`, and `validateit`.  There are also a few utility 
+commands that take care of the metaprogramming tasks needed to allow these 
+commands to be applied to the correct fold/split of the data.
 
+Lastly, we implemented the majority of validation metrics that can be found in 
+the R package [yardstick](https://yardstick.tidymodels.org/index.html) in our 
+Mata library so you don't have to.  However, if you want to implement your own 
+validation metric that is possible and easy to do (see information below which 
+specifies the function signature to use for your Mata function that will 
+implement your metric) and easy to use with the existing tools (i.e., pass the 
+name of your function as an argument to the `metric` or `monitors` options of 
+either the prefix commands or `validateit` and it will handle the rest).
 
+## Examples:
 
+```
+// Load example dataset
+sysuse auto.dta, clear
 
+// Simple train/test (TT) split
+xv 0.8, pstub(ttpred) metric(mse): reg price mpg length
 
-## Example:
-`xv 0.8, pstub(pred) metric(mse): reg price mpg length if foreign != 1`
+// Simple train/validation/test (TVT) split
+xv 0.6 0.2, pstub(tvtpred) metric(mse) monitors(mape smape): reg price mpg length
 
+// Leave-One-Out cross valiation with a train/test split
+xvloo 0.8, pstub(ttloopred) metric(mse): reg price mpg length
 
-## Commands to write for this package
-- [x] xv - Cross validation using train/test, train/validation/test, or K-Fold 
-cross-validation methods.
-- [x] xvloo - Leave One Out cross-validation 
-- [x] state - a program that will handle getting and writing important information 
-about the state of the software when starting up for replication purposes.  It 
-should either add dataset characteristics or notes.
-- [x] splitit - a program that handles defining the splits of the dataset for the 
-main end user facing commands also needs to handle potential persistence of 
-group membership (e.g., folds or train/validation/test splits)
-- [x] fitit - a program that handles fitting the statistical model to the data 
-and storing estimation results
-- [x] predictit - a program that handles generating the out-of-sample predictions
-- [x] validateit - a program that will handle the validation portion of the 
-training loop (e.g., computing monitors and/or test metrics and returning those 
-values as well)
-- [x] classify - a program that can return the predicted class from 
-classification based models (e.g., logit, ologit, mlogit, etc...)
-- [x] cmdmod - a metaprogram used to modify the user-specified estimation 
-command to ensure it is fitted to the training set only and that predictions are 
-made on the validation/test set only.
+// LOO TVT split
+xvloo 0.6 0.2, pstub(tvtloopred) metric(mse): reg price mpg length
+
+// K-Fold TT split
+xv 0.8, pstub(ttkfpred) metric(mae) kfold(5): reg price mpg length if !mi(rep78)
+
+// K-Fold TVT split
+xv 0.6 0.2, pstub(tvtkfpred) metric(mbe) kfold(3): reg price mpg length, vce(rob)
+
+// Clustered K-Fold TT Split
+xv 0.8, pstub(ttkfclpred) metric(phl) uid(rep78) kfold(4): reg price mpg length, vce(rob)
+
+```
 
 ## TODO
-- [ ] Add a `replay` option to the prefix commands
+- [x] Add a `replay` option to the prefix commands
 - [ ] Standardize language in help files
 - [ ] Finish writing test cases for Mata functions
 - [ ] Finish writing test cases for ADO commands
@@ -39,7 +59,7 @@ made on the validation/test set only.
 the commands
 - [x] Add a name option to `fitit` and `validateit` to allow users to name the 
 collections used
-- [ ] Add `fitnm` and `valnm` options to prefix commands to allow users to 
+- [x] Add `fitnm` and `valnm` options to prefix commands to allow users to 
 pass arguments to the underlying name option for `fitit` and `validateit`.  
 
 # libxv

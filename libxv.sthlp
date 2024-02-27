@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.2 23feb2024}{...}
+{* *! version 0.0.3 27feb2024}{...}
 {vieweralsosee "[R] predict" "mansection R predict"}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat_classification"}{...}
 {vieweralsosee "[P] creturn" "mansection P creturn"}{...}
@@ -13,9 +13,6 @@
 {viewerjumpto "Custom Metrics" "libxv##custom"}{...}
 {viewerjumpto "Additional Information" "libxv##additional"}{...}
 {viewerjumpto "Contact" "libxv##contact"}{...}
-{viewerjumpto "References" "libxv##references"}{...}
-
-
 {marker overview}{...}
 {title:Overview of Libxv}
 
@@ -52,36 +49,63 @@ the {help xv} prefix instead to let the computer do the work.
 {title:Utility Functions}
 
 {pstd}
-{cmd:getifin}
-
-
-{pstd}
-{cmd:getnoifin}
-
-
-{pstd}
-{cmd:hasoptions}
-
+{cmd:getifin} is a utility function used to extract {ifin} expressions from the 
+estimation command used by the user.  The returned string then allows the 
+commands in {help crossvalidate} to modify these expressions to ensure that the 
+model is fitted on the appropriate subset of data and the predictions are made 
+on the correct subset of data.
 
 {pstd}
-{cmd:cvparse}
-
-
-{pstd}
-{cmd:getarg}
-
-
-{pstd}
-{cmd:confusion}
-
+{cmd:getnoifin} in the case where the user does not pass an estimation command 
+with {ifin} expressions, this function is used to extract the estimation command 
+string up to the comma used to delimit options to the command. The returned 
+string then allows the commands in {help crossvalidate} to modify the estimation 
+command to include an if expression to ensure that the model is fitted on the 
+appropriate subset of data and the predictions are made on the correct subset of 
+data.
 
 {pstd}
-{cmd:struct Crosstab}
-
+{cmd:hasoptions} is a convenience function used to determine if the estimation 
+command passed by the user contains options.
 
 {pstd}
-{cmd:xtab}
+{cmd:cvparse} is a function used by the {help xv} and {help xvloo} prefix 
+commands to parse options passed to the command.  It returns valid options in 
+local macros using the name of the option.  In effect, this makes all of the 
+options for {help xv} and {help xvloo} operate as {it:passthru} type options 
+(see {help syntax} for additional information about passthru).  
 
+{pstd}
+{cmd:getarg} is a function used the {help xv} and {help xvloo} prefix commands 
+to extract the arguments passed to the options of those commands. It may also be 
+used in the future to expand the existing function signature for metrics to 
+allow passing optional arguments to the functions by including them as an 
+argument to the metric/monitor name (e.g., mae(1), r2("wgt"), etc...).  However, 
+work on this possible extension has not yet commenced.
+
+{pstd}
+{cmd:struct Crosstab} is a struct defined in {opt libxv}.  It stores the 
+following results in the corresponding members:
+
+{synoptset 15 tabbed}{...}
+{synoptline}
+{synopthdr:Member Name}
+{synoptline}
+{synopt :{opt conf}}The confusion matrix{p_end}
+{synopt :{opt rowm}}A column vector containing the row margins from the confusion matrix{p_end}
+{synopt :{opt correct}}A column vector containing the diagonal of the confusion matrix{p_end}
+{synopt :{opt values}}A column vector containing the unique values of the dependent variable.{p_end}
+{synopt :{opt colm}}A row vector containing the column margins from the confusion matrix{p_end}
+{synopt :{opt n}}A scalar containing the total sample size.{p_end}
+{synopt :{opt tp}}A scalar containing the total number of correctly predicted outcomes.{p_end}
+{synopt :{opt levs}}A scalar containing the number of distict levels of the dependent variable.{p_end}
+{synoptline}
+
+{pstd}
+{cmd:xtab} is a function that returns a scalar instance of the 
+{cmd:Crosstab struct}.  It is used internally by the binary and multiclass 
+metrics to obtain the confusion matrix and other pre-computed statistics that 
+are used regularly by the metrics.
 
 {marker classification}{...}
 {title:Classification Metrics}
@@ -110,7 +134,6 @@ INCLUDE help xvbinmtrx
 {marker multiclass}{...}
 {title:Multiclass Metrics}
 
-
 {synoptset 15 tabbed}{...}
 {synoptline}
 {synopthdr:Name}
@@ -123,7 +146,6 @@ INCLUDE help xvmcmtrx
 
 {marker regression}{...}
 {title:Regression Metrics}
-
 
 {synoptset 15 tabbed}{...}
 {synoptline}
@@ -167,11 +189,9 @@ name to the metric or monitors options.  {it:Note, you will need to make sure
 that the function is defined in Mata prior to using it or ensure that it is 
 defined in a library that Mata will search automatically}.
 
-
 {marker additional}{...}
 {title:Additional Information}
 {p 4 4 8}If you have questions, comments, or find bugs, please submit an issue in the {browse "https://github.com/wbuchanan/crossvalidate":crossvalidate GitHub repository}.{p_end}
-
 
 {marker contact}{...}
 {title:Contact}
@@ -184,14 +204,3 @@ defined in a library that Mata will search automatically}.
 {p 4 4 8}Economist, SAG Corporation{p_end}
 {p 4 4 8}{browse "https://www.sagcorp.com":SAG Corporation}{p_end}
 {p 4 4 8}sbrownell at sagcorp [dot] com{p_end}
-
-
-{marker references}{...}
-{title:References}
-
-{* * this is just a quick generic was to show APA format for a journal article}
-
-{phang}
-Last Name, FI. [MI.] [, [Next Author same structure]] [&] [Author Same structure]
-(year).  [Article name: Subtitle]. {it:Journal Name, volume(issue), } pp. [pages]. 
-[doi: #]
