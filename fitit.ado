@@ -26,7 +26,7 @@ prog def fitit, eclass
 	if mi(`"`name'"') loc name xvfit
 			
 	// Create a collection to store estimation results
-	qui: collect create `name', replace
+	if `c(stata_version)' >= 17 qui: collect create `name', replace
 			
 	// Test for invalid KFold option
 	if `kfold' < 1 {
@@ -75,10 +75,16 @@ prog def fitit, eclass
 	forv k = 1/`kfold' {
 		
 		// Call the estimation command passed by the user
-		if !mi(`"`: char _dta[modcmd]'"') qui: collect, name(`name'):`: char _dta[modcmd]'
+		if !mi(`"`: char _dta[modcmd]'"') {
+			if `c(stata_version)' >= 17 qui: collect, name(`name'):`: char _dta[modcmd]'
+			else qui: `: char _dta[modcmd]'
+		}
 		
 		// Otherwise call the returned macro from cmdmod
-		else qui: collect, name(`name'):`r(modcmd)'
+		else {
+			if `c(stata_version)' >= 17 qui: collect, name(`name'):`r(modcmd)'
+			else `r(modcmd)'
+		}
 		
 		// For simple train/test splits
 		if `kfold' == 1 {
@@ -120,13 +126,16 @@ prog def fitit, eclass
 		if !mi(`"`: char _dta[kfmodcmd]'"') {
 			
 			// Call the estimation command stored in the characteristic
-			qui: collect, name(`name'):`: char _dta[kfmodcmd]'
+			if `c(stata_version)' >= 17 qui: collect, name(`name'):`: char _dta[kfmodcmd]'
+			else qui: `: char _dta[kfmodcmd]'
 		
 		} // End IF Block for estimation command in characteristic
 		
 		// Otherwise, use the returned result from cmdmod
-		else qui: collect, name(`name'):`r(kfmodcmd)'
-		
+		else {
+			if `c(stata_version)' >= 17 qui: collect, name(`name'):`r(kfmodcmd)'
+			else qui: `r(kfmodcmd)'
+		}
 		// Test if user wants title added
 		est title: Model Fitted on All Training Folds 
 		
