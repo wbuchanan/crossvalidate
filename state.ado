@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! state
-*! v 0.0.1
-*! 05FEB2024
+*! v 0.0.2
+*! 29FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop state
@@ -15,7 +15,7 @@ cap prog drop state
 prog def state, rclass 
 
 	// Version statement 
-	version 18
+	version 15
 	
 	// Set a characteristic with the current rng
 	char _dta[rng] `"`c(rng)'"'

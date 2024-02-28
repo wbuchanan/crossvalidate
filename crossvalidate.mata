@@ -21,13 +21,13 @@ string scalar getifin(string scalar x) {
 	string scalar strexp
 	
 	// Tests if there is an if/in expression in the estimation command
-	matched = regexmatch(x, " i[fn]{1}\s+.*?(?=, *[a-zA-Z]|\$)")
+	matched = ustrregexm(x, " i[fn]{1}\s+.*?(?=, *[a-zA-Z]|\$)")
 	
 	// If there is an expression in the estimation command
 	if (matched) {
 		
 		// Stores the expression in strexp
-		strexp = regexcapture(0)
+		strexp = ustrregexs(0)
 		
 	// If there isn't a match	
 	} else {
@@ -58,13 +58,13 @@ string scalar getnoifin(string scalar x) {
 	string scalar strexp
 	
 	// Tests the regular expression that will capture everything up to options
-	matched = regexmatch(x, "^(.*?)(?![^()]*\)),")
+	matched = ustrregexm(x, "^(.*?)(?![^()]*\)),")
 	
 	// If there is a comma not enclosed in parentheses
 	if (matched) {
 		
 		// Return the syntax up to the comma that starts the options
-		strexp = regexcapture(1)
+		strexp = ustrregexs(1)
 
 	// If this doesn't result in a match
 	} else {
@@ -86,7 +86,7 @@ string scalar getnoifin(string scalar x) {
 // optional arguments
 real scalar hasoptions(string scalar x) {
 	
-	return(regexmatch(x, `"(?:(?!["\(]).)*?,\s*(?![^\(]*\))(.*)\$"'))
+	return(ustrregexm(x, `"(?:(?!["\(]).)*?,\s*(?![^\(]*\))(.*)\$"'))
 	
 } // End of function definition to return an indicator for options in cmd
 

@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! fitit
-*! v 0.0.8
-*! 26FEB2024
+*! v 0.0.9
+*! 27FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop fitit
@@ -15,7 +15,7 @@ cap prog drop fitit
 prog def fitit, eclass 
 
 	// Version statement 
-	version 18
+	version 15
 	
 	// Syntax
 	syntax anything(name = cmd id="estimation command name"),				 ///   
@@ -167,65 +167,79 @@ prog def fitit, eclass
 	// Check for the display option
 	if !mi("`display'") {
 		
-		// Collects standardized results from all models
-		qui: collect style autolevels result _r_b _r_se N ll ll_0 r2 r2_a 	 ///   
-										   rmse rss mss df_m df_r F, name(`name')
+		// If Stata 17 or later
+		if `c(stata_version)' >= 17 {
+			
+			// Collects standardized results from all models
+			qui: collect style autolevels result _r_b _r_se N ll ll_0 r2 	 ///   
+									 r2_a rmse rss mss df_m df_r F, name(`name')
 										   
-		// Don't display omitted levels in the results 
-		qui: collect style showomit off, name(`name')
-		
-		// Don't display the base level of factor variables in the results
-		qui: collect style showbase off, name(`name')
-		
-		// Don't display results for empty factor cells/interactions
-		qui: collect style showempty off, name(`name')
-		
-		// Shows standard errors in parentheses
-		qui: collect style cell result[_r_se], sformat("(%s)") name(`name')
-		
-		// Aligns the cell contents
-		qui: collect style cell cell_type[item column-header], name(`name')	 ///   
-															   halign(center)
-		
-		// Omits the labels for coefficients and standard errors in the output
-		qui: collect style header result[_r_b _r_se], level(hide) name(`name')
-		
-		// Adds a little additional horizontal spacing between columns
-		qui: collect style column, extraspace(1) name(`name')
-		
-		// Stacks the coefficients, SE, and other results and uses x as an 
-		// interaction delimiter
-		qui: collect style row stack, spacer delimiter(" x ") name(`name')	 ///   
-									  atdelimiter(" x ") bardelimiter(" x ")
-									  
-		// Defines levels for significance stars and adds a note to the end of 
-		// the table with the definitions
-		qui: collect stars _r_p 0.001 "***" 0.01 "**" 0.05 "*", attach(_r_b) ///   
-															shownote name(`name')
-		
-		// Relabels some of the longer named model results to save space
-		collect label levels result N "N" r2 "R^2" r2_a "Adj. R^2" 			 ///   
-										 F "F stat." rss "Residual SS" 		 ///   
-										 ll_0 "Log Likelihood, null model"   ///   
-										 mss "Model SS", name(`name') modify
+			// Don't display omitted levels in the results 
+			qui: collect style showomit off, name(`name')
+			
+			// Don't display the base level of factor variables in the results
+			qui: collect style showbase off, name(`name')
+			
+			// Don't display results for empty factor cells/interactions
+			qui: collect style showempty off, name(`name')
+			
+			// Shows standard errors in parentheses
+			qui: collect style cell result[_r_se], sformat("(%s)") name(`name')
+			
+			// Aligns the cell contents
+			qui: collect style cell cell_type[item column-header], 			 ///   
+													 name(`name') halign(center)
+			
+			// Omits the labels for coefficients and standard errors in the output
+			qui: collect style header result[_r_b _r_se], level(hide) 		 ///   
+														  name(`name')
+			
+			// Adds a little additional horizontal spacing between columns
+			qui: collect style column, extraspace(1) name(`name')
+			
+			// Stacks the coefficients, SE, and other results and uses x as an 
+			// interaction delimiter
+			qui: collect style row stack, spacer delimiter(" x ") 			 ///   
+							 name(`name') atdelimiter(" x ") bardelimiter(" x ")
+										  
+			// Defines levels for significance stars and adds a note to the end of 
+			// the table with the definitions
+			qui: collect stars _r_p 0.001 "***" 0.01 "**" 0.05 "*", 		 ///   
+											  attach(_r_b) shownote name(`name')
+			
+			// Relabels some of the longer named model results to save space
+			collect label levels result N "N" r2 "R^2" r2_a "Adj. R^2" 		 ///   
+										F "F stat." rss "Residual SS" 		 ///   
+										ll_0 "Log Likelihood, null model"    ///   
+										mss "Model SS", name(`name') modify
 
-		// Sets the numeric display format for all result cells to use a comma 
-		// for the thousands delimiter and to display 3 significant digits
-		qui: collect style cell result, name(`name') nformat(%24.3gc)
+			// Sets the numeric display format for all result cells to use a comma 
+			// for the thousands delimiter and to display 3 significant digits
+			qui: collect style cell result, name(`name') nformat(%24.3gc)
+			
+			// This attaches the labels for the results created during the model 
+			// fitting above to the column headers
+			qui: collect label levels cmdset `modord', name(`name')
+			
+			// This specifies how the results should be laid out.  The interaction 
+			// in the first parenthetical is how the results for the coefficients 
+			// and SE get displayed as rows and the second result provides the 
+			// general model fit statistics.  The second parenthetical is used to 
+			// say that there will be one column per estimation command collected.
+			qui: collect layout (colname#result result)(cmdset)
+			
+			// Display the results
+			collect preview
 		
-		// This attaches the labels for the results created during the model 
-		// fitting above to the column headers
-		qui: collect label levels cmdset `modord', name(`name')
+		} // End IF Block for Stata 17 or later
 		
-		// This specifies how the results should be laid out.  The interaction 
-		// in the first parenthetical is how the results for the coefficients 
-		// and SE get displayed as rows and the second result provides the 
-		// general model fit statistics.  The second parenthetical is used to 
-		// say that there will be one column per estimation command collected.
-		qui: collect layout (colname#result result)(cmdset)
-		
-		// Display the results
-		collect preview
+		// otherwise display results separately
+		else {
+			
+			// Replay all the stored estimation results
+			estimates replay `estres'
+			
+		} // End ELSE Block for older Stata
 
 	} // End IF Block for display option
 	

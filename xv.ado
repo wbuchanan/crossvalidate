@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! xv
-*! v 0.0.4
-*! 26FEB2023
+*! v 0.0.5
+*! 28FEB2023
 
 // Drop program from memory if already loaded
 cap prog drop xv
@@ -16,7 +16,7 @@ cap prog drop xv
 prog def xv, eclass properties(prefix xv)
 
 	// Stata version statement, can check for backwards compatibility later
-	version 18
+	version 15
 
 	// Set the prefix name for Stata to recognize it
 	set prefix xv
@@ -40,26 +40,56 @@ prog def xv, eclass properties(prefix xv)
 	// Test to see if replay option is invoked
 	if !mi("`replay'") {
 		
-		// If there are macros around that would tell us what to replay
-		if !mi(`"`e(fitnm)'`e(valnm)'"') {
+		// If there are macros around that would tell us what to replay and 
+		// the user is using a later version of Stata
+		if !mi(`"`e(fitnm)'`e(valnm)'"') & `c(stata_version)' >= 17 {
 
 			// Test whether or not there are values in the fit macro
 			if !mi(`"`e(fitnm)'"') collect preview, name(`e(fitnm)')
 			
+			// Otherwise try to estimates replay them
+			else if !mi(`"`e(estresnames)'"') estimates replay `e(estresnames)'
+			
 			// Test if there is a value in the validation macro
 			if !mi(`"`e(valnm)'"') collect preview, name(`e(valnm)')
+			
+			// Otherwise try to display the xv matrix
+			else {
+				
+				// Test if there is a matrix to list
+				cap: qui: mat li e(xv)
+				
+				// If the matrix is there display it
+				if _rc == 0 mat li e(xv)
+				
+			} // End ELSE block for missing validation name for collection
 			
 			// Exit the program
 			exit
 			
 		} // End IF Block for replay contents
 		
+		// For older Stata
+		else if !mi(`"`e(estresnames)'"') & `c(stata_version)' < 17 {
+			
+			// Display the estimation results
+			estimates replay `e(estresnames)'
+			
+			// Test if there is a matrix to list
+			cap: qui: mat li e(xv)
+			
+			// If the matrix is there display it
+			if _rc == 0 mat li e(xv)
+			
+		} // End ELSEIF Block for older Stata
+		
 		// If there aren't results we can find:
 		else {
 			
 			// Display an error message
-			di as err "Unable to find either e(fitnm) or e(valnm).  We're "	 ///   
-			"confused about what we should replay if we don't find that info."
+			di as err "Unable to find necessary returned values.  We're "	 ///   
+			"confused about what we should replay if we don't find them.  "  ///   
+			"Try refitting the models using {help xv} again."
 			
 			// Throw an error message
 			err 198

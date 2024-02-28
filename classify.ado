@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! classify
-*! v 0.0.3
-*! 15FEB2024
+*! v 0.0.4
+*! 28FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop classify
@@ -15,7 +15,7 @@ cap prog drop classify
 prog def classify, 
 
 	// Version statement 
-	version 18
+	version 15
 	
 	// Syntax
 	syntax anything(name = classes id = "Number of Classes") [if] ,			 ///   

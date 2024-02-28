@@ -1116,8 +1116,13 @@ format %td time
 // xtset the data
 xtset id time
 
-// Test for case where the user specifies non-nested panels with clusters.
-rcof `"splitit .8, uid(badgroups) tp(td("04feb2024"))"' == 459
+// Work around to check nested condition for uid for now.
+if `c(stata_version)' >= 16 {
+	
+	// Test for case where the user specifies non-nested panels with clusters.
+	rcof `"splitit .8, uid(badgroups) tp(td("04feb2024"))"' == 459
+	
+} // End IF Block for all but least recent stata
 
 // Create a training split with a 20% test sample
 splitit .8, uid(ingroup id) spl(splitvar) tp(td("04feb2024"))

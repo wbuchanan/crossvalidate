@@ -81,10 +81,10 @@ asserteq(st_local("argval"), "5")
 fixture = (25, 25 \ 24, 26)
 
 // Generate the confusion matrix with the simulated data above
-x = confusion("pred", "obs", "ifin")
+x = xtab("pred", "obs", "ifin")
 
 // Test that the confusion matrix reproduces the fixture
-asserteq(fixture, x)
+asserteq(fixture, x.conf)
 
 // End the Mata session
 end
@@ -171,8 +171,11 @@ mccd2 = 100^2 - 58^2 - 42^2
 // Define fixture for Matthew's Correlation Coefficient
 fxmcc = mccnum / (sqrt(mccd1) * sqrt(mccd2))
 
+// Generate the struct
+ct = xtab("pred", "obs", "touse")
+
 // Assert that our confusion matrix reproduces the one above
-assert(det(c - confusion("pred", "obs", "touse")) == 0)
+assert(det(c - ct.conf) == 0)
 
 // Recall function calls sensitivity under the hood and is just a synonym so it 
 // should return the exact same result 
@@ -306,11 +309,11 @@ mcd2 = 150^2 - 56^2 - 48^2 - 46^2
 fxmcc = mcnum / (sqrt(mcd1) * sqrt(mcd2))
 
 // Compute the confusion matrix with the confusion function
-conf = confusion("pred", "obs", "touse")
+ct = xtab("pred", "obs", "touse")
 
 // Assert that these are the same confusion matrices by testing that the 
 // determinant of the difference is 0
-assert(det(c - conf) == 0)
+assert(det(c - ct.conf) == 0)
 
 // Set a rounding factor to use for testing equality
 rf = 1e-6

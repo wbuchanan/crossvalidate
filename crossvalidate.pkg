@@ -18,9 +18,9 @@ d KW: machine learning
 d KW: out of sample
 d KW: evaluation
 d
-d Requires: Stata version 18
+d Requires: Stata version 15
 d
-d Distribution-Date: 20240226
+d Distribution-Date: 20240228
 d
 d Author: Billy Buchanan, Ph.D.
 d         Sr. Research Scientist, SAG Corporation

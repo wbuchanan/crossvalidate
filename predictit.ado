@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! predictit
-*! v 0.0.5
-*! 22FEB2024
+*! v 0.0.6
+*! 28FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop predictit
@@ -15,7 +15,7 @@ cap prog drop predictit
 prog def predictit
 
 	// Version statement 
-	version 18
+	version 15
 	
 	// Syntax
 	syntax [anything(name = cmd id="estimation command name")],				 ///   

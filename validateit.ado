@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! validateit
-*! v 0.0.12
-*! 26FEB2024
+*! v 0.0.13
+*! 27FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop validateit
@@ -15,7 +15,7 @@ cap prog drop validateit
 prog def validateit, rclass 
 
 	// Version statement 
-	version 18
+	version 15
 	
 	// Syntax
 	syntax , MEtric(string asis) PStub(string asis) SPLit(varname) 			 ///   
@@ -342,17 +342,30 @@ prog def validateit, rclass
 		// Get the column names
 		loc cnames : coln res, quoted
 		
-		// Get the resulting matrix into the collection
-		collect get xv = res, name(`name')
+		// Test the Stata version
+		if `c(stata_version)' >= 17 {
 		
-		// Create a title for the display
-		collect title "Cross-Validation Results", name(`name')
+			// Get the resulting matrix into the collection
+			collect get xv = res, name(`name')
+			
+			// Create a title for the display
+			collect title "Cross-Validation Results", name(`name')
+			
+			// Create a layout
+			qui: collect layout (rowname[`rnames'])(colname[`cnames'])(cmdset)
+			
+			// Display the metrics in a not horrible layout
+			collect preview
 		
-		// Create a layout
-		qui: collect layout (rowname[`rnames'])(colname[`cnames'])(cmdset)
+		} // End IF Block for current Stata display
 		
-		// Display the metrics in a not horrible layout
-		collect preview
+		// For older Stata
+		else {
+			
+			// Display the matrix of results
+			mat li res			
+			
+		} // End ELSE Block for older Stata display
 		
 	} // End IF Block to display results if requested by the user
 

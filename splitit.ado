@@ -6,8 +6,8 @@
 *******************************************************************************/
 
 *! splitit
-*! v 0.0.10
-*! 25FEB2024
+*! v 0.0.11
+*! 28FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop splitit
@@ -16,7 +16,7 @@ cap prog drop splitit
 prog def splitit, rclass sortpreserve
 
 	// Version statement 
-	version 18
+	version 15
 	
 	// Syntax for the splitit subroutine
 	syntax anything(name = props id = "Split proportion(s)") [if] [in] [, 	 ///   
@@ -46,7 +46,7 @@ prog def splitit, rclass sortpreserve
 	gettoken train validate: props
 	
 	// Validate that the train value is numeric
-	if !ustrregexm("`train'", "([^-])0*\.\d+\$") {
+	if !ustrregexm("`train'", "^[\d\.]+[\d]*\$") {
 		
 		// Display an error message
 		di as err "Only numeric values can be passed for split proportions."
@@ -57,7 +57,7 @@ prog def splitit, rclass sortpreserve
 	} // End IF Block for invalid training split value
 	
 	// Check validation split value
-	if !mi("`validate'") & !ustrregexm("`train'", "([^-])0*\.\d+\$") {
+	if !mi("`validate'") & !ustrregexm("`validate'", "^\s*[\d\.]+[\d]*\$") {
 		
 		// Display an error message
 		di as err "Only numeric values can be passed for split proportions."
@@ -187,24 +187,29 @@ prog def splitit, rclass sortpreserve
 		// the panel variable, when there is a panel variable
 		if !mi(`"`uid'"') & !`: list ivar in uid' & !mi(`"`ivar'"') {
 			
-			// Test to see if the panel variable is nested within the clusters
-			cap: assertnested `ivar', within(`uid')
-			
-			// If the panel variable is not nested within the user defined 
-			// clusters
-			if _rc != 0 {
+			// Test Stata version for now
+			if `c(stata_version)' >= 16 {
 				
-				// Return an error message
-				di as err "The panel variable must be nested within the " 	 ///   
-				"clustered identified in: `uid'."
+				// Test to see if the panel variable is nested within the clusters
+				cap: assertnested `ivar', within(`uid')
 				
-				// Return an error code and exit
-				error 459
+				// If the panel variable is not nested within the user defined 
+				// clusters
+				if _rc != 0 {
+					
+					// Return an error message
+					di as err "The panel variable must be nested within the" ///   
+					" clustered identified in: `uid'."
+					
+					// Return an error code and exit
+					error 459
+					
+				} // End IF Block for non-nested panel vars within clusters
 				
-			} // End IF Block for non-nested panel vars within clusters
-			
-			// If the panel variable is nested, add it to the cluster ID macro
-			else loc uid `uid' `ivar'
+				// If the panel variable is nested, add it to the cluster ID macro
+				else loc uid `uid' `ivar'
+				
+			} // End IF Block for all but least recent Stata
 				
 		} // End IF Block for missing panel var in uid 
 		

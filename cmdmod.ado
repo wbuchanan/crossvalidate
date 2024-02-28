@@ -6,8 +6,8 @@
 *******************************************************************************/
 
 *! cmdmod
-*! v 0.0.8
-*! 24FEB2024
+*! v 0.0.9
+*! 28FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop cmdmod
@@ -16,7 +16,7 @@ cap prog drop cmdmod
 prog def cmdmod, rclass
 
 	// Version statement
-	version 18
+	version 15
 
 	// Defines the syntax for this program
 	syntax anything(name = cmd id="estimation command"), 					 ///   
