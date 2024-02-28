@@ -57,7 +57,7 @@ xv 0.8, pstub(ttkfclpred) metric(phl) uid(rep78) kfold(4): reg price mpg length,
 through the estimation results if `c(stata_version)' < 17 and to use 
 collections for Stata >= 17 and modify help files related to collections.
 - [x] Modify the replay option to adjust for the collection thing above
-- [ ] Write a function that can do the same thing as `assertnested` and will 
+- [x] Write a function that can do the same thing as `assertnested` and will 
 work in Stata 15
 - [ ] Standardize language in help files
 - [ ] Finish writing test cases for Mata functions

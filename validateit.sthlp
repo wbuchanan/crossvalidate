@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.7 26feb2024}{...}
+{* *! version 0.0.8 28feb2024}{...}
 {viewerjumpto "Syntax" "validateit##syntax"}{...}
 {viewerjumpto "Description" "validateit##description"}{...}
 {viewerjumpto "Options" "validateit##options"}{...}
@@ -104,7 +104,8 @@ the predicted and observed values for all of the training set units in aggregate
 {opt na:me} is an option to pass a name to the collection created to store the 
 results.  When {cmd validateit} is executed, it will initialize a new collection 
 or replace the existing collection with the same name.  If you want to retain 
-the validation results from multiple executions, pass an argument to this option.
+the validation results from multiple executions, pass an argument to this 
+option.  {it:Note:} this only affects users using Stata 17 or later.
 
 
 {marker custom}{...}

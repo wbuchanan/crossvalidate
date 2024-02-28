@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.3 27feb2024}{...}
+{* *! version 0.0.4 28feb2024}{...}
 {vieweralsosee "[R] predict" "mansection R predict"}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat_classification"}{...}
 {vieweralsosee "[P] creturn" "mansection P creturn"}{...}
@@ -106,6 +106,13 @@ following results in the corresponding members:
 {cmd:Crosstab struct}.  It is used internally by the binary and multiclass 
 metrics to obtain the confusion matrix and other pre-computed statistics that 
 are used regularly by the metrics.
+
+{pstd}
+{cmd:isnested} is a function used to test whether variables are nested within 
+one another.  It takes a {help varlist} containing the variables that are nested 
+ordered from the highest to lowest level of the hierarchy and a {help varname} 
+that is used to identify which observations to include in the test.  A value of 
+1 is returned if the data are nested and a value of 0 is returned otherwise. 
 
 {marker classification}{...}
 {title:Classification Metrics}

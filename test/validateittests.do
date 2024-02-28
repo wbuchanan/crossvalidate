@@ -35,20 +35,20 @@ predictit "reg price mpg i.foreign headroom trunk, vce(rob)", ps(pred)		 ///
 spl(splitvar) 
 
 // Test error case when metric is included in monitors
-rcof "validateit, me(mae) p(pred) mo(rmse mae) split(splitvar)" == 134
+rcof "validateit, me(mae) ps(pred) mo(rmse mae) split(splitvar)" == 134
 
 // Test error case when there are multiple metrics specified
-rcof "validateit, me(mse pll) p(pred) mo(rmse mae) split(splitvar)" == 134
+rcof "validateit, me(mse pll) ps(pred) mo(rmse mae) split(splitvar)" == 134
 
 // Drop the stored estimates
 estimates clear
 eret clear
 
 // Test error case when e(depvar) is not found and no value is passed to obs
-rcof "validateit, me(mse) p(pred) mo(rmse mae) split(splitvar)" == 100
+rcof "validateit, me(mse) ps(pred) mo(rmse mae) split(splitvar)" == 100
 
 // Verify it works if the varname is passed to obs
-validateit, me(mse) p(pred) mo(rmse mae) split(splitvar) o(price)
+validateit, me(mse) ps(pred) mo(rmse mae) split(splitvar) o(price)
 
 // Ensure that the returned scalar for the metric alone is not contained in a 
 // samenamed scalar
@@ -69,7 +69,7 @@ predictit "reg price mpg i.foreign headroom trunk, vce(rob)", ps(pred)		 ///
 spl(splitvar) 
 
 // Issue the minimum valid command
-validateit, me(mse) p(pred) spl(splitvar)
+validateit, me(mse) ps(pred) spl(splitvar)
 
 // Ensure that the returned scalar for the metric alone is not contained in a 
 // samenamed scalar
@@ -79,8 +79,8 @@ assert mi("`r(mse)'")
 assert !mi(`r(metric)')
 
 // Issue the command with some monitors included
-validateit, me(mse) p(pred) spl(splitvar) mo(mape smape mae bias rmse mbe r2 ///   
-msle rmsle rpd iic ccc huber phl)
+validateit, me(mse) ps(pred) spl(splitvar) mo(mape smape mae bias rmse mbe 	 ///   
+r2 msle rmsle rpd iic ccc huber phl rpiq r2ss)
 
 // Ensure that there is a scalar with a value named metric
 assert !mi(`r(metric)')
@@ -100,6 +100,8 @@ assert !mi(`r(iic)')
 assert !mi(`r(ccc)')
 assert !mi(`r(huber)')
 assert !mi(`r(phl)')
+assert !mi(`r(rpiq)')
+assert !mi(`r(r2ss)')
 
 **# K-Fold TT Splits
 /*******************************************************************************
@@ -128,10 +130,10 @@ spl(splitvar) noall
 
 // Issue the command to trigger error for no `pred'all variable w/K-Fold and 
 // no corresponding noall option
-rcof "validateit, me(mse) p(pred) spl(splitvar) kf(5)" == 111
+rcof "validateit, me(mse) ps(pred) spl(splitvar) kf(5)" == 111
 
 // Now call the command with the noall option
-validateit, me(mse) p(pred) spl(splitvar) kf(5) noall
+validateit, me(mse) ps(pred) spl(splitvar) kf(5) noall
 
 // Ensure that the returned scalar for the metric alone is not contained in a 
 // samenamed scalar
@@ -170,7 +172,7 @@ predictit "reg price mpg i.foreign headroom trunk, vce(rob)", ps(pred) kf(5) ///
 spl(splitvar) 
 
 // Now call the command w/o the noall option
-validateit, me(mse) p(pred) spl(splitvar) kf(5) 
+validateit, me(mse) ps(pred) spl(splitvar) kf(5) 
 
 // Ensure that the returned scalar for the metric alone is not contained in a 
 // samenamed scalar

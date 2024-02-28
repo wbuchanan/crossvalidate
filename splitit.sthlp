@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.4 23feb2024}{...}
+{* *! version 0.0.5 28feb2024}{...}
 {viewerjumpto "Syntax" "splitit##syntax"}{...}
 {viewerjumpto "Description" "splitit##description"}{...}
 {viewerjumpto "Options" "splitit##options"}{...}
@@ -27,12 +27,10 @@
 {synopt :{opt loo}}is used only for Leave-One-Out cross-validation{p_end}
 {synoptline}
 
-
 {marker description}{...}
 {title:Description}
 
 INCLUDE help xvphase-split
-
 
 {marker options}{...}
 {title:Options}
@@ -42,8 +40,13 @@ INCLUDE help xvphase-split
 argument is passed to this parameter entire clusters will be split into the 
 respective training and validation and/or training sets.  When this option is 
 used with {opt tp:oint} for {help xtset} data, the panel variable must be nested 
-within the clusters defined by {opt u:id}.
+within the clusters defined by {opt u:id}. 
 
+{phang}
+{hi:IMPORTANT!!!} the order of the {help varlist} passed to {opt u:id} is 
+assumed to follow the hierarchy of the nesting in the data.  Ensure that the 
+{help varlist} passed to this option follows the same convention as used with 
+commands like {help mixed}.
 
 {phang}
 {opt tpoint} a time point delimiting the training split from it's corresponding 

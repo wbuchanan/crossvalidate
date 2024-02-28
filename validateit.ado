@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! validateit
-*! v 0.0.13
-*! 27FEB2024
+*! v 0.0.14
+*! 28FEB2024
 
 // Drop program from memory if already loaded
 cap prog drop validateit
@@ -140,13 +140,13 @@ prog def validateit, rclass
 	if mi(`"`name'"') loc name xvval
 	
 	// Create a collection using the default name
-	qui: collect create `name', replace
+	if `c(stata_version)' >= 17 qui: collect create `name', replace
 		
 	// Locate the labels for the metrics
 	cap: findfile xvlabels.stjson
 	
 	// If the file is located
-	if _rc == 0 {
+	if _rc == 0 & `c(stata_version)' >= 17 {
 		
 		// Load the capture labels
 		collect label use `"`r(fn)'"', name(`name')
@@ -189,11 +189,15 @@ prog def validateit, rclass
 	// If this involves K-Fold CV
 	else if `kfold' > 1 & mi("`loo'") {
 		
+		// Initialize this to see if it helps with removing the quotation marks
+		// when used below
+		loc colnms
+		
 		// Loop over the K-Folds
 		forv k = 1/`kfold' {
 			
 			// Sets local macro with column names
-			loc colnms `colnms' "Fold `k'"
+			loc colnms `"`colnms' "Fold `k'""'
 			
 			// Set the value of the touse tempvariable
 			qui: replace `touse' = cond(`split' == `k', 1, 0)
@@ -227,7 +231,7 @@ prog def validateit, rclass
 			if `k' == `kfold' & mi(`"`all'"') {
 				
 				// Adds the last column name
-				loc colnms `colnms' "`ditxt'"
+				loc colnms `"`colnms' "`ditxt'""'
 				
 				// Update the variable that IDs the sample to use for the metrics
 				qui: replace `touse' = cond(`split' == `= `kfold' + 1', 1, 0)

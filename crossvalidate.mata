@@ -272,6 +272,27 @@ struct Crosstab scalar xtab(string scalar pred, string scalar obs, 			 ///
 	
 } // End definition of cross-tabulation function
 
+// Defines a function to test the nesting of values in a dataset
+real scalar isnested(string scalar varnms, string scalar touse) {
+	
+	// Declares a matrix to store the data that we need to check nesting on
+	real matrix df
+	
+	// Declares a scalar for the number of columns in the matrix and to identify 
+	// the column with the variable that is most deeply nested
+	real scalar vars
+	
+	// Gets the unique combinations of the data that should be nested
+	df = uniqrows(st_data(., varnms, touse))
+	
+	// Gets the number of columns in the matrix with the data
+	vars = cols(df)
+	
+	// Returns a value of 1 if the data are nested and a value of 0 otherwise
+	return(rows(df) == rows(uniqrows(df[., vars])) ? 1 : 0)
+	
+} // End definition of function to check the nesting of variables
+
 // Create a function to implement the Poisson density function
 real colvector dpois(real colvector events, real colvector means, | 		 ///   
 					 real scalar ln){

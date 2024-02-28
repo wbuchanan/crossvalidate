@@ -613,6 +613,9 @@ assert ifsplits == 1 if !mi(ifsplits)
 // Clear all data from memory
 clear
 
+// Make sure the mata library is available
+run crossvalidate.mata
+
 // Set the pseudorandom number seed
 set seed 7779311
 

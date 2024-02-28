@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.5 26feb2024}{...}
+{* *! version 0.0.6 28feb2024}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat_classification"}{...}
 {vieweralsosee "" "--"}{...}
 {viewerjumpto "Syntax" "fitit##syntax"}{...}
@@ -84,8 +84,8 @@ of the model fitting results to the result window.
 {opt na:me} is an option to pass a name to the collection created to store the 
 results.  When {cmd fitit} is executed, it will initialize a new collection 
 or replace the existing collection with the same name.  If you want to retain 
-the validation results from multiple executions, pass an argument to this option.
-
+the validation results from multiple executions, pass an argument to this 
+option.  {it:Note:} this only affects users using Stata 17 or later.
 
 {marker examples}{...}
 {title:Examples}

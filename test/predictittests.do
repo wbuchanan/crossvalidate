@@ -108,19 +108,13 @@ rcof `"predictit "reg price mpg, vce(rob)", ps(pred) kf(5) spl(splitvar)"' == 19
 predictit "reg price mpg, vce(rob)", ps(pred) kf(5) noall spl(splitvar)
 
 // Fit the model manually
-reg price mpg if splitvar != 5, vce(rob)
+reg price mpg if splitvar < 5, vce(rob)
 
 // Generate manual prediction
 predict double mpred if !e(sample) & splitvar == 5
 
 // Assert the predicted values are the same
 assert pred == mpred if splitvar == 5
-
-// Since this is all the same data generate another predicted value to test
-predict double mpred2 if splitvar < 6
-
-// Assert predicted values are the same across all splits
-assert pred == mpred2
 
 // Load some example data
 sysuse auto.dta, clear
@@ -139,7 +133,7 @@ fitit "reg price mpg, vce(rob)", res(tst) spl(splitvar) kf(5)
 predictit "reg price mpg, vce(rob)", ps(pred) kf(5) spl(splitvar) 
 
 // Fit the model manually
-reg price mpg if splitvar != 5, vce(rob)
+reg price mpg if splitvar < 5, vce(rob)
 
 // Generate manual prediction
 predict double mpred1 if !e(sample) & splitvar == 5
@@ -154,7 +148,6 @@ predict double mpred2 if splitvar == 6
 assert mpred1 == pred if splitvar == 5
 
 assert mpred2 == predall if splitvar == 6
-
 
 
 **# TVT Splits
@@ -184,7 +177,7 @@ predictit "reg price mpg i.foreign headroom trunk, vce(rob)", 		 ///
 ps(pred) spl(splitvar) kf(5)
 
 // Fit the model manually
-reg price mpg i.foreign headroom trunk if splitvar != 5, vce(rob)
+reg price mpg i.foreign headroom trunk if splitvar < 5, vce(rob)
 
 // Generate manual prediction
 predict double mpred if !e(sample) & splitvar == 5

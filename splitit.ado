@@ -187,30 +187,25 @@ prog def splitit, rclass sortpreserve
 		// the panel variable, when there is a panel variable
 		if !mi(`"`uid'"') & !`: list ivar in uid' & !mi(`"`ivar'"') {
 			
-			// Test Stata version for now
-			if `c(stata_version)' >= 16 {
+			// Test to see if the panel variable is nested within the clusters
+			mata: st_local("nested", strofreal(isnested("`uid' `ivar'", "`touse'")))
+			
+			// If the panel variable is not nested within the user defined 
+			// clusters
+			if `nested' == 0 {
 				
-				// Test to see if the panel variable is nested within the clusters
-				cap: assertnested `ivar', within(`uid')
+				// Return an error message
+				di as err "The panel variable must be nested within the" ///   
+				" clustered identified in: `uid'."
 				
-				// If the panel variable is not nested within the user defined 
-				// clusters
-				if _rc != 0 {
-					
-					// Return an error message
-					di as err "The panel variable must be nested within the" ///   
-					" clustered identified in: `uid'."
-					
-					// Return an error code and exit
-					error 459
-					
-				} // End IF Block for non-nested panel vars within clusters
+				// Return an error code and exit
+				error 459
 				
-				// If the panel variable is nested, add it to the cluster ID macro
-				else loc uid `uid' `ivar'
-				
-			} // End IF Block for all but least recent Stata
-				
+			} // End IF Block for non-nested panel vars within clusters
+			
+			// If the panel variable is nested, add it to the cluster ID macro
+			else loc uid `uid' `ivar'
+							
 		} // End IF Block for missing panel var in uid 
 		
 	} // End IF Block to check for the time point option

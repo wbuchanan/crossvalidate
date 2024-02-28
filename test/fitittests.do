@@ -61,12 +61,11 @@ assert "`e(estimates_title)'" == "Model fit on Fold #5"
 
 // Fit the model to the data directly for the same sample that the last 
 // estimates used
-reg price mpg i.foreign i.rep78 headroom trunk if splitvar != 5, vce(rob)
+reg price mpg i.foreign i.rep78 headroom trunk if splitvar < 5, vce(rob)
 
 // Compare the results
 storedresults compare fitit2 e(), ex(macro: predifin kfpredifin estres1 	 ///   
 estres2 estres3 estres4 estres5 estresnames estimates_title cmdline) tol(1e-10)
-
 
 // call fitit with 5 K-Folds and estimating the model on all of the training set
 fitit "reg price mpg i.foreign i.rep78 headroom trunk, vce(rob)", res(tst) 	 ///   

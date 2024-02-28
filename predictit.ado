@@ -156,7 +156,7 @@ prog def predictit
 		
 		// Get the name by matching the value of k at the end of the string and 
 		// pass that name to the estimates restore command below.
-		if ustrregexm(`"`enames'"', "(\s?[a-zA-Z]+`k'\s)") {
+		if ustrregexm(`"`enames'"', "(\s?[a-zA-Z]+`k'(\s|\$))") {
 			
 			// Store the matching estimation result name
 			loc rname `"`= trim(ustrregexs(1))'"'
