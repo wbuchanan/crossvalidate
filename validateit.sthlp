@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.8 28feb2024}{...}
+{* *! version 0.0.9 29feb2024}{...}
 {viewerjumpto "Syntax" "validateit##syntax"}{...}
 {viewerjumpto "Description" "validateit##description"}{...}
 {viewerjumpto "Options" "validateit##options"}{...}
@@ -9,6 +9,7 @@
 {viewerjumpto "Returned Values" "validateit##retvals"}{...}
 {viewerjumpto "Additional Information" "validateit##additional"}{...}
 {viewerjumpto "Contact" "validateit##contact"}{...}
+{title:Computing Model Validation Statistics}
 
 {marker syntax}{...}
 {title:Syntax}
@@ -38,7 +39,6 @@
 {synopt :{opt na:me}}is used to name the collection storing the results; default is {cmd:name(xvval)}.{p_end}
 {synoptline}
 
-
 {marker description}{...}
 {title:Description}
 
@@ -54,7 +54,12 @@ INCLUDE help xvphase-validate
 function signature described in {help libxv:help libxv} used to evaluate the fit 
 of the model on the held-out data.  Only a single metric can be specified.  For 
 user's who may be interested in hyperparameter tuning, this would be the value 
-that you would optimize with your hyperparameter tuning algorithm.
+that you would optimize with your hyperparameter tuning algorithm. You may pass 
+optional arguments to metrics that support them by enclosing the arguments in a 
+{help mf_eltype:transmorphic matrix}.  Metrics that support optional arguments 
+will provide guidance on what options are available and how to order/structure 
+the options for use in the function.  For example, this might look like: 
+{opt metric(mse(("yes", "1")))} or {opt metric(mae((1, 2 \ 3, 4)))}.
 
 {phang}
 {opt ps:tub} the stub name for the variable(s) that store the predicted values 
@@ -75,7 +80,13 @@ were created using {help splitit}.
 with the function signature described in {help libxv:help libxv} used to 
 evaluate the fit of the model on the held-out data.  These should not be used 
 when attempting to tune hyper parameters, but can still provide useful 
-information regarding the model fit characteristics.
+information regarding the model fit characteristics. You may pass optional 
+arguments to the metrics you list in the monitors option that support them by 
+enclosing the arguments for each monitor in a 
+{help mf_eltype:transmorphic matrix}.  Metrics that support optional arguments 
+will provide guidance on what options are available and how to order/structure 
+the options for use in the function.  For example, this might look like: 
+{opt monitors(mse(("yes", "1")) mae((1, 2 \ 3, 4)))}.
 
 {phang}
 {opt dis:play} an option to display the metric and monitor values in the results 
@@ -102,11 +113,10 @@ the predicted and observed values for all of the training set units in aggregate
 
 {phang}
 {opt na:me} is an option to pass a name to the collection created to store the 
-results.  When {cmd validateit} is executed, it will initialize a new collection 
+results.  When {cmd:validateit} is executed, it will initialize a new collection 
 or replace the existing collection with the same name.  If you want to retain 
 the validation results from multiple executions, pass an argument to this 
 option.  {it:Note:} this only affects users using Stata 17 or later.
-
 
 {marker custom}{...}
 {title:Custom Metrics and Monitors}
@@ -115,15 +125,24 @@ option.  {it:Note:} this only affects users using Stata 17 or later.
 Users may define their own validation metrics to be used by {cmd:validateit}.  
 All metrics and monitors are required to use the same function signature:
 
-{p 12 12 2}{cmd:{it:real scalar metricName(string scalar pred, string scalar obs, string scalar touse)}}{p_end}
+{p 12 12 2}{cmd:{it:real scalar metricName(string scalar pred, string scalar obs, string scalar touse, | transmorphic matrix opts)}}{p_end}
 
 {pstd}
 The first argument passed to your function will be the name of the variable 
 containing the predicted values.  The second argument passed to your function 
-will be the name of the variable containing the observed outcomes.  The last 
-argument in the signature is a variable that identifies the validation/test set, 
-or the K-Fold with the out-of-sample predicted values, to compute the validation 
-metric on.
+will be the name of the variable containing the observed outcomes.  The third 
+argument in the signature is a variable that identifies the appropriate data to 
+use for the metric computation.  The last, and only optional argument, is to 
+allow users greater flexibility in defining custom metrics and to allow our team 
+to further extend the existing metrics.  When passing an argument to the 
+{opt metric} option, you can pass optional arguments to the function in a 
+{help mf_eltype:transmorphic matrix} that you specify.  As a hypothetical 
+example, this could look like: 
+{opt monitors(mse(("yes", "1")) mae((1, 2 \ 3, 4)))}.  {cmd:validateit} will 
+handle parsing and passing the matrix to the underlying Mata function for you.  
+If you wish to allow options for your own custom defined function, remember to 
+document the option specification clearly and keep things as simple as possible 
+to minimize user-frustration and problems.
 
 {pstd}
 In your function, you can easily define the vectors that will store the data you 
@@ -136,9 +155,9 @@ need for your computations:
 {pstd}
 With your custom metric function defined in Mata with the signature above, you 
 can use it as a metric or monitor with {cmd:validateit} by passing the function 
-name to the metric or monitors options.  {it:Note, you will need to make sure 
-that the function is defined in Mata prior to using it or ensure that it is 
-defined in a library that Mata will search automatically}.
+name to the metric or monitors options.  {it:Note, you will need to make sure }
+{it:that the function is defined in Mata prior to using it or ensure that it is}
+{it: defined in a library that Mata will search automatically}.
 
 {marker builtin}{...}
 {title:Built-In Metrics and Monitors}
@@ -160,18 +179,15 @@ INCLUDE help xvconttab
 {synoptline}
 {synopt :{opt ***}  {it:Note this requires installation of {search polychoric}}}
 
-{marker binmtrx}
-{title:Binary Metric Details}
+{marker binmtrx}{title:Binary Metric Details}
 
 INCLUDE help xvbinmtrx
 
-{marker mcmtrx}
-{title:Multiclass Metric Details}
+{marker mcmtrx}{title:Multiclass Metric Details}
 
 INCLUDE help xvmcmtrx
 
-{marker contmtrx}
-{title:Continuous Metric Details}
+{marker contmtrx}{title:Continuous Metric Details}
 
 INCLUDE help xvcontmtrx
 
@@ -183,7 +199,6 @@ INCLUDE help xvcontmtrx
 
 {p 4 4 2}With Monitors{p_end}
 {p 8 4 2}validateit, me(acc) ps(pred) spl(splitvar) mo(npv ppv bacc f1 sens spec){p_end}
-
 
 {marker retvals}{...}
 {title:Returned Values}
@@ -216,22 +231,25 @@ the training split.
   
 {marker additional}{...}
 {title:Additional Information}
+
 {pstd}
-The {cmdab dis:play} option in validateit is enabled by 
-{help collect_preview:collect preview}.  In addition to providing a convient way 
-for us to structure the display in a useful way, it also makes it easy for you - 
-the user - to export the validation results into any of several formats.  The 
-results from {help validateit} are all stored in the collection named 
-{cmd:xvval}.  For more information on how to export these results into the 
-format of your choosing, please see {help collect_export:collect export}.
+The {opt dis:play} option in validateit is enabled by 
+{help collect_preview:collect preview} for users running Stata 17 or later.  
+In addition to providing a convient way for us to structure the display in a 
+more aesthetically pleasing way, it also makes it easy for you to export the 
+validation results into any of several formats.  The results from 
+{help validateit} are all stored in the collection named {cmd:xvval} if you do 
+not pass an argument to the {opt name} option.  For more information on how to 
+export these results into the format of your choosing, please see 
+{help collect_export:collect export}.
 
 {pstd}
 If you have questions, comments, or find bugs, please submit an issue in the 
 {browse "https://github.com/wbuchanan/crossvalidate":crossvalidate GitHub repository}.
 
-
 {marker contact}{...}
 {title:Contact}
+
 {p 4 4 8}William R. Buchanan, Ph.D.{p_end}
 {p 4 4 8}Sr. Research Scientist, SAG Corporation{p_end}
 {p 4 4 8}{browse "https://www.sagcorp.com":SAG Corporation}{p_end}

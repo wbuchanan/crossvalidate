@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! xv
-*! v 0.0.5
-*! 28FEB2023
+*! v 0.0.6
+*! 29FEB2023
 
 // Drop program from memory if already loaded
 cap prog drop xv
@@ -92,7 +92,7 @@ prog def xv, eclass properties(prefix xv)
 			"Try refitting the models using {help xv} again."
 			
 			// Throw an error message
-			err 198
+			err 119
 			
 		} // End ELSE Block for no detected collection names
 		

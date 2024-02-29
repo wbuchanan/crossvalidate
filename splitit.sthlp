@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.5 28feb2024}{...}
+{* *! version 0.0.6 29feb2024}{...}
 {viewerjumpto "Syntax" "splitit##syntax"}{...}
 {viewerjumpto "Description" "splitit##description"}{...}
 {viewerjumpto "Options" "splitit##options"}{...}
@@ -7,6 +7,7 @@
 {viewerjumpto "Returned Values" "splitit##retvals"}{...}
 {viewerjumpto "Additional Information" "splitit##additional"}{...}
 {viewerjumpto "Contact" "splitit##contact"}{...}
+{title:Dataset Splitting and Folding for Cross-Validation in Stata}
 
 {marker syntax}{...}
 {title:Syntax}

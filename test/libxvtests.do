@@ -223,6 +223,10 @@ asserteq(round(fxbinr2, rf), round(binr2("pred", "obs", "touse"), rf))
 // Test equality of Matthews Correlation Coefficient
 asserteq(round(fxmcc, rf), round(mcc("pred", "obs", "touse"), rf))
 
+// Test equality of F1 metrics with new function signature
+asserteq(round(fxf1, rf), round(f1("pred", "obs", "touse", (1, 2, 3)), rf))
+asserteq(round(fxf1, rf), round(f1("pred", "obs", "touse", ("yes", "no")), rf))
+
 // End the Mata session
 end
 

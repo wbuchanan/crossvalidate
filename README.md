@@ -59,6 +59,8 @@ collections for Stata >= 17 and modify help files related to collections.
 - [x] Modify the replay option to adjust for the collection thing above
 - [x] Write a function that can do the same thing as `assertnested` and will 
 work in Stata 15
+- [x] Update function signature to provide support for optional arguments
+- [x] Compile Mata library in Stata 15
 - [ ] Standardize language in help files
 - [ ] Finish writing test cases for Mata functions
 - [ ] Finish writing test cases for ADO commands
@@ -78,11 +80,12 @@ The program will allow users to define their own metrics/monitors that are not
 contained in libcrossvalidate.  In order to do this, users must implement a 
 specific method/function signature:
 
-`real scalar metric(string scalar pred, string scalar obs, string scalar touse)`
+`real scalar metric(string scalar pred, string scalar obs, string scalar touse, | transmorphic matrix opts)`
 
 The function must return a real valued scalar and take three arguments.  The 
 three arguments are used to access the data that would be used to compute the 
-metrics/monitors.  
+metrics/monitors and to provide a method to pass optional arguments to the 
+underlying functions if supported.
 
 ### Data access
 Within the function body, we recommend using the following pattern to access 

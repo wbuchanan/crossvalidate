@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.6 28feb2024}{...}
+{* *! version 0.0.7 29feb2024}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat_classification"}{...}
 {vieweralsosee "" "--"}{...}
 {viewerjumpto "Syntax" "fitit##syntax"}{...}
@@ -9,6 +9,7 @@
 {viewerjumpto "Returned Values" "fitit##retvals"}{...}
 {viewerjumpto "Additional Information" "fitit##additional"}{...}
 {viewerjumpto "Contact" "fitit##contact"}{...}
+{title:Model Fitting for Cross-Validation in Stata}
 
 {marker syntax}{...}
 {title:Syntax}

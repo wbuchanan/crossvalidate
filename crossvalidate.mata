@@ -243,9 +243,14 @@ struct Crosstab scalar xtab(string scalar pred, string scalar obs, 			 ///
 		// Gets the total number of cases observed in the ith class
 		colm[1, i] = rows(selectindex(y :== vals[i, 1]))
 		
-		// Loop over the values of the observed variable and count the number of 
-		// cases with the ith predicted value that have the jth observed value
-		for(j = 1; j <= levs; j++) conf[i, j] = rows(selectindex(y[idx, 1] :== vals[j, 1]))
+		// Loop over the values of the observed variable
+		for(j = 1; j <= levs; j++) {
+			
+			// count the number of cases with the ith predicted value that have 
+			// the jth observed value
+			conf[i, j] = rows(selectindex(y[idx, 1] :== vals[j, 1]))
+			
+		} // End Loop over the observed variable values	
 		
 	} // End Loop over the rows of the confusion matrix
 	
@@ -333,7 +338,8 @@ mata:
 // For sensitivity, specificity, prevalence, ppv, and npv see:
 // https://yardstick.tidymodels.org/reference/ppv.html	
 // For others in this section see other pages from above			
-real scalar sens(string scalar pred, string scalar obs, string scalar touse) {
+real scalar sens(string scalar pred, string scalar obs, string scalar touse, ///   
+					| transmorphic matrix opts) {
 	
 	// Creates the struct that gets returned
 	struct Crosstab scalar c
@@ -358,7 +364,8 @@ real scalar sens(string scalar pred, string scalar obs, string scalar touse) {
 					
 // Function to compute precision from a confusion matrix.  See:
 // https://yardstick.tidymodels.org/reference/precision.html for the formula
-real scalar prec(string scalar pred, string scalar obs, string scalar touse) {
+real scalar prec(string scalar pred, string scalar obs, string scalar touse, ///   
+					| transmorphic matrix opts) {
 	
 	// Creates the struct that gets returned
 	struct Crosstab scalar c
@@ -383,7 +390,8 @@ real scalar prec(string scalar pred, string scalar obs, string scalar touse) {
 
 // Function to compute recall, which appears to be a synonym for sensitivity.  
 // See https://yardstick.tidymodels.org/reference/precision.html for formula					  
-real scalar recall(string scalar pred, string scalar obs, string scalar touse) {
+real scalar recall(string scalar pred, string scalar obs, 					 ///   
+				   string scalar touse, | transmorphic matrix opts) {
 		
 	// Declares a scalar to store the result
 	real scalar result
@@ -398,8 +406,8 @@ real scalar recall(string scalar pred, string scalar obs, string scalar touse) {
 				
 // Defines function to compute specificity from a confusion matrix.  
 // See: https://yardstick.tidymodels.org/reference/ppv.html for the formula
-real scalar spec(string scalar pred, string scalar obs, 				 ///   
-					  string scalar touse) {
+real scalar spec(string scalar pred, string scalar obs, string scalar touse, ///   
+					| transmorphic matrix opts) {
 	
 	// Creates the struct that gets returned
 	struct Crosstab scalar c
@@ -424,7 +432,8 @@ real scalar spec(string scalar pred, string scalar obs, 				 ///
 
 // Defines a function to compute prevalence.  
 // See: https://yardstick.tidymodels.org/reference/ppv.html for the formula
-real scalar prev(string scalar pred, string scalar obs, string scalar touse) {
+real scalar prev(string scalar pred, string scalar obs, string scalar touse, ///   
+					| transmorphic matrix opts) {
 	
 	// Creates the struct that gets returned
 	struct Crosstab scalar c
@@ -449,7 +458,8 @@ real scalar prev(string scalar pred, string scalar obs, string scalar touse) {
 
 // Defines a function to compute positive predictive value.
 // See: https://yardstick.tidymodels.org/reference/ppv.html for the formula
-real scalar ppv(string scalar pred, string scalar obs, string scalar touse) {
+real scalar ppv(string scalar pred, string scalar obs, string scalar touse,  ///   
+					| transmorphic matrix opts) {
 	
 	// Declares a scalar to store the resulting metric, sensitivity, 
 	// specificity, and prevalence (used to compute the metric)
@@ -474,7 +484,8 @@ real scalar ppv(string scalar pred, string scalar obs, string scalar touse) {
 
 // Defines a function to compute negative predictive value.
 // See: https://yardstick.tidymodels.org/reference/ppv.html for the formula
-real scalar npv(string scalar pred, string scalar obs, string scalar touse) {
+real scalar npv(string scalar pred, string scalar obs, string scalar touse,  ///   
+					| transmorphic matrix opts) {
 	
 	// Declares a scalar to store the resulting metric, sensitivity, 
 	// specificity, and prevalence (used to compute the metric)
@@ -498,7 +509,8 @@ real scalar npv(string scalar pred, string scalar obs, string scalar touse) {
 } // End of function definition for negative predictive value
 
 // Defines a function to compute accuracy.
-real scalar acc(string scalar pred, string scalar obs, string scalar touse) {
+real scalar acc(string scalar pred, string scalar obs, string scalar touse,  ///   
+					| transmorphic matrix opts) {
 	
 	// Creates the struct that gets returned
 	struct Crosstab scalar c
@@ -519,7 +531,8 @@ real scalar acc(string scalar pred, string scalar obs, string scalar touse) {
 
 // Defines a function to compute "balanced" accuracy.  
 // See https://yardstick.tidymodels.org/reference/bal_accuracy.html for more info
-real scalar bacc(string scalar pred, string scalar obs, string scalar touse) {
+real scalar bacc(string scalar pred, string scalar obs, string scalar touse, ///   
+					| transmorphic matrix opts) {
 	
 	// Declares a scalar to store the resulting metric, sensitivity, 
 	// specificity, and prevalence (used to compute the metric)
@@ -541,7 +554,8 @@ real scalar bacc(string scalar pred, string scalar obs, string scalar touse) {
 
 // Defines function to compute the F1 statistic
 // Based on second equation here: https://www.v7labs.com/blog/f1-score-guide
-real scalar f1(string scalar pred, string scalar obs, string scalar touse) {
+real scalar f1(string scalar pred, string scalar obs, string scalar touse,   ///   
+					| transmorphic matrix opts) {
 	
 	// Declares a scalar to store the resulting metric, precision, and recall
 	real scalar result, prec, rec
@@ -562,7 +576,8 @@ real scalar f1(string scalar pred, string scalar obs, string scalar touse) {
 
 // Defines J-index (Youden's J statistic)
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-j_index.R
-real scalar jindex(string scalar pred, string scalar obs, string scalar touse) {
+real scalar jindex(string scalar pred, string scalar obs, 					 ///   
+				   string scalar touse, | transmorphic matrix opts) {
 
 	// Return the micro averaged detection prevalence
 	return(sens(pred, obs, touse) + spec(pred, obs, touse) - 1)
@@ -570,7 +585,8 @@ real scalar jindex(string scalar pred, string scalar obs, string scalar touse) {
 } // End of function definition for j-index
 
 // Defines a binary R^2 (tetrachoric correlation)
-real scalar binr2(string scalar pred, string scalar obs, string scalar touse) {
+real scalar binr2(string scalar pred, string scalar obs, string scalar touse, ///   
+					| transmorphic matrix opts) {
 
 	// Call the tetrachoric command in Stata
 	stata("cap: qui: tetrachoric " + pred + " " + obs + " if " + touse + ", ed")
@@ -582,7 +598,8 @@ real scalar binr2(string scalar pred, string scalar obs, string scalar touse) {
 
 // Defines Matthews correlation coefficient
 // based on: https://en.wikipedia.org/wiki/Phi_coefficient#Multiclass_case
-real scalar mcc(string scalar pred, string scalar obs, string scalar touse) {
+real scalar mcc(string scalar pred, string scalar obs, string scalar touse,  ///   
+					| transmorphic matrix opts) {
 		
 	// Creates the struct that gets returned
 	struct Crosstab scalar c
@@ -651,7 +668,8 @@ mata:
 
 // Defines multiclass specificity
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-spec.R
-real scalar mcspec(string scalar pred, string scalar obs, string scalar touse) {
+real scalar mcspec(string scalar pred, string scalar obs, 					 ///   
+				   string scalar touse, | transmorphic matrix opts) {
 	
 	// Creates the struct that gets returned
 	struct Crosstab scalar c
@@ -692,7 +710,8 @@ real scalar mcspec(string scalar pred, string scalar obs, string scalar touse) {
 
 // Defines multiclass sensitivity
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-sens.R
-real scalar mcsens(string scalar pred, string scalar obs, string scalar touse) {
+real scalar mcsens(string scalar pred, string scalar obs, 					 ///   
+				   string scalar touse, | transmorphic matrix opts) {
 	
 	// Creates the struct that gets returned
 	struct Crosstab scalar c
@@ -707,7 +726,8 @@ real scalar mcsens(string scalar pred, string scalar obs, string scalar touse) {
 
 // Defines multiclass recall
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-recall.R
-real scalar mcrecall(string scalar pred, string scalar obs, string scalar touse) {
+real scalar mcrecall(string scalar pred, string scalar obs, 				 ///   
+					 string scalar touse, | transmorphic matrix opts) {
 	
 	// Return the micro averaged recall
 	return(mcsens(pred, obs, touse))
@@ -716,7 +736,8 @@ real scalar mcrecall(string scalar pred, string scalar obs, string scalar touse)
 
 // Defines multiclass precision
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-precision.R
-real scalar mcprec(string scalar pred, string scalar obs, string scalar touse) {
+real scalar mcprec(string scalar pred, string scalar obs, 					 ///   
+				   string scalar touse, | transmorphic matrix opts) {
 	
 	// Creates the struct that gets returned
 	struct Crosstab scalar c
@@ -731,7 +752,8 @@ real scalar mcprec(string scalar pred, string scalar obs, string scalar touse) {
 
 // Defines multiclass positive predictive value
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-ppv.R
-real scalar mcppv(string scalar pred, string scalar obs, string scalar touse) {
+real scalar mcppv(string scalar pred, string scalar obs, string scalar touse, ///   
+					| transmorphic matrix opts) {
 	
 	// Return the micro averaged PPV
 	// Lines 176-178 indicate that multiclass PPV should be equal to precision 
@@ -744,7 +766,8 @@ real scalar mcppv(string scalar pred, string scalar obs, string scalar touse) {
 
 // Defines multiclass negative predictive value
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-npv.R
-real scalar mcnpv(string scalar pred, string scalar obs, string scalar touse) {
+real scalar mcnpv(string scalar pred, string scalar obs, string scalar touse, ///   
+					| transmorphic matrix opts) {
 	
 	// Creates the struct that gets returned
 	struct Crosstab scalar c
@@ -788,7 +811,8 @@ real scalar mcnpv(string scalar pred, string scalar obs, string scalar touse) {
 
 // Defines multiclass F1 statistic
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-f_meas.R
-real scalar mcf1(string scalar pred, string scalar obs, string scalar touse) {
+real scalar mcf1(string scalar pred, string scalar obs, string scalar touse, ///   
+					| transmorphic matrix opts) {
 	
 	// Declares scalars to store intermediate results
 	real scalar prec, sens
@@ -806,7 +830,8 @@ real scalar mcf1(string scalar pred, string scalar obs, string scalar touse) {
 
 // Defines multiclass Detection Prevalence
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-detection_prevalence.R
-real scalar mcdetect(string scalar pred, string scalar obs, string scalar touse) {
+real scalar mcdetect(string scalar pred, string scalar obs, 				 ///   
+					 string scalar touse, | transmorphic matrix opts) {
 	
 	// Creates the struct that gets returned
 	struct Crosstab scalar c
@@ -821,7 +846,8 @@ real scalar mcdetect(string scalar pred, string scalar obs, string scalar touse)
 
 // Defines multiclass J-index (Youden's J statistic)
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-j_index.R
-real scalar mcjindex(string scalar pred, string scalar obs, string scalar touse) {
+real scalar mcjindex(string scalar pred, string scalar obs, 				 ///   
+					 string scalar touse, | transmorphic matrix opts) {
 
 	// Return the micro averaged detection prevalence
 	return(mcsens(pred, obs, touse) + mcspec(pred, obs, touse) - 1)
@@ -830,7 +856,8 @@ real scalar mcjindex(string scalar pred, string scalar obs, string scalar touse)
 
 // Defines multiclass accuracy
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-accuracy.R
-real scalar mcacc(string scalar pred, string scalar obs, string scalar touse) {
+real scalar mcacc(string scalar pred, string scalar obs, string scalar touse, ///   
+					| transmorphic matrix opts) {
 	
 	// Return the accuracy
 	return(acc(pred, obs, touse))
@@ -839,7 +866,8 @@ real scalar mcacc(string scalar pred, string scalar obs, string scalar touse) {
 
 // Defines multiclass Balanced Accuracy
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-bal_accuracy.R
-real scalar mcbacc(string scalar pred, string scalar obs, string scalar touse) {
+real scalar mcbacc(string scalar pred, string scalar obs, 					 ///   
+				   string scalar touse, | transmorphic matrix opts) {
 	
 	// Declares scalars to store the intermediate results
 	real scalar rec, sens
@@ -858,7 +886,8 @@ real scalar mcbacc(string scalar pred, string scalar obs, string scalar touse) {
 // Defines multiclass Kappa
 // similar to accuracy, but normalized by accuracy expected by random chance
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/class-kap.R
-real scalar mckappa(string scalar pred, string scalar obs, string scalar touse) {
+real scalar mckappa(string scalar pred, string scalar obs, 					 ///   
+					string scalar touse, | transmorphic matrix opts) {
 	
 	// Creates the struct that gets returned
 	struct Crosstab scalar c
@@ -888,7 +917,8 @@ real scalar mckappa(string scalar pred, string scalar obs, string scalar touse) 
 
 // Defines multiclass Mathews correlation coefficient
 // based on: https://github.com/tidymodels/yardstick/blob/main/src/mcc-multiclass.c
-real scalar mcmcc(string scalar pred, string scalar obs, string scalar touse) {
+real scalar mcmcc(string scalar pred, string scalar obs, string scalar touse, ///   
+					| transmorphic matrix opts) {
 	
 	// Call the other implementation
 	return(mcc(pred, obs, touse))
@@ -896,7 +926,8 @@ real scalar mcmcc(string scalar pred, string scalar obs, string scalar touse) {
 } // End of function definition for multiclass MCC
 
 // Defines a multiclass R^2 (polychoric correlation)
-real scalar mcordr2(string scalar pred, string scalar obs, string scalar touse) {
+real scalar mcordr2(string scalar pred, string scalar obs, 					 ///   
+					string scalar touse, | transmorphic matrix opts) {
 
 	// Call the tetrachoric command in Stata
 	stata("cap: qui: polychoric " + pred + " " + obs + " if " + touse)
@@ -921,7 +952,8 @@ mata:
 
 // Defines function to compute mean squared error from predicted and observed 
 // outcomes
-real scalar mse(string scalar pred, string scalar obs, string scalar touse) {
+real scalar mse(string scalar pred, string scalar obs, string scalar touse,  ///   
+					| transmorphic matrix opts) {
 	
 	// Column vector to store the squared difference of pred - obs
 	real colvector sqdiff
@@ -942,7 +974,8 @@ real scalar mse(string scalar pred, string scalar obs, string scalar touse) {
 
 // Defines function to compute mean absolute error from predicted and observed 
 // outcomes
-real scalar mae(string scalar pred, string scalar obs, string scalar touse) {
+real scalar mae(string scalar pred, string scalar obs, string scalar touse,  ///   
+					| transmorphic matrix opts) {
 	
 	// Column vector to store the absolute difference of pred - obs
 	real colvector absdiff
@@ -963,7 +996,8 @@ real scalar mae(string scalar pred, string scalar obs, string scalar touse) {
 
 // Metric based on definition here:
 // https://developer.nvidia.com/blog/a-comprehensive-overview-of-regression-evaluation-metrics/
-real scalar bias(string scalar pred, string scalar obs, string scalar touse) {
+real scalar bias(string scalar pred, string scalar obs, string scalar touse, ///   
+					| transmorphic matrix opts) {
 	
 	// Returns the sum of residuals
 	return(sum(st_data(., obs, touse) - st_data(., pred, touse)))
@@ -972,7 +1006,8 @@ real scalar bias(string scalar pred, string scalar obs, string scalar touse) {
 
 // Metric based on definition here:
 // https://developer.nvidia.com/blog/a-comprehensive-overview-of-regression-evaluation-metrics/
-real scalar mbe(string scalar pred, string scalar obs, string scalar touse) {
+real scalar mbe(string scalar pred, string scalar obs, string scalar touse,  ///   
+					| transmorphic matrix opts) {
 	
 	// Returns the sum of residuals
 	return(sum(st_data(., obs, touse) - st_data(., pred, touse)) /			 ///   
@@ -982,7 +1017,8 @@ real scalar mbe(string scalar pred, string scalar obs, string scalar touse) {
 
 // Metric based on definition here:
 // https://github.com/tidymodels/yardstick/blob/main/R/num-rsq.R
-real scalar r2(string scalar pred, string scalar obs, string scalar touse) {
+real scalar r2(string scalar pred, string scalar obs, string scalar touse,   ///   
+					| transmorphic matrix opts) {
 	
 	// Returns the correlation between the predicted and observed variable
 	return(corr(variance((st_data(., pred, touse), ///   
@@ -991,7 +1027,8 @@ real scalar r2(string scalar pred, string scalar obs, string scalar touse) {
 } // End of function definition for R^2
 
 // Creates function for root mean squared error
-real scalar rmse(string scalar pred, string scalar obs, string scalar touse) {
+real scalar rmse(string scalar pred, string scalar obs, string scalar touse, ///   
+					| transmorphic matrix opts) {
 
 	// Returns the square root of the mean squared error
 	return(sqrt(mse(pred, obs, touse)))
@@ -1000,7 +1037,8 @@ real scalar rmse(string scalar pred, string scalar obs, string scalar touse) {
 
 // Metric based on definition of mean absolute percentage error here:
 // https://developer.nvidia.com/blog/a-comprehensive-overview-of-regression-evaluation-metrics/
-real scalar mape(string scalar pred, string scalar obs, string scalar touse) {
+real scalar mape(string scalar pred, string scalar obs, string scalar touse, ///   
+					| transmorphic matrix opts) {
 
 	// Allocates a column vector to store the differences
 	real colvector diff
@@ -1017,7 +1055,8 @@ real scalar mape(string scalar pred, string scalar obs, string scalar touse) {
 
 // Metric based on definition of symmetric mean absolute percentage error here:
 // https://github.com/tidymodels/yardstick/blob/main/R/num-smape.R
-real scalar smape(string scalar pred, string scalar obs, string scalar touse) {
+real scalar smape(string scalar pred, string scalar obs, string scalar touse, ///   
+					| transmorphic matrix opts) {
 
 	// Allocates a column vector to store the differences
 	real colvector num, denom
@@ -1038,7 +1077,8 @@ real scalar smape(string scalar pred, string scalar obs, string scalar touse) {
 // Defines function to compute mean squared log error from predicted and observed 
 // outcomes.  Based on definition here:
 // https://developer.nvidia.com/blog/a-comprehensive-overview-of-regression-evaluation-metrics/
-real scalar msle(string scalar pred, string scalar obs, string scalar touse) {
+real scalar msle(string scalar pred, string scalar obs, string scalar touse, ///   
+					| transmorphic matrix opts) {
 	
 	// Column vector to store the squared difference of pred - obs
 	real colvector sqdiff
@@ -1060,7 +1100,8 @@ real scalar msle(string scalar pred, string scalar obs, string scalar touse) {
 // Defines function to compute the root mean squared log error.  Based on 
 // definition here:
 // https://developer.nvidia.com/blog/a-comprehensive-overview-of-regression-evaluation-metrics/
-real scalar rmsle(string scalar pred, string scalar obs, string scalar touse) {
+real scalar rmsle(string scalar pred, string scalar obs, string scalar touse, ///   
+					| transmorphic matrix opts) {
 
 	// Returns the square root of the mean squared log error
 	return(sqrt(msle(pred, obs, touse)))
@@ -1069,7 +1110,8 @@ real scalar rmsle(string scalar pred, string scalar obs, string scalar touse) {
 
 // Defines function for the ratio of performance to deviation
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/num-rpd.R
-real scalar rpd(string scalar pred, string scalar obs, string scalar touse) {
+real scalar rpd(string scalar pred, string scalar obs, string scalar touse,  ///   
+					| transmorphic matrix opts) {
 	
 	// Returns the ratio of the SD of predicted to the RMSE
 	return(sqrt(variance(st_data(., pred, touse))) / rmse(pred, obs, touse))
@@ -1078,7 +1120,8 @@ real scalar rpd(string scalar pred, string scalar obs, string scalar touse) {
 
 // Defines function for the Index of ideality of correlation
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/num-iic.R
-real scalar iic(string scalar pred, string scalar obs, string scalar touse) {
+real scalar iic(string scalar pred, string scalar obs, string scalar touse,  ///   
+					| transmorphic matrix opts) {
 	
 	// Declares some columnvectors
 	real colvector neg, pos, delta
@@ -1111,7 +1154,8 @@ real scalar iic(string scalar pred, string scalar obs, string scalar touse) {
 
 // Defines function for the Concordance Correlation Coefficient
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/num-ccc.R
-real scalar ccc(string scalar pred, string scalar obs, string scalar touse) {
+real scalar ccc(string scalar pred, string scalar obs, string scalar touse,  ///   
+					| transmorphic matrix opts) {
 	
 	// Declares scalars needed
 	real scalar mupred, muobs, varpred, varobs, cov
@@ -1138,7 +1182,8 @@ real scalar ccc(string scalar pred, string scalar obs, string scalar touse) {
 
 // Defines function for Pseudo-Huber Loss
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/num-pseudo_huber_loss.R
-real scalar phl(string scalar pred, string scalar obs, string scalar touse) {
+real scalar phl(string scalar pred, string scalar obs, string scalar touse,  ///   
+					| transmorphic matrix opts) {
 	
 	// Declares a column vector to store the errors
 	real colvector a
@@ -1153,7 +1198,8 @@ real scalar phl(string scalar pred, string scalar obs, string scalar touse) {
 
 // Defines function for Huber Loss
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/num-huber_loss.R
-real scalar huber(string scalar pred, string scalar obs, string scalar touse) {
+real scalar huber(string scalar pred, string scalar obs, string scalar touse, ///   
+					| transmorphic matrix opts) {
 	
 	// Declares a column vector to store the errors and absolute errors
 	real colvector a, absa 
@@ -1172,7 +1218,8 @@ real scalar huber(string scalar pred, string scalar obs, string scalar touse) {
 
 // Defines function for Poisson Log Loss
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/num-poisson_log_loss.R
-real scalar pll(string scalar pred, string scalar obs, string scalar touse) {
+real scalar pll(string scalar pred, string scalar obs, string scalar touse,  ///   
+					| transmorphic matrix opts) {
 	
 	// Returns the mean of the negative log poisson density
 	return(mean(-dpois(st_data(., obs, touse), st_data(., pred, touse), 1)))
@@ -1181,7 +1228,8 @@ real scalar pll(string scalar pred, string scalar obs, string scalar touse) {
 
 // Defines function for ratio of performance to interquartile range
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/num-rpiq.R
-real scalar rpiq(string scalar pred, string scalar obs, string scalar touse) {
+real scalar rpiq(string scalar pred, string scalar obs, string scalar touse, ///   
+					| transmorphic matrix opts) {
 
 	// Declares scalar to store the iqr
 	real scalar iqr
@@ -1199,7 +1247,8 @@ real scalar rpiq(string scalar pred, string scalar obs, string scalar touse) {
 
 // Defines function for "Traditional" R^2
 // based on: https://github.com/tidymodels/yardstick/blob/main/R/num-rsq_trad.R
-real scalar r2ss(string scalar pred, string scalar obs, string scalar touse) {
+real scalar r2ss(string scalar pred, string scalar obs, string scalar touse, ///   
+					| transmorphic matrix opts) {
 	
 	// Declares a scalar to store the mean of the observed values
 	real scalar mu

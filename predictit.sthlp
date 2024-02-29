@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.3 23feb2024}{...}
+{* *! version 0.0.4 29feb2024}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat_classification"}{...}
 {vieweralsosee "" "--"}{...}
 {viewerjumpto "Syntax" "predictit##syntax"}{...}
@@ -8,6 +8,7 @@
 {viewerjumpto "Examples" "predictit##examples"}{...}
 {viewerjumpto "Additional Information" "predictit##additional"}{...}
 {viewerjumpto "Contact" "predictit##contact"}{...}
+{title:Generating and Managing Model Predictions for Cross-Validation in Stata}
 
 {marker syntax}{...}
 {title:Syntax}

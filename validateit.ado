@@ -404,8 +404,11 @@ prog def getstats, rclass
 		// Get the name of the function for monitoring
 		loc monnm : word `i' of `monitors'
 		
+		// Get any arguments passed to the monitor
+		mata: getargs("`monnm'", "mnopt")
+		
 		// Call the mata function
-		mata: `sto'[`i', 1] = `monnm'("`pstub'", "`obs'", "`touse'")
+		mata: `sto'[`i', 1] = `monnm'("`pstub'", "`obs'", "`touse'", `mnopt')
 		
 		// Creates a Stata scalar with the appropriate value
 		mata: st_numscalar("`monnm'`sfx'", `sto'[`i', 1])
@@ -418,8 +421,11 @@ prog def getstats, rclass
 		
 	} // End loop over monitors
 	
+	// Get any arguments passed to the metric
+	mata: getargs("`metric'", "meopt")
+	
 	// Call the mata function for the metric
-	mata: `sto'[`m', 1] = `metric'("`pstub'", "`obs'", "`touse'")
+	mata: `sto'[`m', 1] = `metric'("`pstub'", "`obs'", "`touse'", `meopt')
 	
 	// Push the value into a scalar
 	mata: st_numscalar("`metric'sc", `sto'[`m', 1])

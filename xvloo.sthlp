@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.3 28feb2024}{...}
+{* *! version 0.0.4 29feb2024}{...}
 {vieweralsosee "[R] predict" "mansection R predict"}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat_classification"}{...}
 {vieweralsosee "[P] creturn" "mansection P creturn"}{...}
@@ -22,6 +22,7 @@
 {viewerjumpto "Returned Values" "xv##looretvals"}{...}
 {viewerjumpto "Additional Information" "xvloo##additional"}{...}
 {viewerjumpto "Contact" "xvloo##contact"}{...}
+{title:Leave-One-Out Cross-Validation in Stata}
 
 {marker syntax}{...}
 {title:Syntax}

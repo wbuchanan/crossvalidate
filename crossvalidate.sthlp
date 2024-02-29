@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.1 17feb2024}{...}
+{* *! version 0.0.2 29feb2024}{...}
 {vieweralsosee "[R] predict" "mansection R predict"}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat_classification"}{...}
 {vieweralsosee "[P] creturn" "mansection P creturn"}{...}
@@ -8,9 +8,9 @@
 {viewerjumpto "Commands" "crossvalidate##cmds"}{...}
 {viewerjumpto "Additional Information" "crossvalidate##additional"}{...}
 {viewerjumpto "Contact" "crossvalidate##contact"}{...}
+{title:Cross-Validation in Stata}
 
-{marker overview}
-{title:Overview}
+{marker overview}{title:Overview}
 
 {pstd}
 The crossvalidate package includes several commands and a Mata library that 
@@ -27,25 +27,24 @@ This help file provides an overview of the commands included in the crossvalidat
 package.  We leave detailed information to the documentation for each of the 
 individual commands.
 
-{marker cmds}
-{title:Commands}
+{marker cmds}{title:Commands}
 
 {synoptset 15 tabbed}{...}
 {synoptline}
 {synopthdr:Command Name}
 {synoptline}
 {syntab:Prefix Commands}
-{synopt :{opt xv}}Cross-Validation{p_end}
-{synopt :{opt xvloo}}Leave-One-Out Cross-Validation{p_end}
+{synopt :{opt {help xv}}}Cross-Validation{p_end}
+{synopt :{opt {help xvloo}}}Leave-One-Out Cross-Validation{p_end}
 {syntab:Lower Level Commands}
-{synopt :{opt splitit}}Splits the dataset into train/test or train/validation/test splits{p_end}
-{synopt :{opt fitit}}Calls the estimation command on the appropriate split{p_end}
-{synopt :{opt predictit}}Predicts the outcome on the appropriate split{p_end}
-{synopt :{opt validateit}}Computes {p_end}
+{synopt :{opt {help splitit}}}Splits the dataset into train/test or train/validation/test splits{p_end}
+{synopt :{opt {help fitit}}}Calls the estimation command on the appropriate split{p_end}
+{synopt :{opt {help predictit}}}Predicts the outcome on the appropriate split{p_end}
+{synopt :{opt {help validateit}}}Computes {p_end}
 {syntab:Utility Commands}
-{synopt :{opt classify}}Used to manage {p_end}
-{synopt :{opt cmdmod}}Used for metaprogramming tasks in commands above{p_end}
-{synopt :{opt state}}Retrieves current settings and binds to the dataset{p_end}
+{synopt :{opt {help classify}}}Used to manage {p_end}
+{synopt :{opt {help cmdmod}}}Used for metaprogramming tasks in commands above{p_end}
+{synopt :{opt {help state}}}Retrieves current settings and binds to the dataset{p_end}
 {synoptline}
 
 {dlgtab:Prefix Commands}
