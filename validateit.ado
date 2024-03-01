@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! validateit
-*! v 0.0.14
-*! 28FEB2024
+*! v 0.0.15
+*! 01mar2024
 
 // Drop program from memory if already loaded
 cap prog drop validateit
@@ -95,8 +95,11 @@ prog def validateit, rclass
 		
 	} // End IF Block for detecting missing `pstub'all w/K-Fold and missing noall
 	
+	// Parse the metric option
+	_parse_monitors `metric'
+	
 	// Verify that there is only a single metric
-	if `: word count `metric'' > 1 {
+	if `r(n)' > 1 {
 		
 		// Display an error message
 		di as err "Users can only specify a single metric."
@@ -179,7 +182,7 @@ prog def validateit, rclass
 		matrix res = r(mtrx) 
 		
 		// Set the rownames 
-		mat rownames res = `monitors' `metric'
+		mat rownames res = `r(names)'
 		
 		// Set the column name
 		mat colnames res = "`ditxt'"
@@ -260,7 +263,7 @@ prog def validateit, rclass
 		} // End Loop over K-Folds
 			
 		// Set rownames for the returned matrix based on the monitors/metrics
-		mat rownames res = `monitors' `metric'
+		mat rownames res = `r(names)'
 		
 		// Set the column names for the returned matrix based on the number of 
 		// K-Folds and what style of split is used
@@ -324,7 +327,7 @@ prog def validateit, rclass
 		} // End IF Block to compute metrics on the validation/test split
 		
 		// Set rownames for the returned matrix based on the monitors/metrics
-		mat rownames res = `monitors' `metric'
+		mat rownames res = `r(names)'
 		
 		// Set column names for the returned matrix based on the samples
 		mat colnames res = "Leave-One-Out" "`ditxt'"
@@ -386,8 +389,14 @@ prog def getstats, rclass
 			 Touse(string asis) STo(string asis) 							 ///   
 			[ MOnitors(string asis) SFx(string asis)]
 	
+	// Parse the monitors option
+	_parse_monitors `monitors'
+	
+	// Store the parsed monitors
+	loc monargs `"`r(mons)'"'
+	
 	// Count the words in monitors
-	loc mons : word count `monitors'
+	loc mons `r(n)'
 	
 	// Create index for matrix
 	loc m `= `mons' + 1'
@@ -395,43 +404,54 @@ prog def getstats, rclass
 	// Initialize the storage matrix in mata
 	mata: `sto' = J(`m', 1, .)
 	
-	// Create a macro with the names that get return
+	// Create a macro with the names that get returned
 	loc rnms 
 	
-	// Loop over the monitors
-	forv i = 1/`mons' {
+	// Only execute if there are monitors
+	if !mi("`mons'") & `mons' >= 1 {
 		
-		// Get the name of the function for monitoring
-		loc monnm : word `i' of `monitors'
+		// Loop over the monitors
+		forv i = 1/`mons' {
+			
+			// Get the name of the function for monitoring
+			loc mon : word `i' of `monargs'
+			
+			// Get the monitor name from the parsed string
+			mata: getname(`"`mon'"', "monnm")
+			
+			// Get any arguments passed to the monitor
+			mata: getarg(`"`mon'"', "mnopt")
+			
+			// Call the mata function
+			mata: `sto'[`i', 1] = `monnm'("`pstub'", "`obs'", "`touse'", `mnopt')
+			
+			// Creates a Stata scalar with the appropriate value
+			mata: st_numscalar("`monnm'`sfx'", `sto'[`i', 1])
+			
+			// Sets the return value for the scalar
+			return scalar `monnm'`sfx' = `= `monnm'`sfx''
+			
+			// Add this name to rnms
+			loc rnms `rnms' `monnm'`sfx'
+			
+		} // End loop over monitors
+
+	} // End IF Block to compute monitors only if requested
 		
-		// Get any arguments passed to the monitor
-		mata: getargs("`monnm'", "mnopt")
-		
-		// Call the mata function
-		mata: `sto'[`i', 1] = `monnm'("`pstub'", "`obs'", "`touse'", `mnopt')
-		
-		// Creates a Stata scalar with the appropriate value
-		mata: st_numscalar("`monnm'`sfx'", `sto'[`i', 1])
-		
-		// Sets the return value for the scalar
-		return scalar `monnm'`sfx' = `= `monnm'`sfx''
-		
-		// Add this name to rnms
-		loc rnms `rnms' `monnm'`sfx'
-		
-	} // End loop over monitors
+	// Get the name of the metric (in case there are options passed to it)
+	mata: getname(`"`metric'"', "metnm")
 	
 	// Get any arguments passed to the metric
-	mata: getargs("`metric'", "meopt")
+	mata: getarg(`"`metric'"', "meopt")
 	
 	// Call the mata function for the metric
-	mata: `sto'[`m', 1] = `metric'("`pstub'", "`obs'", "`touse'", `meopt')
+	mata: `sto'[`m', 1] = `metnm'("`pstub'", "`obs'", "`touse'", `meopt')
 	
 	// Push the value into a scalar
-	mata: st_numscalar("`metric'sc", `sto'[`m', 1])
+	mata: st_numscalar("`metnm'sc", `sto'[`m', 1])
 	
 	// Sets the return value for the scalar
-	return scalar metric`sfx' = `= `metric'sc'
+	return scalar metric`sfx' = `= `metnm'sc'
 	
 	// Add this name to rnms
 	loc rnms `rnms' metric`sfx'
@@ -448,5 +468,53 @@ prog def getstats, rclass
 // End of subroutine to compute the statistics			
 end
 
+// Define subroutine to handle parsing of monitors option
+prog def _parse_monitors, rclass
 
+	// Define syntax
+	syntax [anything(name = monitors id = "Options passed to monitors")]
+	
+	// If there are no options passed to monitors return an empty string
+	if mi(`"`monitors'"') {
+		
+		// Return an empty string for the monitors
+		ret loc mons = ""
+		
+		// Return a value of 0 for the number of monitors
+		ret loc n = 0
+		
+	} // End IF Block for no monitors
 
+	// Otherwise if monitors is not empty
+	else {
+		
+		// Parse the contents initially
+		gettoken 1 2 : monitors, bind
+		
+		// Store the first argument in the macro that will be used to return 
+		// all the arguments
+		loc args `"`args' `"`1'"' "'
+		
+		// Continue to parse the remainder of the string 
+		while !mi(`"`2'"') {
+			
+			// Parse the next token from the remaining portion of the macro
+			gettoken 1 2 : 2, bind
+			
+			// Add the next token to the parsed and quoted tokens
+			loc args `"`args' `"`1'"' "'
+			
+		} // End of WHILE loop to parse monitor arguments
+		
+		// Get the number of arguments parsed 
+		ret loc n = `"`: word count `args''"'
+		
+		// Return the parsed monitor options
+		ret loc mons = `"`args'"'
+		
+	} // End ELSE Block for optional arguments to monitors
+	
+// End of subroutine definition
+end
+
+	

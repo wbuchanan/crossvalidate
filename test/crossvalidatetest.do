@@ -6,5 +6,5 @@ do test/splitittests.do
 do test/fitittests.do
 do test/predictittests.do
 do test/validateittests.do
-// do test/xvtests.do
-// do test/xvlootests.do
+do test/xvtests.do
+do test/xvlootests.do

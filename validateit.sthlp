@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.9 29feb2024}{...}
+{* *! version 0.0.10 01mar2024}{...}
 {viewerjumpto "Syntax" "validateit##syntax"}{...}
 {viewerjumpto "Description" "validateit##description"}{...}
 {viewerjumpto "Options" "validateit##options"}{...}
@@ -89,8 +89,8 @@ the options for use in the function.  For example, this might look like:
 {opt monitors(mse(("yes", "1")) mae((1, 2 \ 3, 4)))}.
 
 {phang}
-{opt dis:play} an option to display the metric and monitor values in the results 
-window.
+{opt dis:play} is an option to display the metric and monitor values in the 
+results window.
 
 {phang}
 {opt k:fold} defines the number of K-Folds used for the training set.  When the 
@@ -123,7 +123,9 @@ option.  {it:Note:} this only affects users using Stata 17 or later.
 
 {pstd}
 Users may define their own validation metrics to be used by {cmd:validateit}.  
-All metrics and monitors are required to use the same function signature:
+The name of the function must conform with standard Stata naming conventions 
+that allow alphanumeric characters and underscores only.  Additionally, all 
+functions are required to use the same function signature:
 
 {p 12 12 2}{cmd:{it:real scalar metricName(string scalar pred, string scalar obs, string scalar touse, | transmorphic matrix opts)}}{p_end}
 

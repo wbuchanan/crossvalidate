@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! xv
-*! v 0.0.6
-*! 29FEB2023
+*! v 0.0.7
+*! 01mar2024
 
 // Drop program from memory if already loaded
 cap prog drop xv
@@ -21,6 +21,12 @@ prog def xv, eclass properties(prefix xv)
 	// Set the prefix name for Stata to recognize it
 	set prefix xv
 	
+	// Check to see if mata library is compiled
+	cap: findfile libxv.mlib
+	
+	// call libxv in case mata library requires recompilation
+	if _rc != 0 qui: libxv
+		
 	// Allocate a tempvars for the unique identifier variable and for other 
 	// options to use a default
 	tempvar uuid xvtouse xvpred xvsplit

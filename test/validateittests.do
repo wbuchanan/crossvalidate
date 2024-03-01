@@ -57,6 +57,17 @@ assert mi("`r(mse)'")
 // Ensure that there is a scalar with a value named metric
 assert !mi(`r(metric)')
 
+// Test the use of options passed to metric and monitor functions
+validateit, me(mse((1, 2))) ps(pred) mo(rmse(("yes")) mae((1, 2 \ 3, 4))) 	 ///   
+split(splitvar) o(price)
+
+// Ensure that the returned scalar for the metric alone is not contained in a 
+// samenamed scalar
+assert mi("`r(mse)'")
+
+// Ensure that there is a scalar with a value named metric
+assert !mi(`r(metric)')
+
 // drop the predicted variable and start fresh
 drop pred
 

@@ -9,7 +9,11 @@ d the cross-validation process, the commands -splitit-, -fitit-, -predictit-, &
 d -validateit- implement each phase of cross-validation discretely.  There are 
 d also several utility commands included as well.  Lastly, the included Mata 
 d library contains over 40 different evaluation functions covering binary and 
-d multi-class classification models and continuous outcome models.
+d multi-class classification models and continuous outcome models.  If you only 
+d intend to use the -xv- and -xvloo- prefix commands, they should work without 
+d any further steps.  If, however, you wish to use the lower-level commands, you 
+d will need to call the libxv command first to compile the Mata library on your 
+d machine.
 d
 d KW: cross-validation
 d KW: k-fold
@@ -20,7 +24,7 @@ d KW: evaluation
 d
 d Requires: Stata version 15
 d
-d Distribution-Date: 20240229
+d Distribution-Date: 20240301
 d
 d Author: Billy Buchanan, Ph.D.
 d         Sr. Research Scientist, SAG Corporation
@@ -38,7 +42,7 @@ f cmdmod.ado
 f cmdmod.sthlp
 f fitit.ado
 f fitit.sthlp
-f libxv.mlib
+f libxv.ado
 f libxv.sthlp
 f predictit.ado
 f predictit.sthlp

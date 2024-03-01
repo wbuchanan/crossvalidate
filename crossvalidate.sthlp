@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.2 29feb2024}{...}
+{* *! version 0.0.3 01mar2024}{...}
 {vieweralsosee "[R] predict" "mansection R predict"}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat_classification"}{...}
 {vieweralsosee "[P] creturn" "mansection P creturn"}{...}
@@ -21,6 +21,17 @@ needs.  On what we believe will be uncommon or rare occassions, a user made need
 a bit more control over the process.  In those cases, the lower level commands 
 provide a way for users to avoid programming the entire cross-validation process 
 while retaining the benefits that these commands provide.
+
+{pstd}
+{bf:IMPORTANT!!!} If you intend to only use the lower-level commands, you will 
+need to call {help libxv} first.  This compiles the Mata source code into libxv 
+on your machine.  If you are using either of the prefix commands {help xv} or 
+{help xvloo}, they will handle this step for you.  However, if you intend to use 
+metric functions that you have defined prior to {help libxv} compiling the mata 
+library, you should call {help libxv}, then define your function, and then call 
+{help xv} or {help xvloo}.  Prior to compiling {help libxv}, the contents of 
+Mata are cleared to ensure that {help libxv} only contains the functions that 
+should be included in the library.
 
 {pstd}
 This help file provides an overview of the commands included in the crossvalidate 

@@ -1,3 +1,4 @@
+*! 01mar2024
 /*******************************************************************************
 *                                                                              *
 *                    Mata library for -crossvalidate- package                  *
@@ -141,13 +142,31 @@ void function getarg(string scalar param, | string scalar rname) {
 	// removes the closing parenthesis with subinstr
 	retval = ustrregexrf(ustrregexrf(param, "[a-z]+\(", ""), "\)", "")
 		
-	// If the parameter doesn't include any parentheses just return it as is
-	if (ustrregexm(param, "[\(\)]") == 0) st_local(retnm, param)
+	// If the parameter doesn't include any parentheses return an empty string
+	if (ustrregexm(param, "[\(\)]") == 0) st_local(retnm, "")
 	
 	// Returns the argument value in a local macro
 	else st_local(retnm, retval)
 	
 } // End of function definition to get argument value from a parameter
+
+// Defines a function to retrieve the metric name to support passing optional 
+// arguments to metrics/monitors
+void function getname(string scalar fname, | string scalar rname) {
+	
+	// Declares string scalar to store the return name
+	string scalar retnm
+	
+	// Test if a return name was passed
+	retnm = (rname == "" ? "fnm" : rname)
+
+	// If a valid function name is used, this should return the function name
+	if (ustrregexm(fname, "\s*([a-zA-Z0-9_]+).*")) st_local(retnm, ustrregexs(1))
+	
+	// Otherwise, return a blank string
+	else st_local(retnm, "")
+	
+} // End of function definition to get function name for monitors/metrics
 
 // Defines a struct object to store a richer representation of the data used for
 // classification metrics
@@ -297,6 +316,37 @@ real scalar isnested(string scalar varnms, string scalar touse) {
 	return(rows(df) == rows(uniqrows(df[., vars])) ? 1 : 0)
 	
 } // End definition of function to check the nesting of variables
+
+// Defines a function to retrieve the distribution date from the file passed to 
+// the function.
+string scalar distdate(string scalar fname) {
+	
+	// Declares a scalar to store the file handle
+	real scalar fh
+	
+	// Declares a scalar to store the contents of a single line of the file
+	string scalar line
+	
+	// Opens a connection to the file passed as a parameter
+	fh = fopen(fname, "r")
+	
+	// Loops over the lines of the file from start to end
+	while ((line = fget(fh)) != J(0, 0, "")) {
+		
+		// Tests if this is the line that has the distro date
+		if (ustrregexm(line, "^\*!\s([0-9]{1,2}[a-z]{3}[0-9]{4})")) {
+			
+			// Closes the connection to the file
+			fclose(fh)
+
+			// Returns the distrodate
+			return(ustrregexs(1))
+		
+		} // End IF Block to find the star bang with the distrodate
+		
+	} // End of loop over the source code file
+	
+} // End of function definition to retrieve distribution date	
 
 // Create a function to implement the Poisson density function
 real colvector dpois(real colvector events, real colvector means, | 		 ///   

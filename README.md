@@ -61,11 +61,15 @@ collections for Stata >= 17 and modify help files related to collections.
 work in Stata 15
 - [x] Update function signature to provide support for optional arguments
 - [x] Compile Mata library in Stata 15
+- [x] Update subroutine in `validateit` to make sure that optional arguments 
+used for `monitors` are parsed correctly; use `gettoken` with the bind option
 - [ ] Standardize language in help files
 - [ ] Finish writing test cases for Mata functions
 - [ ] Finish writing test cases for ADO commands
 - [ ] Update the syntax information in the README to match the current state of 
 the commands
+- [x] Figure out a reasonable way to handle compiling the Mata library on the 
+client/user side.
 - [x] Add a name option to `fitit` and `validateit` to allow users to name the 
 collections used
 - [x] Add `fitnm` and `valnm` options to prefix commands to allow users to 

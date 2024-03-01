@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! xvloo
-*! v 0.0.8
-*! 29FEB2023
+*! v 0.0.9
+*! 01mar2024
 
 // Drop program from memory if already loaded
 cap prog drop xvloo
@@ -18,12 +18,14 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 	// Stata version statement, can check for backwards compatibility later
 	version 15
 	
-	// Add handling of case where splitvariable is present so splitit does not 
-	// get called again (basically to skip the splitting phase and use the 
-	// existing splits)
-	
 	// Set the prefix name for Stata to recognize it
 	set prefix xvloo
+	
+	// Check to see if mata library is compiled
+	cap: findfile libxv.mlib
+	
+	// call libxv in case mata library requires recompilation
+	if _rc != 0 qui: libxv
 	
 	// Allocate a tempvars for the unique identifier variable and for other 
 	// options to use a default

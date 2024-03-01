@@ -1,9 +1,12 @@
 {smcl}
-{* *! version 0.0.4 28feb2024}{...}
+{* *! version 0.0.5 01mar2024}{...}
 {vieweralsosee "[R] predict" "mansection R predict"}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat_classification"}{...}
 {vieweralsosee "[P] creturn" "mansection P creturn"}{...}
 {vieweralsosee "" "--"}{...}
+{viewerjumpto "Syntax" "libxv##syntax"}{...}
+{viewerjumpto "Description" "libxv##description"}{...}
+{viewerjumpto "Options" "libxv##options"}{...}
 {viewerjumpto "Overview" "libxv##overview"}{...}
 {viewerjumpto "Utility Functions" "libxv##utilities"}{...}
 {viewerjumpto "Classification Metrics" "libxv##classification"}{...}
@@ -13,6 +16,64 @@
 {viewerjumpto "Custom Metrics" "libxv##custom"}{...}
 {viewerjumpto "Additional Information" "libxv##additional"}{...}
 {viewerjumpto "Contact" "libxv##contact"}{...}
+{title:}
+
+{marker syntax}{...}
+{title:Syntax}
+
+{p 8 32 2}
+{cmd:libxv} [{cmd:,} {cmdab:dis:play} ]{p_end}
+
+{synoptset 15 tabbed}{...}
+{synoptline}
+{synopthdr}
+{synoptline}
+{synopt :{opt dis:play}}display this helpfile at the completion of the ado; default is {cmd:off}{p_end}
+{synoptline}
+
+{marker description}{...}
+{title:Description}
+
+{pstd}
+The {cmd:libxv} command is used to compile, or recompile, the Mata sourcecode 
+for the Mata library included with the {help crossvalidate} package.  This 
+provides end users of {help crossvalidate} with an easy to use interface to keep 
+the compiled mata library up to date, while being able to take advantage of any 
+improvements or optimizations made to Mata since Stata 15.  Additionally, it 
+makes it easier for the authors to distribute the package by providing a way to 
+compile the library on the user's machine instead of compiling the library 
+ahead of time.
+
+{pstd}
+{bf:IMPORTANT!!!} This command will clear the contents of Mata prior to running 
+the {it:crossvalidata.mata} file and adding the functions to the Mata library 
+named libxv.  {help xv} and {help xvloo} will call this command automatically 
+if the compiled Mata library is not found.  If the compiled library does not 
+exist and you are attempting to use a custom defined metric, you should call 
+this command first, then define your custom defined metric, and then use either 
+of the {help xv} or {help xvloo} prefix commands.   
+
+{pstd}
+This will only recompile the library if it is necessary to do so.  As updates 
+are made to the source code, the command will check a date embedded in the 
+script and compare it to a hardcoded date to determine if the source code is 
+has been updated since the previous release.  Following recompilation, the 
+program will also trigger Mata to rebuild the library index to make sure it can 
+find this library and all of the other Mata libraries on your system.  
+
+{pstd}
+Additional information is provided below on the contents of the Mata library.  
+We've categorized the functions and struct definition based on their role in 
+the {help crossvalidation} package.  There are a small number of utility 
+functions and a much larger number of functions defined for model validation 
+purposes.
+
+{marker options}{...}
+{title:Options}
+
+{phang}
+{opt dis:play} is an option to display this help file at completion of the ado.
+
 {marker overview}{...}
 {title:Overview of Libxv}
 
@@ -76,12 +137,22 @@ options for {help xv} and {help xvloo} operate as {it:passthru} type options
 (see {help syntax} for additional information about passthru).  
 
 {pstd}
-{cmd:getarg} is a function used the {help xv} and {help xvloo} prefix commands 
-to extract the arguments passed to the options of those commands. It may also be 
-used in the future to expand the existing function signature for metrics to 
-allow passing optional arguments to the functions by including them as an 
-argument to the metric/monitor name (e.g., mae(1), r2("wgt"), etc...).  However, 
-work on this possible extension has not yet commenced.
+{cmd:getarg} is a function used by the {help xv} and {help xvloo} prefix 
+commands to extract the arguments passed to the options of those commands. 
+Additionally, it is used to parse arguments that will be passed to the functions 
+specified in the {opt monitors} and {opt metric} options of {help xv}, 
+{help xvloo}, and/or {help validateit}.  For additional information, see the 
+{help validateit##custom:Custom Metrics and Monitors} section of the 
+{cmd:validateit} help file. 
+
+{pstd}
+{cmd:getname} is a function used internally by the {it:getstats} subroutine of 
+the {help validateit} command.  In order to provide users the flexibility to 
+define their own customized metric/monitor functions (see 
+{help validateit##custom:Custom Metrics and Monitors} for additional info) and 
+to provide a method to pass optional arguments to these functions, we need to 
+parse the function name reference from the string that includes any possible 
+optional arguments.  This function enables that functionality.
 
 {pstd}
 {cmd:struct Crosstab} is a struct defined in {opt libxv}.  It stores the 
@@ -113,6 +184,16 @@ one another.  It takes a {help varlist} containing the variables that are nested
 ordered from the highest to lowest level of the hierarchy and a {help varname} 
 that is used to identify which observations to include in the test.  A value of 
 1 is returned if the data are nested and a value of 0 is returned otherwise. 
+
+{pstd}
+{cmd:distdate} is a function used to retrieve the distribution/version date from 
+files distributed with {help crossvalidate}.  This is used to test whether it is 
+necessary to recompile the source code for the Mata library so users can have a 
+copy of the library compiled for their version of Stata.
+
+{pstd}
+{cmd:dpois} is a porting of the {it:dpois} function from R which implements the 
+Poisson density function.
 
 {marker classification}{...}
 {title:Classification Metrics}
