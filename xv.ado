@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! xv
-*! v 0.0.7
-*! 01mar2024
+*! v 0.0.8
+*! 02mar2024
 
 // Drop program from memory if already loaded
 cap prog drop xv
@@ -25,7 +25,22 @@ prog def xv, eclass properties(prefix xv)
 	cap: findfile libxv.mlib
 	
 	// call libxv in case mata library requires recompilation
-	if _rc != 0 qui: libxv
+	if _rc != 0 {
+		
+		// Look for the sourcecode file
+		cap findfile crossvalidate.mata
+		
+		// Look for the mata function used by libxv
+		cap: mata: mata which distdate()
+		
+		// If that function is already defined in Mata, call libxv to compile 
+		// everything
+		if _rc == 0 qui: libxv
+		
+		// Otherwise run the mata file
+		else run `"`r(fn)'"'
+		
+	} // End IF Block for unfound mata library
 		
 	// Allocate a tempvars for the unique identifier variable and for other 
 	// options to use a default
@@ -42,6 +57,12 @@ prog def xv, eclass properties(prefix xv)
 
 	// Then parse the options from the remainder of the macro
 	mata: cvparse(`"`xvopts'"')
+	
+	// Get the number of folds
+	mata: getarg("`kfold'", "k")
+
+	// If missing kfold set to default
+	if mi("`k'") loc k 1
 	
 	// Test to see if replay option is invoked
 	if !mi("`replay'") {
@@ -126,10 +147,10 @@ prog def xv, eclass properties(prefix xv)
 	else loc c `argval'
 	
 	// If there is anything in the missing local throw an error message
-	if mi(`"`metric'"') | mi(`"`pred'"') {
+	if mi(`"`metric'"') | mi(`"`pstub'"') {
 		
 		// Display the error message
-		di as err `"You must supply valid arguments to metric and pred "'    ///   
+		di as err `"You must supply valid arguments to metric and pstub "'    ///   
 		`"to use the xv prefix."'
 		
 		// Throw an error code to exit
@@ -151,29 +172,34 @@ prog def xv, eclass properties(prefix xv)
 	// If missing the split option
 	if mi(`"`split'"') {
 		
-		// use the tempvar
-		loc split "split(`xvsplit')"
-
 		// Set the default split variable name
 		loc spvar _xvsplit
 		
 		// Check for default name
-		cap confirm new v _xvsplit
+		cap confirm new v `spvar'
 	
 		// If the variable already exists
 		if _rc != 0 {
 			
-			// Don't split the data again
+			// Set do split to 0 to prevent splitting again
 			loc dosplit 0
 			
-			// Change the split local to point at the default split variable
-			loc split "split(_xvsplit)"
+			// Reassign the split macro to use the existing default splitvar
+			loc split "split(`spvar')"
 			
-		} // End IF Block for existing split
+		} // End of IF Block when default split variable already exists
 		
-		// If it doesn't exist set do split to 1
-		else loc dosplit 1
+		// If it doesn't exist 
+		else {
+			
+			// Set do split to 1 to force splitting the data
+			loc dosplit 1
 
+			// And use the tempvar to assign the splits
+			loc split "split(`xvsplit')"
+			
+		} // End ELSE Block for non-existent default split variable
+		
 	} // End IF Block for the split variable name
 	
 	// If not missing the split option
@@ -192,16 +218,8 @@ prog def xv, eclass properties(prefix xv)
 		cap confirm new v `spvar'
 		
 		// If the variable already exists set the do split local to 0
-		if _rc != 0 {
+		if _rc != 0 loc dosplit 0
 			
-			// Don't split the data again
-			loc dosplit 0
-			
-			// Update the split local with the existing variable name
-			loc split `split'
-			
-		} // End IF Block for existing split variable handling
-		
 		// If it doesn't exist set do split to 1
 		else loc dosplit 1
 				
@@ -210,9 +228,9 @@ prog def xv, eclass properties(prefix xv)
 	// Parses the pstub option
 	mata: getarg("`pstub'")
 	
-	// If the user does not want to retain variables
-	if mi("`retain'") loc dropvars `spvar' `argval'*
-		
+	// Store the pstubn
+	loc prvar `argval'
+	
 	// Check to see if predict stub variable is present
 	cap confirm new v `argval'all
 	
@@ -322,17 +340,17 @@ prog def xv, eclass properties(prefix xv)
 	} // End IF Block for optional splitting
 
 	// Call the command to fit the model to the data
-	fitit `"`cmd'"', `split' `results' `kfold' `all' `display' na(`fitnm')
+	fitit `"`cmd'"', `split' `results' `kfold' `noall' `display' na(`fitnm')
 	
 	// Capture the macros that get returned
 	loc estresnames `e(estres)'
 	loc estresall `e(estresall)'
 	
 	// Predict the outcomes using the model fits
-	predictit, `pstub' `split' `classes' `kfold' `threshold' `all' `pmethod' 
+	predictit, `pstub' `split' `classes' `kfold' `threshold' `noall' `pmethod' 
 	
 	// Compute the validation metrics for the LOO sample
-	validateit, `metric' `pstub' `split' `monitors' `display' `kfold' `all'  ///   
+	validateit, `metric' `pstub' `split' `monitors' `display' `kfold' `noall' ///   
 				na(`valnm')
 	
 	// Loops over the names of the scalars created by validate it
@@ -353,7 +371,7 @@ prog def xv, eclass properties(prefix xv)
 		`dropresults'
 		
 		// Drop the variables created by xvloo
-		drop `dropvars'
+		// drop `dropvars'
 		
 		// Clears all of the characteristics that may have been set 
 		char _dta[rng]
@@ -388,7 +406,7 @@ prog def xv, eclass properties(prefix xv)
 		qui: clonevar `prvar' = `xvpred'
 		
 		// If the all option is missing
-		if mi(`"`all'"') qui: clonevar `prvar'all = `xvpred'all
+		if mi(`"`noall'"') & `k' > 1 qui: clonevar `prvar'all = `xvpred'all
 		
 		// Return all of the macros from the state command if invoked
 		eret loc rng = "`rng'"
@@ -407,7 +425,8 @@ prog def xv, eclass properties(prefix xv)
 		eret loc machinetype = "`machinetype'"
 
 		// Return the macros from splitit
-		eret loc splitter = "`splitter'"
+		if `dosplit' eret loc splitter = "`spvar'"
+		else eret loc splitter = "`splitter'"
 		eret loc training = "`training'"
 		eret loc validation = "`validation'"
 		eret loc testing = "`testing'"

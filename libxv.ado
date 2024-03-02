@@ -6,7 +6,7 @@
 
 *! libxv
 *! v 0.0.1
-*! 01mar2024
+*! 02mar2024
 
 // Drop program from memory if already loaded
 cap prog drop libxv
@@ -30,7 +30,7 @@ prog def libxv
 		mata: st_local("fdate", distdate(`"`r(fn)'"'))
 		
 		// If the distribution date is greater than or equal to the date here
-		if td(`"`fdate'"') >= td("29feb2024") {
+		if td(`"`fdate'"') >= td("02mar2024") {
 			
 			// clear mata memory
 			mata: mata clear

@@ -70,11 +70,29 @@ asserteq(st_local("garbage"), "")
 
 // getarg - We'll use the stuff above to check how getarg works
 getarg(st_local("results"))
-asserteq(st_local("argval"), "results")
+asserteq(st_local("argval"), "")
 getarg(st_local("tpoint"))
 asserteq(st_local("argval"), `"td("06feb2024")"')
 getarg(st_local("kfold"))
 asserteq(st_local("argval"), "5")
+
+// Check cvparse when it includes optional arguments passed to metrics/monitors
+// and an invalid option
+x = `"metric(mse) trash monitors(mape((1, 2)) smape rmse(("y", "N")) rmsle)"'
+
+// Parse the string
+cvparse(x)
+
+// Now test the results
+asserteq(st_local("metric"), "metric(mse)")
+asserteq(st_local("trash"), "")
+asserteq(st_local("monitors"), `"monitors(mape((1, 2)) smape rmse(("y", "N")) rmsle)"')
+
+// Now check getarg in this context
+getarg(st_local("metric"), "m")
+asserteq(st_local("m"), "mse")
+getarg(st_local("monitors"))
+asserteq(st_local("argval"), `"mape((1, 2)) smape rmse(("y", "N")) rmsle"')
 
 // confusion - for this we'll use a very simple simulated dataset created at the 
 // start of this script

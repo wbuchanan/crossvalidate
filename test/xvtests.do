@@ -14,7 +14,7 @@ run crossvalidate.mata
 *******************************************************************************/
 
 // Test that correct error code is thrown when there are no results to replay
-rcof "xvloo 0.8, replay: mlogit industry south" == 119
+rcof "xv 0.8, replay: mlogit industry south" == 119
 
 // Test that error code is thrown for missing metric   
 rcof "xv 0.7, pstub(pred): reg wage i.industry" == 198
@@ -59,29 +59,44 @@ xv 0.8, metric(r2) pstub(pred) monitors() display retain: reg mpg price i.rep78,
 
 
 // Make sure the returned values are populated
-assert !mi(`e(rng)')
-assert !mi(`e(rngcurrent)')
-assert !mi(`e(rngstate)')
-assert !mi(`e(rngseed)')
-assert !mi(`e(rngstream)')
-assert !mi(`e(filename)')
-assert !mi(`e(filedate)')
-assert !mi(`e(version)')
-assert !mi(`e(currentdate)')
-assert !mi(`e(currenttime)')
-assert !mi(`e(stflavor)')
-assert !mi(`e(processors)')
-assert !mi(`e(hostname)')
-assert !mi(`e(machinetype)')
-assert !mi(`e(splitter)')
-assert !mi(`e(training)')
-assert !mi(`e(validation)')
-assert !mi(`e(testing)')
-assert !mi(`e(stype)')
-assert !mi(`e(flavor)')
-assert mi(`e(forecastset)')
-assert !mi(`e(estresnames)')
-assert !mi(`e(estresall)')
-assert !mi(`e(fitnm)')
-assert !mi(`e(valnm)')
+assert mi("`e(rng)'")
+assert mi("`e(rngcurrent)'")
+assert mi("`e(rngstate)'")
+assert mi("`e(rngseed)'")
+assert mi("`e(rngstream)'")
+assert mi("`e(filename)'")
+assert mi("`e(filedate)'")
+assert mi("`e(version)'")
+assert mi("`e(currentdate)'")
+assert mi("`e(currenttime)'")
+assert mi("`e(stflavor)'")
+assert mi("`e(processors)'")
+assert mi("`e(hostname)'")
+assert mi("`e(machinetype)'")
+assert "`e(splitter)'" == "_xvsplit"
+assert "`e(training)'" == "1"
+assert mi("`e(validation)'")
+assert "`e(testing)'" == "2"
+assert "`e(stype)'" == "Train/Test Split"
+assert "`e(flavor)'" == "Simple Random Sample"
+assert mi("`e(forecastset)'")
+assert !mi("`e(estresnames)'")
+assert mi("`e(estresall)'")
+assert "`e(fitnm)'" == "xvfit"
+assert "`e(valnm)'" == "xvval"
+assert !mi(`e(xv)')
+assert !mi(`e(metric)')
+
+// Remove the split and prediction variables
+drop _xvsplit pred*
+
+// Simple test with optional arguments passed to monitors
+xv .8, metric(mse) pstub(pred) monitors(rmse((1, 2)) mae mape smape(("y"))): ///   
+reg price mpg i.foreign
+
+assert !mi(`e(rmse)')
+assert !mi(`e(mae)')
+assert !mi(`e(mape)')
+assert !mi(`e(smape)')
+assert !mi(`e(metric)')
 assert !mi(`e(xv)')

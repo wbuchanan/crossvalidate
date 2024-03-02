@@ -51,29 +51,11 @@ xv 0.8, pstub(ttkfclpred) metric(phl) uid(rep78) kfold(4): reg price mpg length,
 ```
 
 ## TODO
-- [x] Add a `replay` option to the prefix commands
-- [x] Test if the regex will work correctly with Stata 15
-- [x] If regex works correctly in Stata 15, modify the display options to run 
-through the estimation results if `c(stata_version)' < 17 and to use 
-collections for Stata >= 17 and modify help files related to collections.
-- [x] Modify the replay option to adjust for the collection thing above
-- [x] Write a function that can do the same thing as `assertnested` and will 
-work in Stata 15
-- [x] Update function signature to provide support for optional arguments
-- [x] Compile Mata library in Stata 15
-- [x] Update subroutine in `validateit` to make sure that optional arguments 
-used for `monitors` are parsed correctly; use `gettoken` with the bind option
 - [ ] Standardize language in help files
 - [ ] Finish writing test cases for Mata functions
 - [ ] Finish writing test cases for ADO commands
 - [ ] Update the syntax information in the README to match the current state of 
 the commands
-- [x] Figure out a reasonable way to handle compiling the Mata library on the 
-client/user side.
-- [x] Add a name option to `fitit` and `validateit` to allow users to name the 
-collections used
-- [x] Add `fitnm` and `valnm` options to prefix commands to allow users to 
-pass arguments to the underlying name option for `fitit` and `validateit`.  
 
 # libxv
 

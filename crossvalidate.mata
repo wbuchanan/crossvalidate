@@ -1,4 +1,4 @@
-*! 01mar2024
+*! 02mar2024
 /*******************************************************************************
 *                                                                              *
 *                    Mata library for -crossvalidate- package                  *
@@ -94,36 +94,98 @@ real scalar hasoptions(string scalar x) {
 // Defines a function to parse the prefix command into it's constituent parts
 void function cvparse(string scalar cv) {
 	
-	// Defines a string vector with the names of the potential options
-	string rowvector opts 
+	// Declares a transmorphic scalar for the tokenizer 
+	transmorphic scalar t
 	
-	// Defines a variable to use for iterating over the options
-	real scalar i, nopts
+	// Declares a string rowvector with valid option names
+	string rowvector optnms
 	
-	// Stores the name of all the potential options across all commands
-	opts = ("metric", "monitors", "uid", "tpoint", "retain", "kfold", 		 ///   
+	// Declares a string matrix to store the parsed tokens
+	string matrix opts
+	
+	// Declares the counter to identify token boundaries and the index for 
+	// inserting of parsed tokens into the opts matrix, and an iterator used to 
+	// loop over the rows of the matrix containing the parsed tokens
+	real scalar cnt, optcnt, i
+	
+	// Declares a string scalar used to build the token and a string scalar that 
+	// stores the token
+	string scalar opt, token
+	
+	// Initialize the tokenizer
+	t = tokeninit("", ("(", " ", ")"), (""), 1)
+	
+	// Define the valid option names
+	optnms = ("metric", "monitors", "uid", "tpoint", "retain", "kfold", 	 ///   
 			 "state", "results", "grid", "params", "tuner", "seed", 		 ///   
 			 "classes", "threshold", "pstub", "split", "display", "obs", 	 ///   
 			 "modifin", "kfifin", "noall", "pmethod", "replay", "name", 	 ///   
 			 "fitnm", "validnm")
 	
-	// Gets the number of options so we don't need to track it manually and 
-	// avoid the minor performance penalty of using cols(opts) in the loop below
-	nopts = cols(opts)
+	// Initialize a null matrix to store the valid results
+	opts = J(26, 1, "")
 	
-	// Loop over the index values for each of the options 
-	for(i = 1; i <= nopts; i++) {
+	// Initialize the counter used to identify token boundaries based on 
+	// parentheses
+	cnt = 0
+	
+	// Initialize the row index scalar used to insert the parsed tokens into the 
+	// matrix with the results
+	optcnt = 1
+
+	// Initialize the string scalar used to construct the parsed token from its 
+	// constituent pieces
+	opt = ""
+	
+	// Pass the string into the tokenizer
+	tokenset(t, cv)
+	
+	// Loop over each of the tokens parsed by the tokenizer until the end
+	while((token = tokenget(t)) != "") {
 		
-		// Test for matches for each of the options
-		if (ustrregexm(cv, "(" + opts[1, i] + `"(\([^)]*\)+)?)"', 1)) {
-			
-			// Returns the option name and argument(s) in a local with the same 
-			// name (e.g., kfold might contain kfold(10))
-			st_local(opts[1, i], ustrregexs(1))
-			
-		} // End IF block for identified options
+		// Check the next token to determine if it is an opening parenthesis
+		// If so, increment the cnt variable to indicate that more tokens need 
+		// to be combined in order to parse the option and its arguments and 
+		// keep the value of cnt the same if it is not an opening parenthesis
+		cnt = (tokenpeek(t) == "(" ? cnt + 1 : cnt)
 		
-	} // End loop over the option indices
+		// Check the current token to determine if it is a closing parenthesis.
+		// If it is decrement cnt and if not do not change cnt
+		cnt = (token == ")" ? cnt - 1 : cnt) 
+		
+		// If the value of cnt is positive add this token to the opt variable
+		if (cnt > 0) opt = opt + token
+		
+		// If the value is 0 
+		else {
+			
+			// Insert the existing option string and it's closing parenthesis 
+			// into the matrix with the options
+			opts[optcnt, 1] = opt + token
+			
+			// Reset the opt variable so we can parse the next option
+			opt = ""
+			
+			// If the nulled out string and the current token only contains a 
+			// space increment the optcnt variable to insert the next opt into 
+			// the next row of the matrix
+			if (!ustrregexm(opt + token, "^\s\$")) optcnt = optcnt + 1
+			
+		} // End ELSE Block to insert parsed option into the matrix of results
+		
+	} // End of WHILE loop over the tokens parsed from cv	
+	
+	// Loop over the result matrix to verify valid options
+	for(i = 1; i < optcnt; i++) {
+		
+		// Get the name of the option from the stored result
+		getname(opts[i, 1])
+		
+		// If the name is contained in the rowvector above, return the parsed 
+		// option to a local macro using the same name
+		if (anyof(optnms, st_local("fnm"))) st_local(st_local("fnm"), opts[i, 1])
+		
+	} // End Loop to verify and return the valid options
 	
 } // End of function definition to parse prefix options for crossvalidate package
 
@@ -140,8 +202,17 @@ void function getarg(string scalar param, | string scalar rname) {
 	
 	// Removes everything up to the opening parentheses with the regex, then 
 	// removes the closing parenthesis with subinstr
-	retval = ustrregexrf(ustrregexrf(param, "[a-z]+\(", ""), "\)", "")
+	retval = ustrregexrf(param, "[a-zA-Z0-9_]+\(", "")
+	
+	// If the string ends with a closing parenthesis remove it to prevent 
+	// unbalanced parentheses
+	if (substr(retval, -1, 1) == ")") { 
 		
+		// Remove the trailing parenthesis
+		retval = substr(retval, 1, strrpos(retval, ")") - 1)
+		
+	} // End IF Block to remove trailing parenthesis	
+	
 	// If the parameter doesn't include any parentheses return an empty string
 	if (ustrregexm(param, "[\(\)]") == 0) st_local(retnm, "")
 	
