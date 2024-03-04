@@ -1,6 +1,5 @@
 cscript "cross-validation prefix tests" adofile xv
 
-
 // Load some example data
 sysuse nlsw88.dta, clear
 
@@ -100,3 +99,20 @@ assert !mi(`e(mape)')
 assert !mi(`e(smape)')
 assert !mi(`e(metric)')
 assert !mi(`e(xv)')
+
+
+// Create a test case for mixed effects models
+webuse nlswork.dta, clear
+
+// Use clustered sampling when creating the splits aligned with the modeling
+xv 0.8, metric(msle) pstub(p) uid(id) display retain split(mixsplit):		 ///   
+mixed ln_w grade age c.age#c.age ttl_exp tenure c.tenure#c.tenure || id:
+
+// Create a testcase for logit
+webuse lbw.dta, clear
+
+// Use some monitors as well
+xv 0.6, metric(acc) pstub(p) display retain split(logsplit)					 ///   
+monitors(sens recall spec prev ppv npv bacc mcc f1 jindex):					 ///   
+logit low age lwt i.race smoke ptl ht ui
+

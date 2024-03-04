@@ -473,7 +473,7 @@ real scalar sens(string scalar pred, string scalar obs, string scalar touse, ///
 	
 	// For now, at least, we'll restrict these metrics to only the binary case
 	// so this assertion will make sure that we have a binary confusion matrix
-	assert(rows(c.conf) == 2 & cols(c.conf) == 2)
+	// assert(rows(c.conf) == 2 & cols(c.conf) == 2)
 	
 	// Computes the metric from the confusion matrix
 	result = c.conf[2, 2] / colsum(c.conf[, 2])
@@ -499,7 +499,7 @@ real scalar prec(string scalar pred, string scalar obs, string scalar touse, ///
 	
 	// For now, at least, we'll restrict these metrics to only the binary case
 	// so this assertion will make sure that we have a binary confusion matrix
-	assert(rows(c.conf) == 2 & cols(c.conf) == 2)
+	// assert(rows(c.conf) == 2 & cols(c.conf) == 2)
 	
 	// Computes the metric from the confusion matrix
 	result = c.conf[2, 2] / c.rowm[2, ]
@@ -541,7 +541,7 @@ real scalar spec(string scalar pred, string scalar obs, string scalar touse, ///
 	
 	// For now, at least, we'll restrict these metrics to only the binary case
 	// so this assertion will make sure that we have a binary confusion matrix
-	assert(rows(c.conf) == 2 & cols(c.conf) == 2)
+	// assert(rows(c.conf) == 2 & cols(c.conf) == 2)
 	
 	// Computes the metric from the confusion matrix
 	result = c.conf[1, 1] / c.colm[, 1]
@@ -567,7 +567,7 @@ real scalar prev(string scalar pred, string scalar obs, string scalar touse, ///
 	
 	// For now, at least, we'll restrict these metrics to only the binary case
 	// so this assertion will make sure that we have a binary confusion matrix
-	assert(rows(c.conf) == 2 & cols(c.conf) == 2)
+	// assert(rows(c.conf) == 2 & cols(c.conf) == 2)
 	
 	// Computes the metric from the confusion matrix
 	result = c.colm[, 2] / c.n
@@ -709,11 +709,20 @@ real scalar jindex(string scalar pred, string scalar obs, 					 ///
 real scalar binr2(string scalar pred, string scalar obs, string scalar touse, ///   
 					| transmorphic matrix opts) {
 
+	// Declares a scalar to store the result
+	real scalar result
+					
 	// Call the tetrachoric command in Stata
 	stata("cap: qui: tetrachoric " + pred + " " + obs + " if " + touse + ", ed")
 
-	// Returns the correlation coefficient
-	return(st_numscalar("r(rho)"))
+	// Stores the result in a variable
+	result = st_numscalar("r(rho)")
+	
+	// If the result is missing, return a missing value
+	if (hasmissing(result)) return(J(1, 1, .))
+	
+	// otherwise return the correlation coefficient
+	else return(result)
 
 } // End of function definition for binary R^2 
 

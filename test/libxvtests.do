@@ -382,6 +382,28 @@ asserteq(round(fxmcc, rf), round(mcmcc("pred", "obs", "touse"), rf))
 // End the Mata session
 end
 
+// This is an extra test just to be safe for MCC
+clear 
+
+// Sets the number of observations based on the left of box 3 in:
+// https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0041882&type=printable
+set obs 25
+
+// Reproduces the columns of the matrix on the left of box 3 
+g byte obs = cond(_n <= 13, 1,												 ///   
+			 cond(inrange(_n, 14, 17), 2, cond(inrange(_n, 18, 21), 3, 4)))
+			 
+// Reproduces the rows from the same matrix			 
+g byte pred = cond(inlist(_n, 1, 14, 18, 22), 1,							 ///   
+			  cond(inlist(_n, 2, 15, 19, 23), 2,							 ///   
+			  cond(inlist(_n, 3, 16, 20, 24), 3, 4)))
+			  
+// Creates sample inclusion indicator			  
+g byte touse = 1
+			  
+// Call our MCC implementation
+mata: asserteq(-0.088, round(mcmcc("pred", "obs", "touse"), 0.001))			  
+
 **# Continuous Metrics
 /*******************************************************************************
 *                                                                              *
