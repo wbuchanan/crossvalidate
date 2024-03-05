@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! validateit
-*! v 0.0.15
-*! 01mar2024
+*! v 0.0.16
+*! 05mar2024
 
 // Drop program from memory if already loaded
 cap prog drop validateit
@@ -21,7 +21,7 @@ prog def validateit, rclass
 	syntax , MEtric(string asis) PStub(string asis) SPLit(varname) 			 ///   
 	[ Obs(varname) MOnitors(string asis) DISplay KFold(integer 1) noall loo  ///   
 	NAme(string asis) ]
-	
+
 	// Test to ensure the metric is not included in the monitor
 	if `: list metric in monitors' {
 		

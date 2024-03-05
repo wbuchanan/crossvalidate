@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! predictit
-*! v 0.0.6
-*! 28FEB2024
+*! v 0.0.7
+*! 05mar2024
 
 // Drop program from memory if already loaded
 cap prog drop predictit
@@ -22,6 +22,9 @@ prog def predictit
 			PStub(string asis) [ SPLit(varname)  Classes(integer 0) 		 ///   
 			Kfold(integer 1) THReshold(passthru) MODifin(string asis) 		 ///   
 			KFIfin(string asis) noall PMethod(string asis)]
+			
+	// Assign estimates global to a local
+	loc xvstartest $xvstartest
 
 	// Test for invalid KFold option
 	if `kfold' < 1 {
@@ -146,6 +149,9 @@ prog def predictit
 	
 	// Store all of the estimation result names
 	loc enames `r(names)'
+	
+	// Remove any estimates that existed prior to model fitting
+	loc enames : list enames - xvstartest
 			
 	// Handles predictting for KFold and non-KFold CV
 	forv k = 1/`kfold' {
@@ -179,7 +185,7 @@ prog def predictit
 			
 			// Call the classification program
 			// Also need to handle the if statement here as well
-			qui: classify `classes' `modifin', `threshold' ps(`pstub'`k')
+			qui: classify `classes' `modifin', `threshold' ps(`pstub'`k'_)
 				
 		} // End ELSE Block for classifcation tasks
 		
@@ -190,7 +196,7 @@ prog def predictit
 	
 	// For classification models
 	else qui: egen byte `pstub' = rowfirst(`pstub'*)
-
+	
 	// Attach a variable label to the predicted variable
 	la var `pstub' "Predicted value of `e(depvar)'"
 	
@@ -248,7 +254,7 @@ prog def predictit
 		qui: drop `pstub'`k'
 		
 	} // End of Loop to clean up the data set
-		
+	
 // End definition of the command
 end
 

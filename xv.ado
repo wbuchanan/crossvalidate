@@ -298,6 +298,12 @@ prog def xv, eclass properties(prefix xv)
 		
 	} // End IF Block to set the pseudo-random number generator seed.
 	
+	// Gets any estimates that already exist
+	qui: estimates dir
+	
+	// Stores the existing estimate names in a global for predictit
+	glo xvstartest `r(names)'
+	
 	// Check to see if the user passed the state option
 	if !mi(`"`state'"') {
 		

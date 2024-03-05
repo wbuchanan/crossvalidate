@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! classify
-*! v 0.0.4
-*! 28FEB2024
+*! v 0.0.5
+*! 05mar2024
 
 // Drop program from memory if already loaded
 cap prog drop classify
@@ -93,11 +93,11 @@ prog def classify,
 		foreach v in `pvars' {
 			
 			// Remove all letters from the variable name
-			loc clsval `= ustrregexra("`v'", "\D", "")'
+			loc clsval `= ustrregexra("`v'", "^.*_", "")'
 			
 			// Replace the value of pstub with the class value if that is the 
 			// highest probability
-			replace `pstub' = `clsval' if `pstub' == `v'
+			replace `pstub' = `clsval' if `pstub' == `v' & !mi(`pstub')
 			
 		} // End of Loop over the predicted variables
 		

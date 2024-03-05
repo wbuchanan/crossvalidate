@@ -51,6 +51,11 @@ xv 0.8, pstub(ttkfclpred) metric(phl) uid(rep78) kfold(4): reg price mpg length,
 ```
 
 ## TODO
+- [ ] Adjust classify.ado to get the values from the outcome in some way and use 
+those values to test the equality of the individual prediction probability vars 
+with the max probability to set the class value.
+- [ ] Figure out why classify.ado seems to work independently, but not so well 
+when called from xv in the multinomial context
 - [ ] Standardize language in help files
 - [ ] Finish writing test cases for Mata functions
 - [ ] Finish writing test cases for ADO commands

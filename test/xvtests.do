@@ -100,7 +100,6 @@ assert !mi(`e(smape)')
 assert !mi(`e(metric)')
 assert !mi(`e(xv)')
 
-
 // Create a test case for mixed effects models
 webuse nlswork.dta, clear
 
@@ -108,11 +107,41 @@ webuse nlswork.dta, clear
 xv 0.8, metric(msle) pstub(p) uid(id) display retain split(mixsplit):		 ///   
 mixed ln_w grade age c.age#c.age ttl_exp tenure c.tenure#c.tenure || id:
 
+// Summarize the predicted values
+su p
+
 // Create a testcase for logit
 webuse lbw.dta, clear
 
 // Use some monitors as well
-xv 0.6, metric(acc) pstub(p) display retain split(logsplit)					 ///   
-monitors(sens recall spec prev ppv npv bacc mcc f1 jindex):					 ///   
+xv 0.6, metric(acc) pstub(p) display retain split(logsplit2)				 ///   
+monitors(sens recall spec prev ppv npv bacc mcc f1 jindex) classes(2):		 ///   
 logit low age lwt i.race smoke ptl ht ui
+
+// Tabulate the predicted values
+ta p
+
+// Load data for multiclass classification
+webuse sysdsn1.dta, clear
+
+// Create a testcase for multiclass logit
+// This is failing due to p* being an invalid name during predictit
+xv 0.6, metric(mcacc) pstub(p) display classes(3) retain split(	csplit)		 ///   
+monitors(mcsens mcprec mcspec mcppv mcnpv mcbacc mcmcc mcf1 mcjindex 		 ///   
+mcdetect mckappa): mlogit insure age male nonwhite i.site
+
+// Tabulate the predicted values
+ta p
+
+// Load dataset for ologit example
+webuse fullauto.dta, clear
+
+// Simple test case
+// This is failing due to p* being an invalid name during predictit
+xv 0.6, metric(mcacc) pstub(p) display classes(5) retain split(mcsplit)		 ///   
+monitors(mcsens mcprec mcspec mcppv mcnpv mcbacc mcmcc mcf1 mcjindex		 ///   
+mcdetect mckappa): ologit rep77 foreign length mpg
+
+// Tabulate the predicted values
+ta p
 
