@@ -1288,7 +1288,10 @@ real scalar ccc(string scalar pred, string scalar obs, string scalar touse,  ///
 					| transmorphic matrix opts) {
 	
 	// Declares scalars needed
-	real scalar mupred, muobs, varpred, varobs, cov
+	real scalar mupred, muobs, varpred, varobs, cov, n
+	
+	// Get the number of rows of the data
+	n = rows(st_data(., obs, touse))
 
 	// estimate_mean in R function
 	mupred = mean(st_data(., pred, touse))
@@ -1297,16 +1300,16 @@ real scalar ccc(string scalar pred, string scalar obs, string scalar touse,  ///
 	muobs = mean(st_data(., obs, touse)) 
 
 	// estimate_variance in R function
-	varpred = variance(st_data(., pred, touse))[1, 1]
+	varpred = variance(st_data(., pred, touse))[1, 1] 
 
 	// truth_variance in R function
-	varobs = variance(st_data(., obs, touse))[1, 1]
+	varobs = variance(st_data(., obs, touse))[1, 1] 
 
 	// Gets the covariance between the predicted and observed values
-	cov = variance((st_data(., pred, touse), st_data(., obs, touse)))[2, 1]
+	cov = variance((st_data(., pred, touse), st_data(., obs, touse)))[2, 1] 
 
 	// Computes and returns the coefficient
-	return(2 * cov / varobs + varpred + (muobs - mupred)^2)
+	return((2 * cov) / (varobs + varpred + (muobs - mupred)^2))
 	
 } // End of function definition for CCC
 

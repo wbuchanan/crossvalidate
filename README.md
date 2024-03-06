@@ -51,13 +51,16 @@ xv 0.8, pstub(ttkfclpred) metric(phl) uid(rep78) kfold(4): reg price mpg length,
 ```
 
 ## TODO
-- [ ] Adjust classify.ado to get the values from the outcome in some way and use 
-those values to test the equality of the individual prediction probability vars 
-with the max probability to set the class value.
-- [ ] Figure out why classify.ado seems to work independently, but not so well 
-when called from xv in the multinomial context
+- [x] Test whether the `noall` option is present when using a training 
+proportion of 1 and k > 1 folds.  Will need to pass the `noall` option for the 
+user or throw an error message requiring them to do it.
+- [x] Add additional examples to the xv help file and xvloo helpfile.
+- [x] Add information about the split proportions to xv and xvloo.
+- [x] Remove requirement for pstub and if pstub or split are provided have that 
+trigger the retain option automatically for users
+- [x] Add some additional clarification about the retain option.
 - [ ] Standardize language in help files
-- [ ] Finish writing test cases for Mata functions
+- [x] Finish writing test cases for Mata functions
 - [ ] Finish writing test cases for ADO commands
 - [ ] Update the syntax information in the README to match the current state of 
 the commands
@@ -153,13 +156,13 @@ lmbuild libxv, replace
 - [x] Test function for Mean-Squared Log Error
 - [x] Test function for Root Mean-Squared Log Error
 - [x] Test function for Ratio of Performance to Deviation
-- [ ] Test function for Index of ideality of correlation
-- [ ] Test function for Concordance Correlation Coefficient
-- [ ] Test function for Pseudo-Huber Loss
-- [ ] Test function for Poisson Log Loss
-- [ ] Test function for Huber Loss
-- [ ] Test function for Ratio of Performance to Interquartile Range
-- [ ] Test function for Traditional R^2
+- [x] Test function for Index of ideality of correlation
+- [x] Test function for Concordance Correlation Coefficient
+- [x] Test function for Pseudo-Huber Loss
+- [x] Test function for Poisson Log Loss
+- [x] Test function for Huber Loss
+- [x] Test function for Ratio of Performance to Interquartile Range
+- [x] Test function for Traditional R^2
  
 # Main Commands 
 

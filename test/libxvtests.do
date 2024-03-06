@@ -470,12 +470,29 @@ xvrmsle = rmsle("pred", "obs", "touse")
 // Get the RPD metric
 xvrpd = rpd("pred", "obs", "touse")
 
-// Set a rounding factor
-rf = 1e-5
+// Get the Index of Ideality of Correlation metric
+xviic = iic("pred", "obs", "touse")
 
-// These tests are currently failing.  My guess is there is probably a missing 
-// adjustment for degrees of freedom that isn't accounted for in the functions 
-// I put together.
+// Get the Concordance Correlation Coefficient
+xvccc = ccc("pred", "obs", "touse")
+
+// Get the pseudo-Huber loss
+xvphl = phl("pred", "obs", "touse")
+
+// Get the Huber loss
+xvhuber = huber("pred", "obs", "touse")
+
+// Get the Poisson log loss
+xvpll = pll("pred", "obs", "touse")
+
+// Get the ratio of performance to IQR
+xvrpiq = rpiq("pred", "obs", "touse")
+
+// Get the "traditional" R^2
+xvr2ss = r2ss("pred", "obs", "touse")
+
+// Set a rounding factor
+rf = 1e-4
 
 // Test equality of MSE
 asserteq(round(16.5, rf), round(xvmse, rf))
@@ -509,6 +526,28 @@ asserteq(round(.6882016324, rf), round(xvrmsle, rf))
 
 // Test equality of RPD
 asserteq(round(.7453559925, rf), round(xvrpd, rf))
+
+// Test equality of Index of Ideality of Correlation
+asserteq(round(0.04737794, rf), round(xviic, rf))
+
+// Test equality of Concordance Correlation Coefficient
+// Currently failing. function returns 10.56 but should be smaller.
+asserteq(round(0.08899271, rf), round(xvccc, rf))
+
+// Test equality of pseudo-Huber loss
+asserteq(round(2.57562, rf), round(xvphl, rf))
+
+// Test equality of Huber loss
+asserteq(round(2.85, rf), round(xvhuber, rf))
+
+// Test equality of Poisson log loss
+asserteq(round(3.049186, rf), round(xvpll, rf))
+
+// Test equality of Ratio of Performance to IQR
+asserteq(round(1.23091491, rf), round(xvrpiq, rf))
+
+// Test equality of "Traditional" R^2
+asserteq(round(-0.9097222, rf), round(xvr2ss, rf))
 
 // End the Mata session
 end

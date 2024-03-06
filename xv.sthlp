@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.3 28feb2024}{...}
+{* *! version 0.0.4 06mar2024}{...}
 {vieweralsosee "[R] predict" "mansection R predict"}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat_classification"}{...}
 {vieweralsosee "[P] creturn" "mansection P creturn"}{...}
@@ -22,25 +22,28 @@
 {marker syntax}{...}
 {title:Syntax}
 
-{p 8 32 2}
-{cmd:xv} {it:# [#]} {cmd:,} {cmd:pstub(}{it:string asis}{cmd:)} 
-{cmd:metric(}{it:string asis}{cmd:)} 
+{p 4 15 8}
+{cmd:xv} {it:# [#]} {cmd:,} {cmd:metric(}{it:string asis}{cmd:)} 
 [{cmd:seed(}{it:integer}{cmd:)}
 {cmd:uid(}{it:varlist}{cmd:)} 
 {cmd:tpoint(}{it:string asis}{cmd:)} {cmd:kfold(}{it:integer}{cmd:)} 
 {cmd:split(}{it:string asis}{cmd:)}
 {cmd:results(}{it:string asis}{cmd:)}
+{cmd:display}
+{cmd:pstub(}{it:string asis}{cmd:)} 
+
 {cmd:classes(}{it:integer}{cmd:)} {cmd:threshold(}{it:real}{cmd:)} 
 {cmd:noall} {cmd:monitors(}{it:string asis}{cmd:)} 
-{cmd:display}] {cmd::} {cmd:{it:estimation command}}{p_end}
+] {cmd::} {cmd:{it:estimation command}}{p_end}
 
-{* this should be udated to use additional tabs based on the underlying phase controlled}
-{synoptset 25 tabbed}{...}
+{synoptset 15 tabbed}{...}
 {synoptline}
 {synopthdr}
 {synoptline}
+{syntab:Arguments}
+{synopt :{opt #}}The proportion of the data set to allocate to the training set.{p_end}
+{synopt :{it:{opt [#]}}}The proportion of the data set to allocate to the validation set.{p_end}
 {syntab:Required}
-{synopt :{opt pstub}}a new variable name for predicted values{p_end}
 {synopt :{opt metric}}the name of a function from {help libxv} or a user-defined function{p_end}
 {syntab:Split}
 {synopt :{opt seed}}to set the pseudo-random number generator seed{p_end}
@@ -51,13 +54,17 @@
 {syntab:Fit}
 {synopt :{opt results}}a stub for storing estimation results{p_end}
 {synopt :{opt display}}display results in window; default is off{p_end}
+{synopt :{opt noall}}suppresses fitting the model to the entire training set for K-Fold cases; default is on{p_end}
 {syntab:Predict}
+{synopt :{opt pstub}}a new variable name for predicted values{p_end}
 {synopt :{opt classes}}is used to specify the number of classes for classification models; default is {cmd:classes(0)}.{p_end}
 {synopt :{opt threshold}}positive outcome threshold; default is {cmd:threshold(0.5)}{p_end}
-{synopt :{opt noall}}suppresses prediction on entire training set for K-Fold cases{p_end}
+{synopt :{opt noall}}suppresses prediction on entire training set for K-Fold cases; default is on{p_end}
 {syntab:Validate}
 {synopt :{opt monitors}}zero or more function names from {help libxv} or user-defined functions; default is {cmd monitors()}{p_end}
 {synopt :{opt display}}display results in window; default is off{p_end}
+{syntab:General}
+{synopt :{opt retain}}is an option used to preserve the stored estimation results, split variable, and predicted outcomes; default is off{p_end}
 {synoptline}
 
 {marker description}{...}
@@ -87,19 +94,16 @@ define their own {help mata} functions that can be used by {cmd:xv} (see
 {pstd}
 {cmd:IMPORTANT:} you must specify the full name of the options used by {help xv}.  
 If you attempt to pass an abbreviated option name, it will not be recognized by 
-the command and will be ignored.
+the command and will be ignored.  Additionally, immediately following the 
+{cmd:xv} command, you must specify the proportion of the dataset to allocate to 
+the training set.  For k > 1, the training proportion can be 1.  If this is what 
+you specify, the {opt noall} option will be turned on automatically since there 
+will be no out-of-sample data on which to compute the validation metrics.
 
 {marker options}{...}
 {title:Options}
 
 {dlgtab:Required}
-
-{phang}
-{opt pstub} is used to define a new variable name/stub for the predicted values
-from the validation/test set.  When K-Fold cross-validation is used, this 
-option defines the name of the variable containing the predicted values from 
-each of the folds and will be used as a variable stub to store the results from 
-fitting the model to all of the training data. 
 
 {phang}
 {opt metric} the name of a {help libxv} or user-defined function, with the 
@@ -137,7 +141,11 @@ the forecasting period data will not affect the model training.
 
 {phang}
 {opt kfold} is used to specify the number of K-Folds to create in the training 
-set. 
+set. If the value is > 1, the training split proportion can be set to 1; if you 
+use a training set proportion of 1 with k > 1, the {opt noall} option will be 
+turned on for you automatically.  For k == 1, or in the context of leave-one-out 
+cross-validation (see {help xvloo}), you must provide a training set 
+proportion < 1.  
 
 {phang}
 {opt split} is used to specify the name of a new variable that will store the 
@@ -164,7 +172,20 @@ or replace the existing collection with the same name.  If you want to retain
 the validation results from multiple executions, pass an argument to this 
 option.  {it:Note:} this only affects users using Stata 17 or later.
 
+{phang}
+{opt noall} is an option to prevent fitting, predicting, and validating a model 
+that is fitted to the entire training set when using K-Fold cross-validation 
+with a train/test or train/validation/test split. If the training set proportion 
+is set to 1, this option will be automatically enabled.
+
 {dlgtab:Predicting Out-of-Sample Results}
+
+{phang}
+{opt pstub} is used to define a new variable name/stub for the predicted values
+from the validation/test set.  When K-Fold cross-validation is used, this 
+option defines the name of the variable containing the predicted values from 
+each of the folds and will be used as a variable stub to store the results from 
+fitting the model to all of the training data. 
 
 {phang}
 {opt classes} is used to distinguish between models of non-categorical data (
@@ -182,7 +203,8 @@ as it does in the case of {help estat_classification:estat classification}.
 {phang}
 {opt noall} is an option to prevent fitting, predicting, and validating a model 
 that is fitted to the entire training set when using K-Fold cross-validation 
-with a train/test or train/validation/test split. 
+with a train/test or train/validation/test split. If the training set proportion 
+is set to 1, this option will be automatically enabled.
 
 {dlgtab:Validating the Model}
 
@@ -208,17 +230,62 @@ window.
 
 {phang}
 {opt retain} is used to retain the variables created, stored estimation results, 
-and dataset characteristics that are generated by {cmd:xv}.
+and dataset characteristics that are generated by {cmd:xv}.  If an argument is 
+passed to either the {opt split} or {opt pstub} options, retain is automatically 
+turned on and default names will be used for the split variable, predicted 
+outcome variable, and/or estimation results names if they are not provided by 
+the user.
 
 {marker examples}{...}
 {title:Examples}
 
-{p 4 4 2}Update these to reflect xv{p_end}
+{dlgtab:Linear Regression Example}
+{pstd}
+sysuse auto.dta, clear{break}
+xv 0.8, metric(msle) pstub(p) display retain monitors(mse rmse mae bias mbe  ///{break}
+r2 mape smape rmsle rpd iic ccc huber phl rpiq r2ss) split(ivsplit):         ///{break}   
+reg price mpg i.foreign, vce(rob)
 
-{p 4 4 2}Load example data{p_end}
-{p 8 4 2}{stata sysuse auto, clear}{p_end}
-{p 4 4 2}Train/Test Split with MSE validation metric{p_end}
-{p 8 4 2}{stata "xv .8, metric(mse) ps(pred): reg price mpg i.foreign"}{p_end}
+{dlgtab:Poisson Example}
+{pstd}
+webuse epilepsy.dta, clear{break}
+xv 0.6, metric(pll) pstub(p) display retain monitors(mse rmse mae bias mbe   ///{break}   
+r2 mape smape msle rmsle rpd iic ccc huber phl rpiq r2ss) split(poisplit) 	 ///{break}   
+pmethod(n): poisson seizures treat lbas lbas_trt lage v4
+
+{dlgtab:Instrumental Variables Example}
+{pstd}
+webuse hsng2.dta, clear{break}
+xv 0.8, metric(msle) pstub(p) display retain monitors(mse rmse mae bias mbe  ///{break}  
+r2 mape smape rmsle rpd iic ccc huber phl rpiq r2ss) split(ivsplit):         ///{break}   
+ivregress 2sls rent pcturban (hsngval = faminc i.region), small
+
+{dlgtab:Mixed Effects Example}
+{pstd}
+webuse nlswork.dta, clear{break}
+xv 0.8, metric(msle) pstub(p) uid(id) display retain split(mixsplit):		 ///{break}
+mixed ln_w grade age c.age#c.age ttl_exp tenure c.tenure#c.tenure || id:
+
+{dlgtab:Logit Example}
+{pstd}
+webuse lbw.dta, clear{break}
+xv 0.6, metric(acc) pstub(p) display retain split(logsplit2)				 ///{break}   
+monitors(sens recall spec prev ppv npv bacc mcc f1 jindex) classes(2):		 ///{break}   
+logit low age lwt i.race smoke ptl ht ui
+
+{dlgtab:Multinomial Logit Example}
+{pstd}
+webuse sysdsn1.dta, clear{break}
+xv 0.6, metric(mcacc) pstub(p) display classes(3) retain split(	csplit)		 ///{break}   
+monitors(mcsens mcprec mcspec mcppv mcnpv mcbacc mcmcc mcf1 mcjindex 		 ///{break}   
+mcdetect mckappa): mlogit insure age male nonwhite i.site
+
+{dlgtab:Ordinal Logit Example}
+{pstd}
+webuse fullauto.dta, clear{break}
+xv 0.6, metric(mcacc) pstub(p) display classes(5) retain split(mcsplit)		 ///{break}   
+monitors(mcsens mcprec mcspec mcppv mcnpv mcbacc mcmcc mcf1 mcjindex		 ///{break}   
+mcdetect mckappa): ologit rep77 foreign length mpg
 
 {marker retvals}{...}
 {title:Returned Values}

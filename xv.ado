@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! xv
-*! v 0.0.8
-*! 02mar2024
+*! v 0.0.9
+*! 06mar2024
 
 // Drop program from memory if already loaded
 cap prog drop xv
@@ -63,6 +63,14 @@ prog def xv, eclass properties(prefix xv)
 
 	// If missing kfold set to default
 	if mi("`k'") loc k 1
+	
+	// Check to see if the user is attempting to use K-Fold over all data
+	if `k' > 1 & `: word 1 of `props'' == 1 {
+		
+		// If so, set the noall option
+		loc noall noall
+		
+	} // End IF Block for full training set K-Fold
 	
 	// Test to see if replay option is invoked
 	if !mi("`replay'") {
@@ -147,10 +155,10 @@ prog def xv, eclass properties(prefix xv)
 	else loc c `argval'
 	
 	// If there is anything in the missing local throw an error message
-	if mi(`"`metric'"') | mi(`"`pstub'"') {
+	if mi(`"`metric'"') {
 		
 		// Display the error message
-		di as err `"You must supply valid arguments to metric and pstub "'    ///   
+		di as err `"You must supply a valid argument to the metric option "' ///   
 		`"to use the xv prefix."'
 		
 		// Throw an error code to exit
@@ -168,6 +176,14 @@ prog def xv, eclass properties(prefix xv)
 		if mi("`retain'") loc dropresults "estimates drop xvres*"
 		
 	} // End IF Block to set default results values
+	
+	// If the user passes a split or pstub argument 
+	if !mi(`"`split'`pstub'"') {
+		
+		// set the retain option on automatically
+		loc retain retain
+		
+	} // End IF Block for non-missing split or pstub
 	
 	// If missing the split option
 	if mi(`"`split'"') {
@@ -225,42 +241,80 @@ prog def xv, eclass properties(prefix xv)
 				
 	} // End ELSE Block for present split option
 
-	// Parses the pstub option
-	mata: getarg("`pstub'")
-	
-	// Store the pstubn
-	loc prvar `argval'
-	
-	// Check to see if predict stub variable is present
-	cap confirm new v `argval'all
-	
-	// If the variable exists
-	if _rc != 0 {
+	// Check for a non-missing pstub argument
+	if !mi(`"`pstub'"') {
 		
-		// Display an error message
-		di as err "The variable `argval'all already exists.  You can drop "  ///
-		"the variable, or specify a new predict value stubname." 
+		// Parses the pstub option
+		mata: getarg("`pstub'")
 		
-		// Throw an error and exit
-		err 110
+		// Store the pstubn
+		loc prvar `argval'
 		
-	} // End IF Block for existing `pstub'all variable
+		// Check to see if predict stub variable is present
+		cap confirm new v `argval'all
 		
-	// Check to see if the predicted variable is present
-	cap confirm new v `argval'
-	
-	// If the variable exists
-	if _rc != 0 {
-		
-		// Display an error message
-		di as err "The variable `argval' already exists.  You can drop "     ///
-		"the variable, or specify a new predict value stubname." 
-		
-		// Throw an error and exit
-		err 110
-		
-	} // End IF Block for existing `pstub'all variable
+		// If the variable exists
+		if _rc != 0 {
 			
+			// Display an error message
+			di as err "The variable `argval'all already exists.  You " 		 ///
+			"can drop the variable, or specify a new predict value stubname." 
+			
+			// Throw an error and exit
+			err 110
+			
+		} // End IF Block for existing `pstub'all variable
+			
+		// Check to see if the predicted variable is present
+		cap confirm new v `argval'
+		
+		// If the variable exists
+		if _rc != 0 {
+			
+			// Display an error message
+			di as err "The variable `argval' already exists.  You can drop " ///
+			"the variable, or specify a new predict value stubname." 
+			
+			// Throw an error and exit
+			err 110
+			
+		} // End IF Block for existing `pstub'all variable		
+		
+	} // End IF Block for non-missing pstub argument
+	
+	// If pstub is missing 
+	else {
+		
+		// If the retain option is triggered
+		if !mi(`"`retain'"') {
+			
+			// Confirm whether or not xvpred already exists
+			cap confirm new v xvpred xvpredall
+			
+			// If these variables don't already exist 
+			if _rc == 0 {
+				
+				// Use xvpred as the default name
+				loc prvar xvpred
+				
+			} // End IF Block for default predicted value variable name
+			
+			// Otherwise
+			else {
+				
+				// Get the current date/time stamp
+				loc cdt `= tc(`"`c(current_date)' `c(current_time)'"')' 
+				
+				// Add the current date time as a suffix to make the default 
+				// predicted variable name unique
+				loc prvar xvpred`: di substr(strofreal(`cdt', "%15.0g"), 1, 12)'
+				
+			} // End ELSE Block when the default predicted variable name is used
+			
+		} // End IF Block for non-missing retain
+		
+	} // End ELSE Block for missing pstub
+	
 	// Set the predict stub to use the tempvar
 	loc pstub "pstub(`xvpred')"
 	

@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! xvloo
-*! v 0.0.9
-*! 02mar2024
+*! v 0.0.11
+*! 06mar2024
 
 // Drop program from memory if already loaded
 cap prog drop xvloo
@@ -146,6 +146,9 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 	// Determine if this is TT or TVT
 	if `: word count `props'' == 1 {
 		
+**# Bookmark #2
+		// Add errors for unity proportions
+		
 		// Test the number of variables that need to be created vs allowed
 		if (`props' * `c(N)' + `c' + `c(k)' + 2) >= `c(max_k_theory)' {
 			
@@ -187,11 +190,11 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 	} // End ELSE Block for TVT split case
 	
 	// If there is anything in the missing local throw an error message
-	if mi(`"`metric'"') | mi(`"`pstub'"') {
+	if mi(`"`metric'"') {
 		
 		// Display the error message
-		di as err `"You must supply valid arguments to metric and pstub "'   ///   
-		`"to use the xv prefix."'
+		di as err `"You must supply a valid argument to the metric option "' ///   
+		`"to use the {help xvloo} prefix."'
 		
 		// Throw an error code to exit
 		err 198
@@ -261,6 +264,14 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 		
 	} // End IF Block to set default results values
 	
+	// If the user passes a split or pstub argument 
+	if !mi(`"`split'`pstub'"') {
+		
+		// set the retain option on automatically
+		loc retain retain
+		
+	} // End IF Block for non-missing split or pstub
+	
 	// If missing the split option
 	if mi(`"`split'"') {
 		
@@ -310,56 +321,86 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 		cap confirm new v `spvar'
 		
 		// If the variable already exists set the do split local to 0
-		if _rc != 0 {
-			
-			// Don't split the data again
-			loc dosplit 0
-			
-			// Update the split local with the existing variable name
-			loc split `split'
-			
-		} // End IF Block for existing split variable handling
-		
+		if _rc != 0 loc dosplit 0
+				
 		// If it doesn't exist set do split to 1
 		else loc dosplit 1
 				
 	} // End ELSE Block for present split option
 
-	// Parses the pstub option
-	mata: getarg("`pstub'")
+	// Check for a non-missing pstub argument
+	if !mi(`"`pstub'"') {
+		
+		// Parses the pstub option
+		mata: getarg("`pstub'")
+		
+		// Store the pstubn
+		loc prvar `argval'
+		
+		// Check to see if predict stub variable is present
+		cap confirm new v `argval'all
+		
+		// If the variable exists
+		if _rc != 0 {
+			
+			// Display an error message
+			di as err "The variable `argval'all already exists.  You " 		 ///
+			"can drop the variable, or specify a new predict value stubname." 
+			
+			// Throw an error and exit
+			err 110
+			
+		} // End IF Block for existing `pstub'all variable
+			
+		// Check to see if the predicted variable is present
+		cap confirm new v `argval'
+		
+		// If the variable exists
+		if _rc != 0 {
+			
+			// Display an error message
+			di as err "The variable `argval' already exists.  You can drop " ///
+			"the variable, or specify a new predict value stubname." 
+			
+			// Throw an error and exit
+			err 110
+			
+		} // End IF Block for existing `pstub'all variable		
+		
+	} // End IF Block for non-missing pstub argument
 	
-	// Store the pstubn
-	loc prvar `argval'
+	// If pstub is missing 
+	else {
 		
-	// Check to see if predict stub variable is present
-	cap confirm new v `argval'all
-	
-	// If the variable exists
-	if _rc != 0 {
+		// If the retain option is triggered
+		if !mi(`"`retain'"') {
+			
+			// Confirm whether or not xvpred already exists
+			cap confirm new v xvpred xvpredall
+			
+			// If these variables don't already exist 
+			if _rc == 0 {
+				
+				// Use xvpred as the default name
+				loc prvar xvpred
+				
+			} // End IF Block for default predicted value variable name
+			
+			// Otherwise
+			else {
+				
+				// Get the current date/time stamp
+				loc cdt `= tc(`"`c(current_date)' `c(current_time)'"')' 
+				
+				// Add the current date time as a suffix to make the default 
+				// predicted variable name unique
+				loc prvar xvpred`: di substr(strofreal(`cdt', "%15.0g"), 1, 12)'
+				
+			} // End ELSE Block when the default predicted variable name is used
+			
+		} // End IF Block for non-missing retain
 		
-		// Display an error message
-		di as err "The variable `argval'all already exists.  You can drop "  ///
-		"the variable, or specify a new predict value stubname." 
-		
-		// Throw an error and exit
-		err 110
-		
-	} // End IF Block for existing `pstub'all variable
-		
-	// Check to see if the predicted variable is present
-	cap confirm new v `argval'
-	
-	// If the variable exists
-	if _rc != 0 {
-		
-		// Display an error message
-		di as err "The variable `argval' already exists.  You can drop "     ///
-		"the variable, or specify a new predict value stubname." 
-		
-		// Throw an error and exit
-		err 110
-		
-	} // End IF Block for existing `pstub'all variable
+	} // End ELSE Block for missing pstub
 	
 	// Set the predict stub to use the tempvar
 	loc pstub "pstub(`xvpred')"
@@ -397,6 +438,12 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 		set seed `argval'
 		
 	} // End IF Block to set the pseudo-random number generator seed.
+	
+	// Gets any estimates that already exist
+	qui: estimates dir
+	
+	// Stores the existing estimate names in a global for predictit
+	glo xvstartest `r(names)'
 	
 	// Check to see if the user passed the state option
 	if !mi(`"`state'"') {
@@ -450,8 +497,8 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 	predictit, `pstub' `split' `classes' `kfold' `threshold' `noall' `pmethod' 
 	
 	// Compute the validation metrics for the LOO sample
-	validateit, `metric' `pstub' `split' `monitors' `display' `kfold' `noall' ///   
-				loo na(`valnm')
+	validateit, `metric' `pstub' `split' `monitors' `display' `kfold' 		 ///   
+				loo na(`valnm') `noall'
 	
 	// Loops over the names of the scalars created by validate it
 	foreach i in `r(allnames)' {

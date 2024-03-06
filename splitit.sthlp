@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.6 29feb2024}{...}
+{* *! version 0.0.7 06mar2024}{...}
 {viewerjumpto "Syntax" "splitit##syntax"}{...}
 {viewerjumpto "Description" "splitit##description"}{...}
 {viewerjumpto "Options" "splitit##options"}{...}
@@ -21,6 +21,10 @@
 {synoptline}
 {synopthdr}
 {synoptline}
+{syntab:Arguments}
+{synopt :{opt #}}The proportion of the data set to allocate to the training set.{p_end}
+{synopt :{it:{opt [#]}}}The proportion of the data set to allocate to the validation set.{p_end}
+{syntab:Options}
 {synopt :{opt u:id}}a variable list for clustered sampling/splitting{p_end}
 {synopt :{opt tp:oint}}a numeric, td(), tc(), or tC() value{p_end}
 {synopt :{opt k:fold}}the number of K-Folds to create in the training set; default is {cmd:kfold(1)}{p_end}

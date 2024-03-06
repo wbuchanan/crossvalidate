@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.4 29feb2024}{...}
+{* *! version 0.0.5 06mar2024}{...}
 {vieweralsosee "[R] predict" "mansection R predict"}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat_classification"}{...}
 {vieweralsosee "[P] creturn" "mansection P creturn"}{...}
@@ -27,7 +27,7 @@
 {marker syntax}{...}
 {title:Syntax}
 
-{p 8 32 2}
+{p 4 18 8}
 {cmd:xvloo} {it:# [#]} {cmd:,} {cmd:pstub(}{it:string asis}{cmd:)} 
 {cmd:metric(}{it:string asis}{cmd:)} 
 [{cmd:seed(}{it:integer}{cmd:)}
@@ -42,10 +42,13 @@
 {cmd:valnm(}{it:string asis}{cmd:)} 
 ] {cmd::} {cmd:{it:estimation command}}{p_end}
 
-{synoptset 25 tabbed}{...}
+{synoptset 15 tabbed}{...}
 {synoptline}
 {synopthdr}
 {synoptline}
+{syntab:Arguments}
+{synopt :{opt #}}The proportion of the data set to allocate to the training set.{p_end}
+{synopt :{it:{opt [#]}}}The proportion of the data set to allocate to the validation set.{p_end}
 {syntab:Required}
 {synopt :{opt pstub}}a new variable name for predicted values{p_end}
 {synopt :{opt metric}}the name of a function from {help libxv} or a user-defined function{p_end}

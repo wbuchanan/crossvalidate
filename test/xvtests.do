@@ -125,7 +125,6 @@ ta p
 webuse sysdsn1.dta, clear
 
 // Create a testcase for multiclass logit
-// This is failing due to p* being an invalid name during predictit
 xv 0.6, metric(mcacc) pstub(p) display classes(3) retain split(	csplit)		 ///   
 monitors(mcsens mcprec mcspec mcppv mcnpv mcbacc mcmcc mcf1 mcjindex 		 ///   
 mcdetect mckappa): mlogit insure age male nonwhite i.site
@@ -137,11 +136,32 @@ ta p
 webuse fullauto.dta, clear
 
 // Simple test case
-// This is failing due to p* being an invalid name during predictit
 xv 0.6, metric(mcacc) pstub(p) display classes(5) retain split(mcsplit)		 ///   
 monitors(mcsens mcprec mcspec mcppv mcnpv mcbacc mcmcc mcf1 mcjindex		 ///   
 mcdetect mckappa): ologit rep77 foreign length mpg
 
 // Tabulate the predicted values
 ta p
+
+// Load dataset for ivregress example
+webuse hsng2.dta, clear
+
+// Simple TT split case
+xv 0.8, metric(msle) pstub(p) display retain monitors(mse rmse mae bias mbe  ///   
+r2 mape smape rmsle rpd iic ccc huber phl rpiq r2ss) split(ivsplit):         ///   
+ivregress 2sls rent pcturban (hsngval = faminc i.region), small
+  
+// Summarize predicted outcome
+su p
+
+// Load dataset for poisson example
+webuse epilepsy.dta, clear
+
+// Simple TT split case
+xv 0.6, metric(pll) pstub(p) display retain monitors(mse rmse mae bias mbe   ///   
+r2 mape smape msle rmsle rpd iic ccc huber phl rpiq r2ss) split(poisplit) 	 ///   
+pmethod(n): poisson seizures treat lbas lbas_trt lage v4
+
+// Summarize the prediced outcomes
+su p
 
