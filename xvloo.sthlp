@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.5 06mar2024}{...}
+{* *! version 0.0.6 07mar2024}{...}
 {vieweralsosee "[R] predict" "mansection R predict"}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat_classification"}{...}
 {vieweralsosee "[P] creturn" "mansection P creturn"}{...}
@@ -28,17 +28,17 @@
 {title:Syntax}
 
 {p 4 18 8}
-{cmd:xvloo} {it:# [#]} {cmd:,} {cmd:pstub(}{it:string asis}{cmd:)} 
-{cmd:metric(}{it:string asis}{cmd:)} 
+{cmd:xvloo} {it:# [#]} {cmd:,} {cmd:metric(}{it:string asis}{cmd:)} 
 [{cmd:seed(}{it:integer}{cmd:)}
 {cmd:uid(}{it:varlist}{cmd:)} 
 {cmd:tpoint(}{it:string asis}{cmd:)} 
 {cmd:split(}{it:string asis}{cmd:)}
 {cmd:results(}{it:string asis}{cmd:)}
+{cmd:fitnm(}{it:string asis}{cmd:)} 
 {cmd:classes(}{it:integer}{cmd:)} {cmd:threshold(}{it:real}{cmd:)} 
+{cmd:pstub(}{it:string asis}{cmd:)} 
 {cmd:noall} {cmd:monitors(}{it:string asis}{cmd:)} 
 {cmd:display} {cmd:retain}
-{cmd:fitnm(}{it:string asis}{cmd:)} 
 {cmd:valnm(}{it:string asis}{cmd:)} 
 ] {cmd::} {cmd:{it:estimation command}}{p_end}
 
@@ -50,7 +50,6 @@
 {synopt :{opt #}}The proportion of the data set to allocate to the training set.{p_end}
 {synopt :{it:{opt [#]}}}The proportion of the data set to allocate to the validation set.{p_end}
 {syntab:Required}
-{synopt :{opt pstub}}a new variable name for predicted values{p_end}
 {synopt :{opt metric}}the name of a function from {help libxv} or a user-defined function{p_end}
 {syntab:Split}
 {synopt :{opt seed}}to set the pseudo-random number generator seed{p_end}
@@ -58,12 +57,14 @@
 {synopt :{opt tpoint}}a numeric, td(), tc(), or tC() value{p_end}
 {synopt :{opt split}}a new variable name; default is {cmd:split(_xvsplit)}{p_end}
 {syntab:Fit}
-{synopt :{opt results}}a stub for storing estimation results{p_end}
+{synopt :{opt results}}a stub for storing estimation results; default is {cmd:results(xvres)}{p_end}
+{synopt :{opt noall}}suppresses fitting the model to the entire training set{p_end}
+{synopt :{opt fitnm}}is used to name the collection storing the results; default is {cmd:fitnm(xvfit)}.{p_end}
 {syntab:Predict}
+{synopt :{opt pstub}}a new variable name for predicted values; default is {cmd:pstub(_xvpred)}{p_end}
 {synopt :{opt classes}}is used to specify the number of classes for classification models; default is {cmd:classes(0)}.{p_end}
 {synopt :{opt threshold}}positive outcome threshold; default is {cmd:threshold(0.5)}{p_end}
 {synopt :{opt noall}}suppresses prediction on entire training set for K-Fold cases{p_end}
-{synopt :{opt fitnm}}is used to name the collection storing the results; default is {cmd:fitnm(xvfit)}.{p_end}
 {syntab:Validate}
 {synopt :{opt monitors}}zero or more function names from {help libxv} or user-defined functions; default is {cmd:monitors()}{p_end}
 {synopt :{opt valnm}}is used to name the collection storing the results; default is {cmd:valnm(xvval)}.{p_end}
@@ -91,9 +92,11 @@ cross-validation seemless and easy for Stata users.
 {pstd}
 {cmd:IMPORTANT:} you must specify the full name of the options used by 
 {cmd:xvloo}.  If you attempt to pass an abbreviated option name, it will not be 
-recognized by the command and will be ignored.  Additionally, while 
-{help validateit} includes a {opt loo} option, it is unnecessary to use that 
-option with this prefix.  
+recognized by the command and will be ignored. Additionally, immediately 
+following the {cmd:xvloo} command, you must specify the proportion of the 
+dataset to allocate to the training set.  The training proportion can be 1.  
+If this is what you specify, the {opt noall} option will be turned on 
+automatically.
 
 INCLUDE help xvphases
 
@@ -101,13 +104,6 @@ INCLUDE help xvphases
 {title:Options}
 
 {dlgtab:Required}
-
-{phang}
-{opt pstub} is used to define a new variable name/stub for the predicted values
-from the validation/test set.  When K-Fold cross-validation is used, this 
-option defines the name of the variable containing the predicted values from 
-each of the folds and will be used as a variable stub to store the results from 
-fitting the model to all of the training data. 
 
 {phang}
 {opt metric} the name of a {help libxv} or user-defined function, with the 
@@ -145,30 +141,50 @@ the forecasting period data will not affect the model training.
 
 {phang}
 {opt split} is used to specify the name of a new variable that will store the 
-identifiers for the splits in the data.
+identifiers for the splits in the data.  If a value is passed to the {opt split}, 
+{opt pstub}, or {opt results} options it will trigger the {opt retain} option 
+to be turned on. The default value in the case where the {opt retain} option is 
+on and no value is passed to {opt split} is _xvsplit.
 
 {dlgtab:Model Fitting}
 
 {phang}
 {opt results} is used to {help estimates_store:estimates store} the estimation 
-results from each of the {opt kfold} folds in the dataset.  When used with 
-K-Fold cross-validation, the estimation results returned by {help ereturn} will 
-be based on fitting the model to the entire training set.  Results from each of 
-the training folds can be easily recovered using the appropriate reference 
-passed to the {opt results} option.  In this case, you will need to add the 
-fold number as a suffix to the name you pass to the {opt results} option to 
-recover the estimation results for that fold.  The fold number identifies the 
-held-out fold.  So, the number 1 will recover the model that was fitted to all 
-of the training folds except number 1.
+results from fitting the model on each fold in the dataset.  When {opt kfold} is 
+> 1 and the {opt noall} option is omitted, an additional result will be stored 
+from fitting the model to the entire training split.  Additionally, if a value 
+is passed to the {opt split}, {opt pstub}, or {opt results} options it will 
+trigger the {opt retain} option to be turned on. The default value in the case 
+where the {opt retain} option is on and no value is passed to {opt results} is 
+xvres.
 
 {phang}
 {opt fitnm} is an option to pass a name to the collection created to store the 
 results.  When {cmd fitit} is executed, it will initialize a new collection 
 or replace the existing collection with the same name.  If you want to retain 
 the validation results from multiple executions, pass an argument to this 
-option.  {it:Note:} this only affects users using Stata 17 or later.
+option.  {it:Note:} this only affects users using Stata 17 or later.  The 
+default name is
+
+{phang}
+{opt noall} is an option to prevent fitting, predicting, and validating a model 
+that is fitted to the entire training set when using K-Fold cross-validation 
+with a train/test or train/validation/test split. If the training set proportion 
+is set to 1, this option will be automatically enabled.
 
 {dlgtab:Predicting Out-of-Sample Results}
+
+{phang}
+{opt pstub} is used to define a new variable stub name for the predicted values
+generated during the cross-validation process.  When {opt kfold} > 1 and the 
+option {opt noall} is omitted, an additional variable is generated based on the 
+fit of the model to the entire training set, with the predictions made on the 
+validation set, if present, or the test set.  Additionally, if a value 
+is passed to the {opt split}, {opt pstub}, or {opt results} options it will 
+trigger the {opt retain} option to be turned on. The default value in the case 
+where the {opt retain} option is on and no value is passed to {opt pstub} is 
+_xvpred.  If this variable already exists, a suffix based on the timestamp when 
+the command is executed is added as a suffix.
 
 {phang}
 {opt classes} is used to distinguish between models of non-categorical data (
@@ -212,7 +228,11 @@ window.
 
 {phang}
 {opt retain} is used to retain the variables created, stored estimation results, 
-and dataset characteristics that are generated by {cmd:xvloo}.
+and dataset characteristics that are generated by {cmd:xv}.  If an argument is 
+passed to either the {opt split}, {opt pstub}, or {opt results} options, retain 
+is automatically turned on and default names will be used for the split 
+variable, predicted outcome variable, and/or estimation results names if they 
+are not provided by the user.
 
 {marker examples}{...}
 {title:Examples}

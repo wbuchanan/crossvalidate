@@ -46,7 +46,7 @@ xv 0.8, pstub(ttkfpred) metric(mae) kfold(5): reg price mpg length if !mi(rep78)
 xv 0.6 0.2, pstub(tvtkfpred) metric(mbe) kfold(3): reg price mpg length, vce(rob)
 
 // Clustered K-Fold TT Split
-xv 0.8, pstub(ttkfclpred) metric(phl) uid(rep78) kfold(4): reg price mpg length, vce(rob)
+xv 0.8, metric(phl) uid(rep78) kfold(4) display retain: reg price mpg length, vce(rob)
 
 ```
 
@@ -62,8 +62,10 @@ trigger the retain option automatically for users
 - [ ] Standardize language in help files
 - [x] Finish writing test cases for Mata functions
 - [ ] Finish writing test cases for ADO commands
-- [ ] Update the syntax information in the README to match the current state of 
+- [x] Update the syntax information in the README to match the current state of 
 the commands
+- [ ] Consider rolling version back to 14.2; running tests on the old MBP showed 
+passing results across the board
 
 # libxv
 
@@ -95,79 +97,147 @@ The programs in the cross validate package will handle the construction of the
 variables and passing them to the function name that users pass to the programs. 
 
 ### Building the library
-Once we are ready to build the Mata library we should do the following:
+Once we are ready to build the Mata library we should do the following using an 
+instance of Stata 15.
 
 `
-// Clear everything from memory
-clear all
+// Clear everything out of Mata
+mata: mata clear 
 
 // Define all of the Mata functions in memory
-do crossvalidate.mata
-
-// Build the library with all of the functions defined in crossvalidate.mata
-lmbuild libxv
+run crossvalidate.mata
 
 // If the library is already built, use this instead:
-lmbuild libxv, replace 
+lmbuild libxv, replace dir(`"`c(pwd)'"')
 `
 
-## Testing/QA
-- [x] Test function getifin
-- [x] Test function getnoifin
-- [x] Test function cvparse
-- [x] Test function getarg
-- [x] Test function to create the confusion matrix for classification 
-- [x] Test function for Binary Sensitivity
-- [x] Test function for Binary Precision
-- [x] Test function for Binary Recall
-- [x] Test function for Binary Specificity
-- [x] Test function for Binary Prevalence
-- [x] Test function for Binary Positive Predictive Value
-- [x] Test function for Binary Negative Predictive Value
-- [x] Test function for Binary Accuracy
-- [x] Test function for Binary Balanced Accuracy
-- [x] Test function for Binary F1
-- [x] Test function for Youden's J statistic (J-index)
-- [x] Test function for Matthew's Correlation Coefficient
-- [x] Test function for Binary R^2
-- [x] Test function for Multinomial Sensitivity
-- [x] Test function for Multinomial Precision
-- [x] Test function for Multinomial Recall
-- [x] Test function for Multinomial Specificity
-- [x] Test function for Multinomial Prevalence
-- [x] Test function for Multinomial Positive Predictive Value
-- [x] Test function for Multinomial Negative Predictive Value
-- [x] Test function for Multinomial Accuracy
-- [x] Test function for Multinomial Balanced Accuracy
-- [x] Test function for Multinomial F1
-- [x] Test function for Multinomial Detection Prevalence
-- [x] Test function for Multinomial J-Index
-- [x] Test function for Multinomial Kappa coefficient
-- [x] Test function for Multinomial Matthew's Correlation Coefficient
-- [ ] Test function for Ordinal R^2
-- [x] Test function for Mean Squared Error
-- [x] Test function for Mean Absolute Error
-- [x] Test function for Bias
-- [x] Test function for MBE
-- [x] Test function for R^2 (Pearson Correlation Coefficient)
-- [x] Test function for Root Mean Squared Error
-- [x] Test function for Mean Absolute Percentage Error
-- [x] Test function for Symmetric Mean Absolute Percentage Error
-- [x] Test function for Mean-Squared Log Error
-- [x] Test function for Root Mean-Squared Log Error
-- [x] Test function for Ratio of Performance to Deviation
-- [x] Test function for Index of ideality of correlation
-- [x] Test function for Concordance Correlation Coefficient
-- [x] Test function for Pseudo-Huber Loss
-- [x] Test function for Poisson Log Loss
-- [x] Test function for Huber Loss
-- [x] Test function for Ratio of Performance to Interquartile Range
-- [x] Test function for Traditional R^2
- 
-# Main Commands 
+# Prefix Commands
+## xv
+`xv # [#], metric(string asis) [seed(integer) uid(varlist) tpoint(string asis) split(string asis) kfold(integer) results(string asis) fitnm(string asis) classes(integer) pstub(string asis) noall monitors(string asis) display retain valnm(string asis)] : estimation command ...`
+
+### Syntax and options
+* \# - The proportion of the data set to allocate to the training set. _Note if 
+the training allocation is set to unity, it will automatically trigger the 
+`noall` option.
+* [\#] - The proportion of the data set to allocate to the validation set.
+* metric(_string asis_) - the name of a function from libxv or a user-defined 
+function.  Optional arguments for the metric function can be passed as a matrix.  
+For example, metric(ccc((1))) or metric(ccc(("y"))).  See help documentation 
+for cases where options are supported, as well as the required format for those 
+options.
+* kfold(_integer_) - An optional parameter that implements K-Fold 
+cross-validation with the number of folds specified by the user.  The default is 
+1, which is the equivalent of simple train/test or train/validation/test splits.
+* seed(_integer_) - to set the pseudo-random number generator seed
+* uid(_varlist_) - a variable list for clustered sampling/splitting.  _Note, the 
+variable list must be specified the order from highest to lowest level of 
+nesting of the data; cross-classified sampling is not currently supported._
+* tpoint(_string asis_) - a numeric, td(), tc(), or tC() value. 
+* split(_string asis_) - a new variable name that will store the split 
+identifiers in the data.  If a value is passed to the `split`, `pstub`, or 
+`results` options it will trigger the `retain` option to be turned on. The 
+default value in the case where the `retain` option is on and no value is passed 
+to `split` is _xvsplit.
+* results(_string asis_) - a stubname for storing estimation results.  The name 
+provided cannot end in a number. If a value is passed to the `split`, `pstub`, 
+or `results` options it will trigger the `retain` option to be turned on. 
+The default value in the case where the `retain` option is on and no value is 
+passed to `results` is xvres.
+
+* noall - suppresses fitting the model to the entire training set. _Note: this 
+is only applicable to cases where `kfold` > 1 (which includes xvloo)._
+* fitnm(_string asis_) - is used to name the collection storing the results; 
+the default is xvfit and only applies to users of Stata 17 and above.
+* classes(_integer_) - is used to specify the number of classes for 
+classification models; default is 0 which is used to denote non-classification 
+models.  Additionally, if using a binary outcome, remember that there are two 
+(2) classes.
+* threshold(_real_) - positive outcome threshold for classification in binary 
+outcome models; default is 0.5.
+* pstub(_string asis_) - a new variable name for predicted values.   If a value 
+is passed to the `split`, `pstub`, or `results` options it will trigger the 
+`retain` option to be turned on. The default value in the case where the 
+`retain` option is on and no value is passed to `pstub` is _xvpred.  If the 
+variable _xvpred already exists a suffix based on the timestamp when the command 
+is executed is used.
+* monitors(_string asis_) - zero or more function names from libxv or 
+user-defined functions.  Optional arguments for the monitors function can be 
+passed as a matrix.  For example, monitors(ccc((1)) mae(("y")) rmse((1, 2, 3))).  
+See help documentation for cases where options are supported, as well as the 
+required format for those options.
+* valnm(_string asis_) - is used to name the collection storing the validation 
+results; default is xvval and only applies to users of Stata 17 and above.
+* display - display estimation and validation results in the results pane; 
+default is off
+* retain - retains the `split` and `pstub` variables and stored estimation 
+results after execution.  If this option is specified without arguments passed 
+to the `split`, `pstub`, or `results` options, the default names are used for 
+them.
+
+
+
+## xvloo
+`xvloo # [#], metric(string asis) [seed(integer) uid(varlist) tpoint(string asis) split(string asis) results(string asis) fitnm(string asis) classes(integer) pstub(string asis) noall monitors(string asis) display retain valnm(string asis)] : estimation command ...`
+
+### Syntax and options
+* \# - The proportion of the data set to allocate to the training set. _Note if 
+the training allocation is set to unity, it will automatically trigger the 
+`noall` option.
+* [\#] - The proportion of the data set to allocate to the validation set.
+* metric(_string asis_) - the name of a function from libxv or a user-defined 
+function.  Optional arguments for the metric function can be passed as a matrix.  
+For example, metric(ccc((1))) or metric(ccc(("y"))).  See help documentation 
+for cases where options are supported, as well as the required format for those 
+options.
+* seed(_integer_) - to set the pseudo-random number generator seed
+* uid(_varlist_) - a variable list for clustered sampling/splitting.  _Note, the 
+variable list must be specified the order from highest to lowest level of 
+nesting of the data; cross-classified sampling is not currently supported._
+* tpoint(_string asis_) - a numeric, td(), tc(), or tC() value. 
+* split(_string asis_) - a new variable name that will store the split 
+identifiers in the data.  If a value is passed to the `split`, `pstub`, or 
+`results` options it will trigger the `retain` option to be turned on. The 
+default value in the case where the `retain` option is on and no value is passed 
+to `split` is _xvsplit.
+* results(_string asis_) - a stubname for storing estimation results.  The name 
+provided cannot end in a number. If a value is passed to the `split`, `pstub`, 
+or `results` options it will trigger the `retain` option to be turned on. 
+The default value in the case where the `retain` option is on and no value is 
+passed to `results` is xvres.
+* noall - suppresses fitting the model to the entire training set. _Note: this 
+is only applicable to cases where `kfold` > 1 (which includes xvloo)._
+* fitnm(_string asis_) - is used to name the collection storing the results; 
+the default is xvfit and only applies to users of Stata 17 and above.
+* classes(_integer_) - is used to specify the number of classes for 
+classification models; default is 0 which is used to denote non-classification 
+models.  Additionally, if using a binary outcome, remember that there are two 
+(2) classes.
+* threshold(_real_) - positive outcome threshold for classification in binary 
+outcome models; default is 0.5.
+* pstub(_string asis_) - a new variable name for predicted values.   If a value 
+is passed to the `split`, `pstub`, or `results` options it will trigger the 
+`retain` option to be turned on. The default value in the case where the 
+`retain` option is on and no value is passed to `pstub` is _xvpred.  If the 
+variable _xvpred already exists a suffix based on the timestamp when the command 
+is executed is used.
+* monitors(_string asis_) - zero or more function names from libxv or 
+user-defined functions.  Optional arguments for the monitors function can be 
+passed as a matrix.  For example, monitors(ccc((1)) mae(("y")) rmse((1, 2, 3))).  
+See help documentation for cases where options are supported, as well as the 
+required format for those options.
+* valnm(_string asis_) - is used to name the collection storing the validation 
+results; default is xvval and only applies to users of Stata 17 and above.
+* display - display estimation and validation results in the results pane; 
+default is off
+* retain - retains the `split` and `pstub` variables and stored estimation 
+results after execution.  If this option is specified without arguments passed 
+to the `split`, `pstub`, or `results` options, the default names are used for 
+them.
+
+# Phase Specific Commands 
 
 ## splitit
-`splitit # [#] [if] [in] [, Uid(varlist) TPoint(string asis) KFold(integer 0) RETain(string asis)]`
+`splitit # [#] [if] [in] [, Uid(varlist) TPoint(string asis) KFold(integer 1) SPLit(string asis) loo]`
 
 ### Syntax and options
 * \# [\#] - At least one numeric value in [0, 1].  A single value is used for 
@@ -183,146 +253,95 @@ to split the data into train/validation/test sets.  Requires the data to be
 -xt/tsset-.  If a panel variable is defined in -xtset- it will be used to ensure the 
 split includes entire records prior to the time period used for the split.  If 
 -uid- is also specified, it must include the panel variable.
-* <ins>kf</ins>old(_integer 0_) - An optional parameter to trigger the use of 
+* <ins>kf</ins>old(_integer 1_) - An optional parameter to trigger the use of 
 K-Fold crossvalidation.  The number of folds specified will be used to generate 
 the splits.  
-* <ins>ret</ins>ain(_string asis_) - An optional parameter to specify the name 
-to use for the split identifiers.  If a user specified value is passed to this 
-parameter it will prevent the wrapper programs from dropping the variable with 
-the splits at the end of execution.  This would allow users to test multiple 
-models with the same training set, for example.
-
-### Decisions
-- [x] Should the kfold option cause the splitting to generate K-Folds in the 
-validation set?  _Changed so the validation and test sets do not have any folds._
-- [x] Are we handling time-series/panel train/test splits in the best/most common way? _This is tricky since most of the literature I've seen related to this is done in the context of forecasting.  So, now the data will be split, and an additional variable will be created to indicate the records that should be used to test subsequent forecasting (e.g., the timepoints > `tpoint')._
-- [x] Change the type for tpoint to string asis so we can test for no value instead of -999 to avoid any potential clashes with dates and to allow users to specify values like `td(01jan2024)`. _updated to allow arbitrary values to be passed.  need to include an additional validation test on the tpoint input along the lines of "(t[dcC].*)|([\d\.]+)" to allow all potential date, datetime, and numeric representations of time to be passed._
-- [x] Update handling for xt cases to check : char \_dta[iis] and : char \_dta[tis] 
-for the panel and time variables instead of handling an error from a call to `xtset`. _the program now gets the xt/ts set information from these characteristics instead of capturing a call to xtset._
-
-### Testing
-Here are things that we need to test for this program:
-- [x] Standard train/test split functions correctly (e.g., requested proportions)
-- [x] Standard tt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
-- [x] Standard train/validation/test split functions correctly (e.g., requested proportions)
-- [x] Standard tvt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
-- [x] K-Fold train/test split functions correctly (e.g., requested proportions)
-- [x] K-Fold tt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
-- [x] K-Fold train/validation/test split functions correctly (e.g., requested proportions)
-- [x] K-Fold tvt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
-- [x] XT/Panel train/test split functions correctly (e.g., requested proportions)
-- [x] XT/Panel tt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
-- [x] XT/Panel train/validation/test split functions correctly (e.g., requested proportions)
-- [x] XT/Panel tvt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
-- [x] XT/Panel K-Fold train/test split functions correctly (e.g., requested proportions)
-- [x] XT/Panel K-Fold tt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
-- [x] XT/Panel K-Fold train/validation/test split functions correctly (e.g., requested proportions)
-- [x] XT/Panel K-Fold tvt-split functions correctly with uid (e.g., clusters are sampled correctly with correct proportions)
-- [x] Test all cases that should throw an error
-- [x] Test all of the above scenarios with if expressions
+* <ins>spl</ins>it(_string asis_) - An option to specify the name of the variable 
+that will store the identifiers for each of the splits and folds.
+* loo - An option used when splitting a dataset for use in leave-one-out 
+cross-validation.
 
 ## fitit
-`fitit anything(name = cmd) , PStub(string asis) SPLit(passthru) [ Classes(integer 0) RESults(string asis) Kfold(integer 1) THReshold(passthru)]`
+`fitit anything(name = cmd) , SPLit(passthru) RESults(string asis) [ Kfold(integer 1) noall DISplay NAme(string asis)]`
 
 ### Syntax and options
 * cmd is the estimation command the user wishes to fit to the data
-* <ins>ps</ins>tub(string asis) - A variable name to use to store the predicted values following model fitting.
-* <ins>spl</ins>it(passthru) - specifies the name of the variable used to identify the train/validate/test or KFold splits in the dataset.
-* <ins>c</ins>lasses(integer 0) - An option used to determine whether the model is a regression or classification task.  This is subsequently passed to the classify program.
-* <ins>res</ins>ults(string asis) - A name to use to store estimation results persistently using `estimates store`.
-* <ins>k</ins>fold(integer 1) - An option used to determine if the model needs to be fitted over k subsets of the data.
-* <ins>thr</ins>eshold(passthru) - An option that is passed to the classify program for predicting class membership in classification tasks.
-
-### TODO
-- [x] Determine how we will handle updating and substituting the if/in statements for estimation and prediction respectively
-- [x] Update help file and syntax here to reflect only parameters required for model fitting
-- [x] Develop tests for the command
-
-### Testing
-- [x] Biggest test will be ensuring that the if/in statements are handled appropriately for estimation
+* <ins>spl</ins>it(passthru) - specifies the name of the variable used to 
+identify the train/validate/test or KFold splits in the dataset.
+* <ins>res</ins>ults(string asis) - A name to use to store estimation results 
+`estimates store`.
+* <ins>k</ins>fold(integer 1) - An option used to determine if the model needs 
+to be fitted over k subsets of the data.
+* noall - Is an option to suppress fitting the model to the entire training set 
+when the number of folds in the training set is > 1.
+* <ins>dis</ins>play - An option to show estimation results from all of the 
+models fitted to each of the folds.
+* <ins>na</ins>me(_string asis_) - is used to name the collection storing the 
+results; the default is xvfit and only applies to users of Stata 17 and above.
 
 
 ## predictit
-`predictit [anything(name = cmd)], PStub(string asis) [SPLit(passthru) Classes(integer 0) Kfold(integer 1) THReshold(passthru) MODifin(string asis) KFIfin(string asis) noall]`
+`predictit [anything(name = cmd)], PStub(string asis) [SPLit(passthru) Classes(integer 0) Kfold(integer 1) THReshold(passthru) MODifin(string asis) KFIfin(string asis) noall PMethod(string asis)]`
 
 ### Syntax and options
 * cmd is the estimation command the user wishes to fit to the data
-* <ins>ps</ins>tub(string asis) - A variable name to use to store the predicted values following model fitting.
-* <ins>spl</ins>it(passthru) - specifies the name of the variable used to identify the train/validate/test or KFold splits in the dataset.
-* <ins>c</ins>lasses(integer 0) - An option used to determine whether the model is a regression or classification task.  This is subsequently passed to the classify program.
-* <ins>k</ins>fold(integer 1) - An option used to determine if the model needs to be fitted over k subsets of the data.
-* <ins>thr</ins>eshold(passthru) - An option that is passed to the classify program for predicting class membership in classification tasks.
-* <ins>mod</ins>ifin(string asis) - the modified if expression used to generate the out of sample predictions.
-* <ins>kfi</ins>fin(string asis) - the modified if expression used to generate the out of sample predictions for the full training sample when using K-Fold cross-validation.
-* noall - suppresses prediction on the entire training sample when using K-Fold cross-validation.
-* <ins>pm</ins>ethod(string asis) - the method (statistic) to predict with the out-of-sample/held-out data.
-
-### TODO
-- [x] Need to find a solution to call individual estimation results when \*# 
-does not work (e.g., LOO cases)
-
-### Testing
-- [x] Initial Tests 
-- [x] Tests for error codes
-- [ ] Tests related to LOO use case
+* <ins>ps</ins>tub(string asis) - A variable name to use to store the predicted 
+values following model fitting.
+* <ins>spl</ins>it(passthru) - specifies the name of the variable used to 
+identify the train/validate/test or KFold splits in the dataset.
+* <ins>c</ins>lasses(integer 0) - An option used to determine whether the model 
+is a regression or classification task.  This is subsequently passed to the 
+classify program.
+* <ins>k</ins>fold(integer 1) - An option used to determine the appropriate 
+subset of data to use for predictions.
+* <ins>thr</ins>eshold(passthru) - An option that is passed to the classify 
+program for predicting class membership in classification tasks.
+* <ins>mod</ins>ifin(string asis) - the modified if expression used to generate 
+the out of sample predictions.
+* <ins>kfi</ins>fin(string asis) - the modified if expression used to generate 
+the out of sample predictions for the full training sample when using K-Fold 
+cross-validation.
+* noall - suppresses prediction on the entire training sample when using K-Fold 
+cross-validation.
+* <ins>pm</ins>ethod(string asis) - the method (statistic) to predict with the out-of-sample/held-out data. Defaults to xb when `classes` == 0 and pr in all 
+other cases.
 
 
 ## validateit
-`validateit [if] [in], MEtric(string asis) [MOnitors(string asis) Pred(string asis) Obs(string asis) DISplay`
+`validateit, MEtric(string asis) PStub(string asis) SPLit(string asis)  [Obs(string asis) MOnitors(string asis) DISplay KFold(integer 1) noall loo NAme(string asis)]`
 
 ### Syntax and options
-* [if] [in] used to ensure that we are only computing the metrics/monitors on 
-the validation sample.
 * <ins>me</ins>tric(string asis) - specifies the name of the Mata function to 
-use as the validation metric.  In the future this would be the value that would 
-be optimized by any hyperparameter tuning capabilities.
-* <ins>mo</ins>nitors(string asis) - this can be a list of functions used to 
-evaluate the model performance on the out of sample data.   There can be any 
-number of monitors since they are not involved in hyperparameter tuning.
-* <ins>p</ins>red(string asis) - the name of the variable containing the 
-predicted values from the model.
+use as the validation metric.  Options can be passed to the metric, see the 
+help for libxv or validateit to identify which metrics support this and to 
+see the requirements for specifying options.
+* <ins>ps</ins>tub(string asis) - A variable name to use to store the predicted 
+values following model fitting.
+* <ins>spl</ins>it(passthru) - specifies the name of the variable used to 
+identify the train/validate/test or KFold splits in the dataset.
 * <ins>o</ins>bs(string asis) - the name of the dependent variable from the model.
+* <ins>mo</ins>nitors(string asis) - this can be a list of functions used to 
+evaluate the model performance on the out of sample data.   Options can be 
+passed if the function supports it.  See help documentation for additional info.
 * <ins>dis</ins>play - an option to print the monitor and metric values to the 
 console.
+* <ins>k</ins>fold(integer 1) - An option used to compute validation metrics and 
+monitors for each fold, as well as the entire training set if the `noall` option 
+is not passed.
 * noall - suppresses prediction on the entire training sample when using K-Fold cross-validation.
-
-### Testing
-- [x] Need to ensure that the return scalars are correctly populated
-- [x] Test that the display option works correctly and that output is easy to read
-- [x] Test that approach to calling the Mata functions works as intended
-
-### TODO
-- [x] Add an option for LOO that only computes validation metrics for the entire
-training sample.
-
-## xv
-
-### Syntax and options
-
-
-### Testing
-- [ ] Handling of `in` expressions passed to estimation commands
-
-
-## xvloo
-
-### Syntax and options
-Should have the exact same syntax as above, with the exception of no K-Fold 
-argument.  
-
-### TODO
-- [x] Initial testing to get things running start to finish
-
-### Testing
-- [ ] Handling of `in` expressions passed to estimation commands
-
-
-
+* loo - Is an option used specifically for leave-one-out cross-validation.  It 
+computes validation metrics for the entire training split based on the predicted 
+and observed values from each of the folds.  If the `noall` option is omitted it 
+will also compute the validation metrics from a model fitted to the entire 
+training set with predictions made on the validation set, if present, or test 
+set, if no validation set is present.
+* <ins>na</ins>me(_string asis_) - is used to name the collection storing the 
+results; the default is xvval and only applies to users of Stata 17 and above.
 
 # Utility commands
 
 ## classify
-`classify # [if], PStub(string asis) [ THReshold(real 0.5) ]`
+`classify # [if], PStub(string asis) [ THReshold(real 0.5) PMethod(string asis)]`
 
 ### Syntax and options
 * \# - This is the number of classes of the outcome variable being modeled.  This 
@@ -333,14 +352,6 @@ predicted classes from the model.
 of predicted probabilities in the case of binary outcome models.  The value of 
 the threshold must be in (0, 1).
 * <ins>pm</ins>ethod(string asis) - the method (statistic) to predict with the out-of-sample/held-out data.
-
-### Testing
-Here are things that we need to test for this program:
-- [x] Binary classification works correctly with user specified or default threshold
-- [x] Multi-class classification works correctly (e.g., highest probability class is predicted)
-- [x] The prediction is returned in the variable specified by pstub
-- [x] Mutli-class probabilities are not returned, but the predicted class is returned in pstub
-- [x] Make sure numbers attached to pstub* for multiclass cases are consistent with the value being predicted
 
 ## state
 `state `
@@ -361,19 +372,9 @@ used in the dataset.  The default value indicates that K-Fold cross-validation
 is not being used and the data should be treated like a train/test or 
 train/validation/test split.
 
-### Returns
-* r(cmdmod) - The modified estimation command string to fit the data to the 
-appropriate subset of the data for training.
-* r(predifin) - An if expression used to ensure predictions are made on the 
-appropriate subset of data.
-* r(kfcmdmod) - Like cmdmod, but used only in K-Fold cross-validation to fit the 
-model one last time to all of the training data simultaneously.
-* r(kfpredifin) - Like predifin, but used only in K-Fold cross-validation to 
-ensure the predictions are made only on the held out validation set.  
+## libxv
+`libxv [, DISplay ]`
 
-
-### Testing
-- [x] See cmdmodtests.do for a certification script.
-- [x] Add tests for commands that include `inlist()` and/or `inrange()` functions
-- [x] Add tests for commands that include quoted string arguments
-
+### Syntax and options
+* <ins>dis</ins>play - displays the libxv help file after recompiling the Mata 
+library.

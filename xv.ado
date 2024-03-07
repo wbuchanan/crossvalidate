@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! xv
-*! v 0.0.9
-*! 06mar2024
+*! v 0.0.10
+*! 07mar2024
 
 // Drop program from memory if already loaded
 cap prog drop xv
@@ -166,6 +166,14 @@ prog def xv, eclass properties(prefix xv)
 		
 	} // End IF Block for missing required parameters
 		
+	// If the user passes a split or pstub argument 
+	if !mi(`"`split'`pstub'`results'"') {
+		
+		// set the retain option on automatically
+		loc retain retain
+		
+	} // End IF Block for non-missing split or pstub
+	
 	// Test if results is missing a value
 	if mi(`"`results'"') {
 		
@@ -176,14 +184,6 @@ prog def xv, eclass properties(prefix xv)
 		if mi("`retain'") loc dropresults "estimates drop xvres*"
 		
 	} // End IF Block to set default results values
-	
-	// If the user passes a split or pstub argument 
-	if !mi(`"`split'`pstub'"') {
-		
-		// set the retain option on automatically
-		loc retain retain
-		
-	} // End IF Block for non-missing split or pstub
 	
 	// If missing the split option
 	if mi(`"`split'"') {
@@ -289,13 +289,13 @@ prog def xv, eclass properties(prefix xv)
 		if !mi(`"`retain'"') {
 			
 			// Confirm whether or not xvpred already exists
-			cap confirm new v xvpred xvpredall
+			cap confirm new v _xvpred _xvpredall
 			
 			// If these variables don't already exist 
 			if _rc == 0 {
 				
 				// Use xvpred as the default name
-				loc prvar xvpred
+				loc prvar _xvpred
 				
 			} // End IF Block for default predicted value variable name
 			
@@ -307,7 +307,7 @@ prog def xv, eclass properties(prefix xv)
 				
 				// Add the current date time as a suffix to make the default 
 				// predicted variable name unique
-				loc prvar xvpred`: di substr(strofreal(`cdt', "%15.0g"), 1, 12)'
+				loc prvar _xvpred`: di substr(strofreal(`cdt', "%15.0g"), 1, 12)'
 				
 			} // End ELSE Block when the default predicted variable name is used
 			

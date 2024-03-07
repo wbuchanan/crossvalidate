@@ -78,10 +78,10 @@ prog def classify,
 	else {
 		
 		// Generate predicted values
-		predict double `pstub'* if `touse', `pmethod'
+		predict double `pstub'_* if `touse', `pmethod'
 		
 		// Get the names of the variables that were just generated
-		ds `pstub'*
+		qui: ds `pstub'_*
 		
 		// Store varlist
 		loc pvars `r(varlist)'

@@ -123,8 +123,9 @@ loc pvars `r(varlist)'
 egen double pstub = rowmax(`pvars')
 
 // Manually code the changes for pstub
-replace pstub = cond(pstub == pvars1, 1, cond(pstub == pvars2, 2,			 ///   
-				cond(pstub == pvars3, 3, .)))
+replace pstub = cond(pstub == pvars1 & !mi(pvars1), 1,						 ///   
+				cond(pstub == pvars2 & !mi(pvars2), 2,						 ///   
+				cond(pstub == pvars3 & !mi(pvars3), 3, .)))
 				
 // Compress the values of pstub
 compress pstub

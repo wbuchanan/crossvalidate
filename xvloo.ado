@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! xvloo
-*! v 0.0.11
-*! 06mar2024
+*! v 0.0.12
+*! 07mar2024
 
 // Drop program from memory if already loaded
 cap prog drop xvloo
@@ -48,6 +48,28 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 	
 	// Tokenize the input string
 	gettoken cv cmd : 0, parse(":") bind 
+	
+	// Remove leading colon from the estimation command
+	loc cmd `= substr(`"`cmd'"', 2, .)'
+	
+	// Check for if/in conditions
+	mata: getifin(`"`cmd'"')
+	
+	// If there is an if/in expression 
+	if ustrregexm(`"`ifin'"', "\s?in\s+") {
+		
+		// Create an indicator that can be used to generate an if expression in 
+		// the estimation command instead
+		qui: g byte `xvtouse' = 1 `ifin'
+		
+		// Replaces the cmd macro with an updated version that uses an if 
+		// expression instead of an in expression
+		mata: st_local("cmd", subinstr(`"`cmd'"', `"`ifin'"', " if `xvtouse' == 1"))		
+		
+	} // End IF Block for in expression handling
+	
+	// Get any if expressions
+	mata: getifin(`"`cmd'"')
 	
 	// Parse the prefix on the comma.  `props' will contain split proportions
 	gettoken props xvopts : cv, parse(",") bind
@@ -146,11 +168,17 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 	// Determine if this is TT or TVT
 	if `: word count `props'' == 1 {
 		
-**# Bookmark #2
-		// Add errors for unity proportions
+		// Test if the proportion is unity set the noall option on
+		if `props' == 1 loc noall noall
+		
+		// Count the number of observations that would be used for the model
+		qui: count `ifin'
+		
+		// Store the number of observations
+		loc N `r(N)'
 		
 		// Test the number of variables that need to be created vs allowed
-		if (`props' * `c(N)' + `c' + `c(k)' + 2) >= `c(max_k_theory)' {
+		if (`props' * `N' + `c' + `c(k)' + 2) >= `c(max_k_theory)' {
 			
 			// Display error message
 			di as err "Currently, your Stata supports `c(max_k_theory)' "	 ///   
@@ -164,6 +192,21 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 			
 		} // End IF Block for insufficient max variable
 		
+		// Test for number of estimation results that would need to be stored
+		if ceil(`props' * `N') >= 298 {
+			
+			// Display an error message
+			di as err "The maximum number of estimation results that can "	 ///   
+			"be stored is 300 but the minimum number of results generated "	 ///   
+			"by your use of {help xvloo} is `= ceil(`props' * `c(N)')'.  "   ///   
+			"You can try using a smaller training set split.  See "			 ///   
+			"{help limits} for additional information on system limits."
+			
+			// Return error code and exit
+			err 1000
+			
+		} // End IF block for too many potential estimation results 
+		
 	} // End IF Block for TT split case
 	
 	// For TVT cases
@@ -172,8 +215,17 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 		// Get the proportion for the training set
 		loc trp `: word 1 of `props''
 		
+		// Test if the proportion is unity set the noall option on
+		if `trp' == 1 loc noall noall
+			
+		// Count the number of observations that would be used for the model
+		qui: count `ifin'
+		
+		// Store the number of observations
+		loc N `r(N)'
+		
 		// Test the number of variables that need to be created vs allowed
-		if (`trp' * `c(N)' * `c' + `c(k)' + 2) >= `c(max_k_theory)' {
+		if (`trp' * `N' * `c' + `c(k)' + 2) >= `c(max_k_theory)' {
 			
 			// Display error message
 			di as err "Currently, your Stata supports `c(max_k_theory)' "	 ///   
@@ -187,6 +239,21 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 			
 		} // End IF Block for insufficient max variable
 				
+		// Test for number of estimation results that would need to be stored
+		if ceil(`trp' * `N') >= 298 {
+			
+			// Display an error message
+			di as err "The maximum number of estimation results that can "	 ///   
+			"be stored is 300 but the minimum number of results generated "	 ///   
+			"by your use of {help xvloo} is `= ceil(`props' * `c(N)')'.  "   ///   
+			"You can try using a smaller training set split.  See "			 ///   
+			"{help limits} for additional information on system limits."
+			
+			// Return error code and exit
+			err 1000
+			
+		} // End IF block for too many potential estimation results 
+		
 	} // End ELSE Block for TVT split case
 	
 	// If there is anything in the missing local throw an error message
@@ -253,6 +320,14 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 		
 	} // End ELSE Block for xvloo set kfold value
 	
+	// If the user passes a split or pstub argument 
+	if !mi(`"`split'`pstub'`results'"') {
+		
+		// set the retain option on automatically
+		loc retain retain
+		
+	} // End IF Block for non-missing split or pstub
+	
 	// Test if results is missing a value
 	if mi(`"`results'"') {
 		
@@ -263,14 +338,6 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 		if mi("`retain'") loc dropresults "estimates drop xvres*"
 		
 	} // End IF Block to set default results values
-	
-	// If the user passes a split or pstub argument 
-	if !mi(`"`split'`pstub'"') {
-		
-		// set the retain option on automatically
-		loc retain retain
-		
-	} // End IF Block for non-missing split or pstub
 	
 	// If missing the split option
 	if mi(`"`split'"') {
@@ -376,13 +443,13 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 		if !mi(`"`retain'"') {
 			
 			// Confirm whether or not xvpred already exists
-			cap confirm new v xvpred xvpredall
+			cap confirm new v _xvpred _xvpredall
 			
 			// If these variables don't already exist 
 			if _rc == 0 {
 				
 				// Use xvpred as the default name
-				loc prvar xvpred
+				loc prvar _xvpred
 				
 			} // End IF Block for default predicted value variable name
 			
@@ -394,7 +461,7 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 				
 				// Add the current date time as a suffix to make the default 
 				// predicted variable name unique
-				loc prvar xvpred`: di substr(strofreal(`cdt', "%15.0g"), 1, 12)'
+				loc prvar _xvpred`: di substr(strofreal(`cdt', "%15.0g"), 1, 12)'
 				
 			} // End ELSE Block when the default predicted variable name is used
 			
@@ -404,28 +471,6 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 	
 	// Set the predict stub to use the tempvar
 	loc pstub "pstub(`xvpred')"
-	
-	// Remove leading colon from the estimation command
-	loc cmd `= substr(`"`cmd'"', 2, .)'
-	
-	// Check for if/in conditions
-	mata: getifin(`"`cmd'"')
-	
-	// If there is an if/in expression 
-	if ustrregexm(`"`ifin'"', "\s?in\s+") {
-		
-		// Create an indicator that can be used to generate an if expression in 
-		// the estimation command instead
-		qui: g byte `xvtouse' = 1 `ifin'
-		
-		// Replaces the cmd macro with an updated version that uses an if 
-		// expression instead of an in expression
-		mata: st_local("cmd", subinstr(`"`cmd'"', `"`ifin'"', " if `xvtouse' == 1"))		
-		
-	} // End IF Block for in expression handling
-	
-	// Get any if expressions
-	mata: getifin(`"`cmd'"')
 	
 	// If the seed option is populated set the seed value to the seed that the 
 	// user specified
