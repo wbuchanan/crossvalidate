@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.3 15feb2024}{...}
+{* *! version 0.0.4 08mar2024}{...}
 {vieweralsosee "[R] predict" "mansection R predict"}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat classification"}{...}
 {vieweralsosee "" "--"}{...}
@@ -15,7 +15,8 @@
 
 {p 8 32 2}
 {cmd:classify} # [ if ] {cmd:,} {cmdab:ps:tub(}{it:string asis}{cmd:)} [
-{cmdab:thr:eshold(}{it:real}{cmd:)} {cmdab:pm:ethod(}{it:string asis}{cmd:)}]{p_end}
+{cmdab:thr:eshold(}{it:real}{cmd:)} {cmdab:pm:ethod(}{it:string asis}{cmd:)}
+{cmdab:po:pts(}{it:string asis}{cmd:)}]{p_end}
 
 {synoptset 25 tabbed}{...}
 {synoptline}
@@ -26,6 +27,7 @@
 {syntab:Optional}
 {synopt :{opt thr:eshold}}positive outcome threshold; default is {cmd:threshold(0.5)}{p_end}
 {synopt :{opt pm:ethod}}predicted statistic from {help predict}; default is {cmd:pmethod(pr)}{p_end}
+{synopt :{opt po:pts}}options passed to {help predict} in addition to the method{p_end}
 {synoptline}
 
 
@@ -66,6 +68,14 @@ generate the predicted values of the outcome for the out-of-sample data. The
 default in {cmd:classify} is to generate the predicted probabilities of class 
 membership.
 
+{phang}
+{opt po:pts} is passed internally to Stata's {help predict} command to 
+generate the predicted values of the outcome for the out-of-sample data. For 
+multivariate outcome models, like {help sureg}, this option can be used to 
+specify which of the equations should be used to predict the outcome of interest.  
+It can also be used to specify the {opt nooff:set} option in single or 
+multi-equation models.  Consult the {help predict} documentation for the model 
+you are fitting for more details.
 
 {marker examples}{...}
 {title:Examples}

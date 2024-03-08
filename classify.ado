@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! classify
-*! v 0.0.5
-*! 05mar2024
+*! v 0.0.6
+*! 08mar2024
 
 // Drop program from memory if already loaded
 cap prog drop classify
@@ -19,7 +19,8 @@ prog def classify,
 	
 	// Syntax
 	syntax anything(name = classes id = "Number of Classes") [if] ,			 ///   
-			PStub(string asis) [ THReshold(real 0.5) PMethod(string asis)]
+			PStub(string asis) [ THReshold(real 0.5) PMethod(string asis)	 ///   
+			POpts(string asis)]
 
 	// Mark the sample that will be used
 	marksample touse, strok
@@ -66,7 +67,7 @@ prog def classify,
 	if `classes' == 2 {
 		
 		// Generate predicted values
-		predict double `pstub' if `touse', `pmethod'
+		predict double `pstub' if `touse', `pmethod' `popts'
 		
 		// Replace predicted values with classes
 		replace `pstub' = cond(`pstub' < `threshold' & !mi(`pstub'), 0,	 ///   
@@ -78,7 +79,7 @@ prog def classify,
 	else {
 		
 		// Generate predicted values
-		predict double `pstub'_* if `touse', `pmethod'
+		predict double `pstub'_* if `touse', `pmethod' `popts'
 		
 		// Get the names of the variables that were just generated
 		qui: ds `pstub'_*

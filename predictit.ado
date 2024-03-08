@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! predictit
-*! v 0.0.7
-*! 05mar2024
+*! v 0.0.8
+*! 08mar2024
 
 // Drop program from memory if already loaded
 cap prog drop predictit
@@ -21,7 +21,7 @@ prog def predictit
 	syntax [anything(name = cmd id="estimation command name")],				 ///   
 			PStub(string asis) [ SPLit(varname)  Classes(integer 0) 		 ///   
 			Kfold(integer 1) THReshold(passthru) MODifin(string asis) 		 ///   
-			KFIfin(string asis) noall PMethod(string asis)]
+			KFIfin(string asis) noall PMethod(string asis) POpts(string asis)]
 			
 	// Assign estimates global to a local
 	loc xvstartest $xvstartest
@@ -176,7 +176,7 @@ prog def predictit
 		if `classes' == 0 {
 			
 			// If it is, predict on the validation sample:
-			qui: predict double `pstub'`k' `modifin', `pmethod'
+			qui: predict double `pstub'`k' `modifin', `pmethod' `popts'
 			
 		} // End IF Block for "regression" tasks
 		
@@ -185,7 +185,8 @@ prog def predictit
 			
 			// Call the classification program
 			// Also need to handle the if statement here as well
-			qui: classify `classes' `modifin', `threshold' ps(`pstub'`k'_)
+			qui: classify `classes' `modifin', `threshold' ps(`pstub'`k'_)	 ///   
+												po(`popts')
 				
 		} // End ELSE Block for classifcation tasks
 		
@@ -229,7 +230,7 @@ prog def predictit
 		if `classes' == 0 {
 			
 			// If it is, predict on the validation sample:
-			qui: predict double `pstub'all `kfifin', `pmethod'
+			qui: predict double `pstub'all `kfifin', `pmethod' `popts'
 			
 		} // End IF Block for "regression" tasks
 		
@@ -238,7 +239,8 @@ prog def predictit
 			
 			// Call the classification program
 			// Also need to handle the if statement here as well
-			qui: classify `classes' `kfifin', `threshold' ps(`pstub'all)
+			qui: classify `classes' `kfifin', `threshold' ps(`pstub'all) 	 ///   
+											  po(`popts')
 				
 		} // End ELSE Block for classifcation tasks
 		

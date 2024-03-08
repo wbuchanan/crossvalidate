@@ -51,21 +51,8 @@ xv 0.8, metric(phl) uid(rep78) kfold(4) display retain: reg price mpg length, vc
 ```
 
 ## TODO
-- [x] Test whether the `noall` option is present when using a training 
-proportion of 1 and k > 1 folds.  Will need to pass the `noall` option for the 
-user or throw an error message requiring them to do it.
-- [x] Add additional examples to the xv help file and xvloo helpfile.
-- [x] Add information about the split proportions to xv and xvloo.
-- [x] Remove requirement for pstub and if pstub or split are provided have that 
-trigger the retain option automatically for users
-- [x] Add some additional clarification about the retain option.
 - [ ] Standardize language in help files
-- [x] Finish writing test cases for Mata functions
 - [ ] Finish writing test cases for ADO commands
-- [x] Update the syntax information in the README to match the current state of 
-the commands
-- [ ] Consider rolling version back to 14.2; running tests on the old MBP showed 
-passing results across the board
 
 # libxv
 
@@ -76,7 +63,10 @@ The program will allow users to define their own metrics/monitors that are not
 contained in libcrossvalidate.  In order to do this, users must implement a 
 specific method/function signature:
 
-`real scalar metric(string scalar pred, string scalar obs, string scalar touse, | transmorphic matrix opts)`
+```
+real scalar metric(string scalar pred, string scalar obs, 
+				   string scalar touse, | transmorphic matrix opts)
+```				   
 
 The function must return a real valued scalar and take three arguments.  The 
 three arguments are used to access the data that would be used to compute the 
@@ -87,11 +77,11 @@ underlying functions if supported.
 Within the function body, we recommend using the following pattern to access 
 the data needed to compute any metrics/monitors:
 
-`real colvector yhat, y`
-
-`yhat = st_data(., pred, touse)`
-
-`y = st_data(., obs, touse)`
+```
+real colvector yhat, y
+yhat = st_data(., pred, touse)
+y = st_data(., obs, touse)
+```
 
 The programs in the cross validate package will handle the construction of the 
 variables and passing them to the function name that users pass to the programs. 
@@ -100,7 +90,7 @@ variables and passing them to the function name that users pass to the programs.
 Once we are ready to build the Mata library we should do the following using an 
 instance of Stata 15.
 
-`
+```
 // Clear everything out of Mata
 mata: mata clear 
 
@@ -109,11 +99,18 @@ run crossvalidate.mata
 
 // If the library is already built, use this instead:
 lmbuild libxv, replace dir(`"`c(pwd)'"')
-`
+```
 
 # Prefix Commands
 ## xv
-`xv # [#], metric(string asis) [seed(integer) uid(varlist) tpoint(string asis) split(string asis) kfold(integer) results(string asis) fitnm(string asis) classes(integer) pstub(string asis) noall monitors(string asis) display retain valnm(string asis)] : estimation command ...`
+```
+xv # [#], metric(string asis) [seed(integer) uid(varlist) tpoint(string asis)
+			 split(string asis) kfold(integer) results(string asis) 
+			 fitnm(string asis) classes(integer) pstub(string asis) noall 
+			 monitors(string asis) display retain valnm(string asis)
+			 pmethod(string asis) popts(string asis)] : 
+			 estimation command ...
+```
 
 ### Syntax and options
 * \# - The proportion of the data set to allocate to the training set. _Note if 
@@ -143,7 +140,6 @@ provided cannot end in a number. If a value is passed to the `split`, `pstub`,
 or `results` options it will trigger the `retain` option to be turned on. 
 The default value in the case where the `retain` option is on and no value is 
 passed to `results` is xvres.
-
 * noall - suppresses fitting the model to the entire training set. _Note: this 
 is only applicable to cases where `kfold` > 1 (which includes xvloo)._
 * fitnm(_string asis_) - is used to name the collection storing the results; 
@@ -167,6 +163,11 @@ See help documentation for cases where options are supported, as well as the
 required format for those options.
 * valnm(_string asis_) - is used to name the collection storing the validation 
 results; default is xvval and only applies to users of Stata 17 and above.
+* pmethod(string asis) - the method (statistic) to predict with the 
+out-of-sample/held-out data. Defaults to xb when `classes` == 0 and pr in all 
+other cases.
+* popts(string asis) - an option that allows users to pass options to 
+the predict command in addition to the prediction statistic/method.
 * display - display estimation and validation results in the results pane; 
 default is off
 * retain - retains the `split` and `pstub` variables and stored estimation 
@@ -174,10 +175,15 @@ results after execution.  If this option is specified without arguments passed
 to the `split`, `pstub`, or `results` options, the default names are used for 
 them.
 
-
-
 ## xvloo
-`xvloo # [#], metric(string asis) [seed(integer) uid(varlist) tpoint(string asis) split(string asis) results(string asis) fitnm(string asis) classes(integer) pstub(string asis) noall monitors(string asis) display retain valnm(string asis)] : estimation command ...`
+```
+xvloo # [#], metric(string asis) [ seed(integer) uid(varlist) tpoint(string asis)
+			 split(string asis) results(string asis) fitnm(string asis) 
+			 classes(integer) pstub(string asis) noall monitors(string asis) 
+			 display retain valnm(string asis) pmethod(string asis)
+			 popts(string asis) ] : 
+			 estimation command ...
+```
 
 ### Syntax and options
 * \# - The proportion of the data set to allocate to the training set. _Note if 
@@ -227,6 +233,11 @@ See help documentation for cases where options are supported, as well as the
 required format for those options.
 * valnm(_string asis_) - is used to name the collection storing the validation 
 results; default is xvval and only applies to users of Stata 17 and above.
+* pmethod(string asis) - the method (statistic) to predict with the 
+out-of-sample/held-out data. Defaults to xb when `classes` == 0 and pr in all 
+other cases.
+* popts(string asis) - an option that allows users to pass options to 
+the predict command in addition to the prediction statistic/method.
 * display - display estimation and validation results in the results pane; 
 default is off
 * retain - retains the `split` and `pstub` variables and stored estimation 
@@ -237,7 +248,10 @@ them.
 # Phase Specific Commands 
 
 ## splitit
-`splitit # [#] [if] [in] [, Uid(varlist) TPoint(string asis) KFold(integer 1) SPLit(string asis) loo]`
+```
+splitit # [#] [if] [in] [, Uid(varlist) TPoint(string asis) KFold(integer 1) 
+						   SPLit(string asis) loo ]
+```						   
 
 ### Syntax and options
 * \# [\#] - At least one numeric value in [0, 1].  A single value is used for 
@@ -262,7 +276,10 @@ that will store the identifiers for each of the splits and folds.
 cross-validation.
 
 ## fitit
-`fitit anything(name = cmd) , SPLit(passthru) RESults(string asis) [ Kfold(integer 1) noall DISplay NAme(string asis)]`
+```
+fitit anything(name = cmd), SPLit(passthru) RESults(string asis) 
+						  [ Kfold(integer 1) noall DISplay NAme(string asis) ]
+```						   
 
 ### Syntax and options
 * cmd is the estimation command the user wishes to fit to the data
@@ -281,7 +298,13 @@ results; the default is xvfit and only applies to users of Stata 17 and above.
 
 
 ## predictit
-`predictit [anything(name = cmd)], PStub(string asis) [SPLit(passthru) Classes(integer 0) Kfold(integer 1) THReshold(passthru) MODifin(string asis) KFIfin(string asis) noall PMethod(string asis)]`
+```
+predictit [anything(name = cmd)], PStub(string asis) 
+								[ SPLit(passthru) Classes(integer 0) 
+								  Kfold(integer 1) THReshold(passthru) 
+								  MODifin(string asis) KFIfin(string asis) noall 
+								  PMethod(string asis) POpts(string asis) ]
+```
 
 ### Syntax and options
 * cmd is the estimation command the user wishes to fit to the data
@@ -305,10 +328,15 @@ cross-validation.
 cross-validation.
 * <ins>pm</ins>ethod(string asis) - the method (statistic) to predict with the out-of-sample/held-out data. Defaults to xb when `classes` == 0 and pr in all 
 other cases.
-
+* <ins>po</ins>pts(string asis) - an option that allows users to pass options to 
+the predict command in addition to the prediction statistic/method.
 
 ## validateit
-`validateit, MEtric(string asis) PStub(string asis) SPLit(string asis)  [Obs(string asis) MOnitors(string asis) DISplay KFold(integer 1) noall loo NAme(string asis)]`
+```
+validateit, MEtric(string asis) PStub(string asis) SPLit(string asis) 
+		  [ Obs(string asis) MOnitors(string asis) DISplay KFold(integer 1) 
+			noall loo NAme(string asis) ]
+```			
 
 ### Syntax and options
 * <ins>me</ins>tric(string asis) - specifies the name of the Mata function to 
@@ -341,7 +369,10 @@ results; the default is xvval and only applies to users of Stata 17 and above.
 # Utility commands
 
 ## classify
-`classify # [if], PStub(string asis) [ THReshold(real 0.5) PMethod(string asis)]`
+```
+classify # [if], PStub(string asis) [ THReshold(real 0.5) PMethod(string asis) 
+									  POpts(string asis) ]
+```									  
 
 ### Syntax and options
 * \# - This is the number of classes of the outcome variable being modeled.  This 
@@ -351,7 +382,10 @@ predicted classes from the model.
 * <ins>thr</ins>eshold(_real 0.5_) - Specifies the threshold to use for classification 
 of predicted probabilities in the case of binary outcome models.  The value of 
 the threshold must be in (0, 1).
-* <ins>pm</ins>ethod(string asis) - the method (statistic) to predict with the out-of-sample/held-out data.
+* <ins>pm</ins>ethod(string asis) - the method (statistic) to predict with the out-of-sample/held-out data. Defaults to xb when `classes` == 0 and pr in all 
+other cases.
+* <ins>po</ins>pts(string asis) - an option that allows users to pass options to 
+the predict command in addition to the prediction statistic/method.
 
 ## state
 `state `
@@ -360,7 +394,10 @@ the threshold must be in (0, 1).
 No options
 
 ## cmdmod
-`cmdmod anything(name = cmd id = "estimation command"), SPLit(varlist min = 1 max = 1) [ KFold(integer 1) ]`
+```
+cmdmod anything(name = cmd id = "estimation command"), 
+		SPLit(varlist min = 1 max = 1) [ KFold(integer 1) ]
+```		
 
 ### Syntax and options
 * <ins>spl</ins>it(varlist min = 1 max = 1) - specifies the name of the variable

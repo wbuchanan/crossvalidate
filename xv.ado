@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! xv
-*! v 0.0.10
-*! 07mar2024
+*! v 0.0.11
+*! 08mar2024
 
 // Drop program from memory if already loaded
 cap prog drop xv
@@ -407,11 +407,12 @@ prog def xv, eclass properties(prefix xv)
 	loc estresall `e(estresall)'
 	
 	// Predict the outcomes using the model fits
-	predictit, `pstub' `split' `classes' `kfold' `threshold' `noall' `pmethod' 
+	predictit, `pstub' `split' `classes' `kfold' `threshold' `noall' 		 ///   
+			   `pmethod' `popts'
 	
 	// Compute the validation metrics for the LOO sample
-	validateit, `metric' `pstub' `split' `monitors' `display' `kfold' `noall' ///   
-				na(`valnm')
+	validateit, `metric' `pstub' `split' `monitors' `display' `kfold' 		 ///   
+				`noall' na(`valnm')
 	
 	// Loops over the names of the scalars created by validate it
 	foreach i in `r(allnames)' {

@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.4 29feb2024}{...}
+{* *! version 0.0.5 08mar2024}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat_classification"}{...}
 {vieweralsosee "" "--"}{...}
 {viewerjumpto "Syntax" "predictit##syntax"}{...}
@@ -18,7 +18,8 @@
 [{cmdab:spl:it(}{it:varname}{cmd:)} {cmdab:c:lasses(}{it:integer}{cmd:)} 
 {cmdab:k:fold(}{it:integer}{cmd:)} {cmdab:thr:eshold(}{it:real}{cmd:)} 
 {cmdab:mod:ifin(}{it:string asis}{cmd:)} {cmdab:kfi:fin(}{it:string asis}{cmd:)}
-{cmdab:noall} {cmdab:pm:ethod(}{it:string asis}{cmd:)}]{p_end}
+{cmdab:noall} {cmdab:pm:ethod(}{it:string asis}{cmd:)} 
+{cmdab:po:pts(}{it:string asis}{cmd:)}]{p_end}
 
 {synoptset 25 tabbed}{...}
 {synoptline}
@@ -35,6 +36,7 @@
 {synopt :{opt kfi:fin}}a modified if expression{p_end}
 {synopt :{opt noall}}suppresses prediction on entire training set for K-Fold cases{p_end}
 {synopt :{opt pm:ethod}}predicted statistic from {help predict}; default is {cmd:pmethod(pr)}{p_end}
+{synopt :{opt po:pts}}options passed to {help predict} in addition to the method{p_end}
 {synoptline}
 
 
@@ -116,6 +118,14 @@ default value used by {cmd:predictit} depends on the value passed to the
 method will default to {opt xb}; in all other instances, the prediction method 
 will default to {opt pr}.
 
+{phang}
+{opt po:pts} is passed internally to Stata's {help predict} command to 
+generate the predicted values of the outcome for the out-of-sample data. For 
+multivariate outcome models, like {help sureg}, this option can be used to 
+specify which of the equations should be used to predict the outcome of interest.  
+It can also be used to specify the {opt nooff:set} option in single or 
+multi-equation models.  Consult the {help predict} documentation for the model 
+you are fitting for more details.
 
 {marker examples}{...}
 {title:Examples}

@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.6 07mar2024}{...}
+{* *! version 0.0.6 08mar2024}{...}
 {vieweralsosee "[R] predict" "mansection R predict"}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat_classification"}{...}
 {vieweralsosee "[P] creturn" "mansection P creturn"}{...}
@@ -37,6 +37,8 @@
 {cmd:fitnm(}{it:string asis}{cmd:)} 
 {cmd:classes(}{it:integer}{cmd:)} {cmd:threshold(}{it:real}{cmd:)} 
 {cmd:pstub(}{it:string asis}{cmd:)} 
+{cmd:pmethod(}{it:string asis}{cmd:)}
+{cmd:popts(}{it:string asis}{cmd:)}
 {cmd:noall} {cmd:monitors(}{it:string asis}{cmd:)} 
 {cmd:display} {cmd:retain}
 {cmd:valnm(}{it:string asis}{cmd:)} 
@@ -64,6 +66,8 @@
 {synopt :{opt pstub}}a new variable name for predicted values; default is {cmd:pstub(_xvpred)}{p_end}
 {synopt :{opt classes}}is used to specify the number of classes for classification models; default is {cmd:classes(0)}.{p_end}
 {synopt :{opt threshold}}positive outcome threshold; default is {cmd:threshold(0.5)}{p_end}
+{synopt :{opt pmethod}}predicted statistic from {help predict}{p_end}
+{synopt :{opt popts}}options passed to {help predict} in addition to the method{p_end}
 {synopt :{opt noall}}suppresses prediction on entire training set for K-Fold cases{p_end}
 {syntab:Validate}
 {synopt :{opt monitors}}zero or more function names from {help libxv} or user-defined functions; default is {cmd:monitors()}{p_end}
@@ -198,6 +202,21 @@ is used to determine whether to call {help predict} (in the case of
 {opt threshold} defines the probability cutoff used to determine a positive 
 classification for binary response models.  This value functions the same way 
 as it does in the case of {help estat_classification:estat classification}.
+
+{phang}
+{opt pmethod} is passed internally to Stata's {help predict} command to 
+generate the predicted values of the outcome for the out-of-sample data. When 
+the value of the {opt classes} option is 0, {opt pmethod} will default to xb.  
+If the value of {opt classes} is >= 2, {opt pmethod} will default to pr.
+
+{phang}
+{opt popts} is passed internally to Stata's {help predict} command to 
+generate the predicted values of the outcome for the out-of-sample data. For 
+multivariate outcome models, like {help sureg}, this option can be used to 
+specify which of the equations should be used to predict the outcome of interest.  
+It can also be used to specify the {opt nooff:set} option in single or 
+multi-equation models.  Consult the {help predict} documentation for the model 
+you are fitting for more details.
 
 {phang}
 {opt noall} is an option to prevent fitting, predicting, and validating a model 

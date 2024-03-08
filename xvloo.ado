@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! xvloo
-*! v 0.0.12
-*! 07mar2024
+*! v 0.0.13
+*! 08mar2024
 
 // Drop program from memory if already loaded
 cap prog drop xvloo
@@ -539,7 +539,8 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 	loc estresall `e(estresall)'
 	
 	// Predict the outcomes using the model fits
-	predictit, `pstub' `split' `classes' `kfold' `threshold' `noall' `pmethod' 
+	predictit, `pstub' `split' `classes' `kfold' `threshold' `noall' 		 ///   
+			   `pmethod' `popts'
 	
 	// Compute the validation metrics for the LOO sample
 	validateit, `metric' `pstub' `split' `monitors' `display' `kfold' 		 ///   

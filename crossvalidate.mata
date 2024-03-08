@@ -1,4 +1,4 @@
-*! 02mar2024
+*! 08mar2024
 /*******************************************************************************
 *                                                                              *
 *                    Mata library for -crossvalidate- package                  *
@@ -120,7 +120,7 @@ void function cvparse(string scalar cv) {
 			 "state", "results", "grid", "params", "tuner", "seed", 		 ///   
 			 "classes", "threshold", "pstub", "split", "display", "obs", 	 ///   
 			 "modifin", "kfifin", "noall", "pmethod", "replay", "name", 	 ///   
-			 "fitnm", "validnm")
+			 "fitnm", "validnm", "popts")
 	
 	// Initialize a null matrix to store the valid results
 	opts = J(26, 1, "")
