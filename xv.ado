@@ -403,7 +403,7 @@ prog def xv, eclass properties(prefix xv)
 	fitit `"`cmd'"', `split' `results' `kfold' `noall' `display' na(`fitnm')
 	
 	// Capture the macros that get returned
-	loc estresnames `e(estres)'
+	loc estresnames `e(estresnames)' 							
 	loc estresall `e(estresall)'
 	
 	// Predict the outcomes using the model fits
@@ -496,7 +496,7 @@ prog def xv, eclass properties(prefix xv)
 		eret loc forecastset = "`forecastset'"
 
 		// Then return the macros from fitit
-		eret loc estresnames = "`estres'"
+		eret loc estresnames = "`estresnames'"
 		eret loc estresall = "`estresall'"
 		eret loc fitnm = "`fitnm'"
 		

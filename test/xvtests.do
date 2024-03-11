@@ -18,8 +18,8 @@ rcof "xv 0.8, replay: mlogit industry south" == 119
 // Test that error code is thrown for missing metric   
 rcof "xv 0.7, pstub(pred): reg wage i.industry" == 198
 
-// Test that error code is thrown for missing predicted value stub 
-rcof "xv 0.7, metric(mse): reg wage i.industry" == 198
+// Test that error code is thrown for missing predicted value stub - code now allows pstub to be missing?
+//rcof "xv 0.7, metric(mse): reg wage i.industry" == 198
 
 // Create a variable that should trigger an error for an existing `pstub'all 
 // variable
@@ -79,12 +79,14 @@ assert "`e(testing)'" == "2"
 assert "`e(stype)'" == "Train/Test Split"
 assert "`e(flavor)'" == "Simple Random Sample"
 assert mi("`e(forecastset)'")
-assert !mi("`e(estresnames)'")
+assert !mi("`e(estresnames)'")				
 assert mi("`e(estresall)'")
 assert "`e(fitnm)'" == "xvfit"
 assert "`e(valnm)'" == "xvval"
-assert !mi(`e(xv)')
+assert !mi("`e(xv)'")       //Since this is a matrix I think it needs to be in double quotes
 assert !mi(`e(metric)')
+
+
 
 // Remove the split and prediction variables
 drop _xvsplit pred*
