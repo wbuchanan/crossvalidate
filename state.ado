@@ -16,7 +16,7 @@ prog def state, rclass
 
 	// Version statement 
 	version 15
-	
+
 	// Set a characteristic with the current rng
 	char _dta[rng] `"`c(rng)'"'
 	

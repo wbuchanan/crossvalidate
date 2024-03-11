@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! predictit
-*! v 0.0.8
-*! 08mar2024
+*! v 0.0.9
+*! 11mar2024
 
 // Drop program from memory if already loaded
 cap prog drop predictit
@@ -249,13 +249,20 @@ prog def predictit
 
 	} // End IF Block for K-Fold CV predictting to all training data
 	
-	// Loop over the K-Folds
-	forv k = 1/`kfold' {
-		
-		// Drop any predicted value variables that are intermediate in nature
-		qui: drop `pstub'`k'
-		
-	} // End of Loop to clean up the data set
+	// Get all of the potential names
+	qui: ds `pstub'*
+	
+	// Store the pstub variables in a macro
+	loc todrop `r(varlist)'
+	
+	// Store the pstub variables that should not be dropped
+	loc nodrop `pstub' `pstub'all
+
+	// Remove the variables that should be retained from todrop
+	loc todrop : list todrop - nodrop
+	
+	// Drop the variables that should be dropped
+	qui: drop `todrop'
 	
 // End definition of the command
 end

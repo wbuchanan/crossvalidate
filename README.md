@@ -52,7 +52,7 @@ xv 0.8, metric(phl) uid(rep78) kfold(4) display retain: reg price mpg length, vc
 
 ## TODO
 - [ ] Standardize language in help files
-- [ ] Finish writing test cases for ADO commands
+- [x] Finish writing test cases for ADO commands
 
 # libxv
 
