@@ -69,10 +69,8 @@ run crossvalidate.mata
 
 // Fit the model to 80% of the cases for training and retain the created 
 // variables 
-xvloo 0.8, metric(mse) pstub(pred) monitors(mae mape) display retain: reg mpg price i.rep78, vce(rob)
-
-// There should be 59 stored estimation results, pred, predall, and _xvsplit 
-// added as variables
+xvloo 0.8, metric(mse) pstub(pred) monitors(mae mape) display retain: 		 ///   
+reg mpg price i.rep78, vce(rob)
 
 // Make sure the returned values are populated
 assert !mi(`e(rng)')
@@ -103,3 +101,36 @@ assert !mi(`e(valnm)')
 assert !mi(`e(xv)')
 
 assert `"`e(stype)'"' == "Leave One Out"
+
+// Create a test case for mixed effects models
+webuse pig.dta, clear
+
+// Fit the mixed effect model
+xvloo 0.6, metric(msle) pstub(p) display retain monitors(mse rmse mae bias   ///   
+mbe r2 mape smape rmsle rpd iic ccc huber phl rpiq r2ss) split(loosplit)     ///   
+uid(id): mixed weight week || id:week, reml dfmethod(kroger)
+
+// Load dataset for poisson example
+webuse epilepsy.dta, clear
+
+// Simple TT split case
+xvloo 0.6, metric(pll) pstub(p) display retain monitors(mse rmse mae bias    ///   
+mbe r2 mape smape msle rmsle rpd iic ccc huber phl rpiq r2ss) split(loosplt) ///   
+pmethod(n): poisson seizures treat lbas lbas_trt lage v4
+
+// Load dataset for ivregress example
+webuse hsng2.dta, clear
+
+// Simple TT split case
+xvloo 0.5, metric(msle) pstub(p) display retain monitors(mse rmse mae bias   ///   
+mbe r2 mape smape rmsle rpd iic ccc huber phl rpiq r2ss) split(ivsplit):     ///   
+ivregress 2sls rent pcturban (hsngval = faminc i.region), small
+
+// Load dataset for ologit example
+webuse fullauto.dta, clear
+
+// Simple test case 
+// Something here is causing an error in the cleanup phase of predictit
+xvloo 0.4, metric(mcacc) pstub(p) display classes(5) retain split(mcsplit)	 ///   
+monitors(mcsens mcprec mcspec mcppv mcnpv mcbacc mcmcc mcf1 mcjindex		 ///   
+mcdetect mckappa): ologit rep77 foreign length mpg

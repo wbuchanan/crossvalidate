@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! xv
-*! v 0.0.11
-*! 08mar2024
+*! v 0.0.12
+*! 11mar2024
 
 // Drop program from memory if already loaded
 cap prog drop xv
@@ -42,6 +42,16 @@ prog def xv, eclass properties(prefix xv)
 		
 	} // End IF Block for unfound mata library
 		
+	// Check to see if the data are survey set
+	if !mi(`"`: char _dta[_svy_version]'"') {
+		
+		// Add a warning message
+		di as res "WARNING: {help xv} does not account for survey "		     ///
+		"sample designs when splitting the data and does not use the "		 ///   
+		"{help svy:subpop} option when fitting the model."
+		
+	} // End IF Block to display survey data warning
+	
 	// Allocate a tempvars for the unique identifier variable and for other 
 	// options to use a default
 	tempvar uuid xvtouse xvpred xvsplit
@@ -511,7 +521,17 @@ prog def xv, eclass properties(prefix xv)
 	// Returns the matrix containing all of the validation/test metrics and 
 	// monitors
 	eret mat xv = xv
-
+	
+	// Check to see if the data are survey set
+	if !mi(`"`: char _dta[_svy_version]'"') {
+		
+		// Add a warning message
+		di as res "WARNING: {help xv} does not account for survey "		     ///
+		"sample designs when splitting the data and does not use the "		 ///   
+		"{help svy:subpop} option when fitting the model."
+		
+	} // End IF Block to display survey data warning
+	
 // End definition of ttsplit prefix command	
 end 	
 
