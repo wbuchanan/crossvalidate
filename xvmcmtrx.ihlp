@@ -65,8 +65,12 @@ Matthews correlation coefficient option, mcc.  For more details see
 {phang}
 {opt mcf1} is used to calculate the multiclass F1 score. The F1 score is an 
 alternate measure of a model's accuracy.  F1 score is calculated as the harmonic 
-mean of the multiclass precision and recall metrics.  For more details see 
-{browse "https://yardstick.tidymodels.org/reference/f_meas.html":F1}. 
+mean of the multiclass precision and recall metrics, with an optional parameter 
+beta that defaults to 1.  You can specify a value of beta to use by passing a 
+1 x 1 real matrix as an optional argument to this function.  For example, to 
+specify a value of 1.5 for beta when using {opt mcf1} as a metric, the option 
+would look like this: {opt metric(mcf1((1.5)))}.  For more details 
+see {browse "https://yardstick.tidymodels.org/reference/f_meas.html":F1}. 
 
 {phang}
 {opt mcjindex} is used to calculate multiclass Youden's J statistic (J-index). 
@@ -89,6 +93,10 @@ predicted outcomes.  For more details see
 
 {phang}
 {opt mckappa} is used to calculate the multiclass Kappa. Kappa is similar to 
-multiclass accuracy but is normalized by the accuracy expected by random chance.  
-For more details see 
+multiclass accuracy but is normalized by the accuracy expected by random chance. 
+Additionally, users may alter the weighting matrix used in the calculation by 
+passing an argument to this function, where the value specified in the option is 
+the power to which the alternate weighting matrix is raised.  For example, if 
+you wanted to use {opt mckappa} as a metric with a quadratic weighting matrix 
+you would code: {opt metric(mckappa((2)))}.  For more details see 
 {browse "https://yardstick.tidymodels.org/reference/kap.html":Kappa}.

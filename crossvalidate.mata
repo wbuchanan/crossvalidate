@@ -1,4 +1,4 @@
-*! 08mar2024
+*! 13mar2024
 /*******************************************************************************
 *                                                                              *
 *                    Mata library for -crossvalidate- package                  *
@@ -436,6 +436,22 @@ real colvector dpois(real colvector events, real colvector means, | 		 ///
 
 } // End definition for the Poisson density function
 
+// Defines function to make weighting matrix for Kappa
+real matrix kappawgts(real scalar levs, real scalar pow) {
+	
+	// Declares a real matrix that will be returned
+	real matrix wgts
+	
+	// This is equivalent to:
+	// w <- rlang::seq2(0L, n_levels - 1L)
+	// w <- matrix(w, nrow = n_levels, ncol = n_levels)
+	wgts = J(1, levs, (0::levs - 1))
+	
+	// This generates the weight matrix
+	return(abs(wgts - wgts'):^pow)
+	
+} // End of function definition for MC Kappa weighting matrix
+
 // End Mata interpreter
 end
 
@@ -678,7 +694,10 @@ real scalar f1(string scalar pred, string scalar obs, string scalar touse,   ///
 					| transmorphic matrix opts) {
 	
 	// Declares a scalar to store the resulting metric, precision, and recall
-	real scalar result, prec, rec
+	real scalar result, prec, rec, beta
+	
+	// Determine what value of beta to use
+	beta = (args() == 4 & eltype(opts) == "real" ? opts[1, 1] : 1)
 
 	// Computes precision
 	prec = prec(pred, obs, touse)
@@ -687,7 +706,7 @@ real scalar f1(string scalar pred, string scalar obs, string scalar touse,   ///
 	rec = recall(pred, obs, touse)
 	
 	// Computes the f1 score 
-	result = (2 * prec * rec) / (prec + rec)
+	result = ((1 + beta^2) * prec * rec) / ((beta^2 * prec) + rec)
 	
 	// Returns the metric
 	return(result)
@@ -944,7 +963,10 @@ real scalar mcf1(string scalar pred, string scalar obs, string scalar touse, ///
 					| transmorphic matrix opts) {
 	
 	// Declares scalars to store intermediate results
-	real scalar prec, sens
+	real scalar prec, sens, beta
+	
+	// Determine whether to use the default value for beta
+	beta = (args() == 4 & eltype(opts) == "real" ? opts[1, 1] : 1)
 	
 	// Compute precision
 	prec = mcprec(pred, obs, touse)
@@ -952,8 +974,8 @@ real scalar mcf1(string scalar pred, string scalar obs, string scalar touse, ///
 	// Compute multiclass sensitivity
 	sens = mcsens(pred, obs, touse)
 	
-	// Return the micro averaged F1 Statistic
-	return((2 * prec * sens) / (prec + sens))
+	// For the default case return the micro averaged F1 Statistic
+	return(((1 + beta^2 ) * prec * sens) / ((beta^2 * prec) + sens))
 
 } // End of function definition for multiclass negative predictive value
 
@@ -1033,11 +1055,25 @@ real scalar mckappa(string scalar pred, string scalar obs, 					 ///
 	// Normalizes the outer product of row margins * col margins
 	expected = (c.rowm * c.colm) :/ c.n
 	
-	// Generates the weighting matrix for the no-weighting case
-	wgts = J(c.levs, c.levs, 1)
-	
-	// Will need to replace the diagonal with 0s for wgts
-	for(i = 1; i <= rows(wgts); i++) wgts[i, i] = 0
+	// Test whether or not the user is specifying a weighting option
+	if (args() == 4 & eltype(opts) == "real") {
+		
+		// Generate the weighting matrix based on the power specified in the 
+		// optional argument
+		wgts = kappawgts(c.levs, opts[1, 1])
+		
+	} // End IF Block for user specified weighting option
+
+	// If the user doesn't specify anything use the default weighting matrix
+	else {
+		
+		// Generates the weighting matrix for the no-weighting case
+		wgts = J(c.levs, c.levs, 1)
+		
+		// Will need to replace the diagonal with 0s for wgts
+		for(i = 1; i <= rows(wgts); i++) wgts[i, i] = 0
+				
+	} // End ELSE Block for default weight matrix
 	
 	// Return the metric 
 	return(1 - sum(wgts * c.conf) / sum(wgts * expected))
@@ -1307,8 +1343,17 @@ real scalar ccc(string scalar pred, string scalar obs, string scalar touse,  ///
 	// Gets the covariance between the predicted and observed values
 	cov = variance((st_data(., pred, touse), st_data(., obs, touse)))[2, 1] 
 
-	// Computes and returns the coefficient
-	return((2 * cov) / (varobs + varpred + (muobs - mupred)^2))
+	// Check for option to use the bias term
+	if (args() == 4 & opts == 1) {
+		
+		// Adjust the values using the bias term
+		return((2 * (cov * (n - 1) / n)) /									 ///   
+		((varobs * (n - 1) / n) + (varpred * (n - 1) / n) + (muobs - mupred)^2))
+		
+	} // End ELSE Block for the use of the bias term
+	
+	// Computes and returns the coefficient w/o the bias term
+	else return((2 * cov) / (varobs + varpred + (muobs - mupred)^2))
 	
 } // End of function definition for CCC
 
@@ -1320,11 +1365,17 @@ real scalar phl(string scalar pred, string scalar obs, string scalar touse,  ///
 	// Declares a column vector to store the errors
 	real colvector a
 	
+	// Declares a real scalar for delta
+	real scalar delta
+	
+	// Test the number of arguments passed
+	delta = (args() == 4 & eltype(opts) == "real" ? opts[1, 1] : 1)
+	
 	// Gets the difference between the observed and predicted values
 	a = st_data(., obs, touse) - st_data(., pred, touse)
 
 	// Computes and returns the loss function value
-	return(mean(1^2 :* (sqrt(1 :+ (a :/ 1) :^2) :- 1)))
+	return(mean(delta^2 :* (sqrt(1 :+ (a :/ delta) :^2) :- 1)))
 	
 } // End of function definition for Pseud-Huber Loss
 
@@ -1336,6 +1387,12 @@ real scalar huber(string scalar pred, string scalar obs, string scalar touse, //
 	// Declares a column vector to store the errors and absolute errors
 	real colvector a, absa 
 	
+	// Declares a scalar for delta that would be passed in opts
+	real scalar delta
+	
+	// Assign delta
+	delta = (args() == 4 & eltype(opts) == "real" ? opts[1, 1] : 1)
+	
 	// Gets the difference between the observed and predicted values
 	a = st_data(., obs, touse) - st_data(., pred, touse)
 	
@@ -1343,8 +1400,8 @@ real scalar huber(string scalar pred, string scalar obs, string scalar touse, //
 	absa = abs(a)
 	 
 	// Computes and returns the loss function value
-	return(mean(0.5 :* a[selectindex(absa :<= 1)]:^ 2 \						 ///   
-					absa[selectindex(absa :> 1)] :- 0.5))
+	return(mean(0.5 :* a[selectindex(absa :<= delta)]:^ 2 \						 ///   
+				delta :* absa[selectindex(absa :> delta)] :- 0.5 * delta))
 	
 } // End of function definition for the Huber Loss function
 

@@ -66,7 +66,11 @@ that range from [−1, 1].  For more details see
 {phang}
 {opt f1} is used to calculate the F1 score. The F1 score is an alternate measure 
 of a model's accuracy.  F1 score is calculated as the harmonic mean of the model 
-precision and recall metrics.  For more details see 
+precision and recall metrics, with an optional parameter beta that defaults to 
+1.  You can specify a value of beta to use by passing a 1 x 1 real matrix as an 
+optional argument to this function.  For example, to specify a value of 1.5 for 
+beta when using {opt f1} as a metric, the option would look like this: 
+{opt metric(f1((1.5)))}.  For more details see 
 {browse "https://yardstick.tidymodels.org/reference/f_meas.html":F1}.
 
 {phang}

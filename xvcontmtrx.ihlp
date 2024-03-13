@@ -78,20 +78,27 @@ For more details see
 CCC is calculated as the covariance between observed and predicted variables 
 divided by the sum of variance of observed, variance of predicted, and the 
 squared difference between average observed value and averaged predicted value.  
-For more details see 
+Users can also request a bias adjusted version of this metric by passing a 1 x 1 
+matrix with the value 1 as an argument to the ccc function.  For example, to use 
+{opt ccc} as a metric with the bias option you would code: 
+{opt metric(ccc((1)))}.  For more details see 
 {browse "https://yardstick.tidymodels.org/reference/ccc.html":CCC}.
 
 {phang}
 {opt huber} is used to calculate Huber loss. Huber loss is calculated from 
-residuals and a delta term.  Some packages allow users to specify a delta 
-value, but this option only allows delta equal to 1.  For more details see 
+residuals and a delta term, which defaults to 1.  You can pass a value for delta 
+as an option to this function as a 1 x 1 matrix.  For example, to use 
+{opt huber} as a metric with a delta value of 1.5 you would code: 
+{opt metric(huber((1.5)))}.  For more details see 
 {browse "https://yardstick.tidymodels.org/reference/huber_loss.html":Huber loss}.
 
 {phang}
 {opt phl} is used to calculate Pseudo-Huber loss. Pseudo-Huber loss is a smooth 
 approximation of Huber loss.  Pseudo-Huber loss is calcuated from residuals and 
-a delta term.  Some packages allow users to specify a delta value, but this 
-option only allows delta equal to 1.  For more details see 
+a delta term, which defaults to 1.  You can pass a value for delta 
+as an option to this function as a 1 x 1 matrix.  For example, to use 
+{opt phl} as a metric with a delta value of 1.5 you would code: 
+{opt metric(phl((1.5)))}.  For more details see 
 {browse "https://yardstick.tidymodels.org/reference/huber_loss_pseudo.html":Pseudo-Huber}.
 
 {phang}

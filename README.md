@@ -53,6 +53,9 @@ xv 0.8, metric(phl) uid(rep78) kfold(4) display retain: reg price mpg length, vc
 ## TODO
 - [ ] Standardize language in help files
 - [x] Finish writing test cases for ADO commands
+- [x] Adding optional arguments to continuous metrics where possible
+- [ ] Adding optional arguments to binary metrics where possible
+- [ ] Adding optional arguments to multiclass metrics where possible
 
 # libxv
 
