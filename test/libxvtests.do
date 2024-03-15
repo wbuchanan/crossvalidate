@@ -96,13 +96,15 @@ asserteq(st_local("argval"), `"mape((1, 2)) smape rmse(("y", "N")) rmsle"')
 
 // confusion - for this we'll use a very simple simulated dataset created at the 
 // start of this script
-fixture = (25, 25 \ 24, 26)
+normfix = (25, 25 \ 24, 26)
+revfix = (26, 24 \ 25, 25)
 
 // Generate the confusion matrix with the simulated data above
 x = xtab("pred", "obs", "ifin")
 
 // Test that the confusion matrix reproduces the fixture
-asserteq(fixture, x.conf)
+asserteq(normfix, x.conf)
+asserteq(revfix, x.revconf)
 
 // End the Mata session
 end

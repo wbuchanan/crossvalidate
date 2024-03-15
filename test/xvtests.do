@@ -100,6 +100,10 @@ assert !mi(`e(smape)')
 assert !mi(`e(metric)')
 assert !mi(`e(xv)')
 
+// Simple test with k-fold cv
+xv .8, metric(mse) pstub(pred) monitors(rmse huber phl mae mape smape)		 ///   
+kfold(4) display: reg price mpg i.foreign
+
 // Create a test case for mixed effects models
 webuse nlswork.dta, clear
 

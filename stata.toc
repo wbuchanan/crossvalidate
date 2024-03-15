@@ -2,4 +2,5 @@
 v 3
 d The crossvalidate package
 
-p crossvalidate makes it possible to use cross-validation for estimation commands
+p crossvalidate makes cross-validation for estimation commands in Stata as easy 
+p and painless as adding a prefix to your existing command.

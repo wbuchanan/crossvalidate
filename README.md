@@ -1,4 +1,15 @@
 ![Stata Crossvalidation](crossvalidate-hex.png)
+# TODO
+- [ ] Implement options for binary metrics using newly added values in the 
+Crosstab struct that reverse code the confusion matrix and the row/column 
+margins.
+- [ ] Workout how to implement abbreviated option names in cvparse 
+that either replace the abbreviation with the full name and return the value in 
+the fullnamed macro or return the abbreviated option in a macro with the full 
+option name
+
+
+
 # crossvalidation
 The crossvalidate package includes several commands and a Mata library that 
 provide a range of possible cross-validation techniques that can be used with 

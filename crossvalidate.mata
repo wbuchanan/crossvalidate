@@ -242,11 +242,12 @@ void function getname(string scalar fname, | string scalar rname) {
 // classification metrics
 struct Crosstab {
 	
-	// The confusion matrix
-	real matrix conf
+	// The confusion matrix and reversed confusion matrix (for 2x2 cases only)
+	real matrix conf, revconf
 	
-	// The row margins (sums of predicted categories)
-	real colvector rowm
+	// The row margins (sums of predicted categories) for the normal and 
+	// reversed confusion matrix (for 2x2 cases only)
+	real colvector rowm, revrowm
 	
 	// The diagonal from the confusion matrix (correctly classified cells)
 	real colvector correct
@@ -254,8 +255,9 @@ struct Crosstab {
 	// The vector storing each of the values in the matrix in ascending order
 	real colvector values
 	
-	// The column margins (sums of observed categories)
-	real rowvector colm
+	// The column margins (sums of observed categories) for the normal and 
+	// reversed confusion matrix (for 2x2 cases only)
+	real rowvector colm, revcolm
 	
 	// The total number of observations
 	real scalar n
@@ -351,6 +353,36 @@ struct Crosstab scalar xtab(string scalar pred, string scalar obs, 			 ///
 	
 	// Stores the confusion matrix in the struct element conf
 	c.conf = conf
+	
+	// Test if this is a 2x2 matrix
+	if (levs == 2) {
+		
+		// reverse codes the confusion matrix for binary metric options to use
+		// (e.g., if the user specifies they want to use a different 
+		// "event_level" in the R functions' terminology it will use this)
+		c.revconf = (conf[2, 2], conf[2, 1] \ conf[1, 2], conf[1, 1])
+		
+		// Computes the column margins from the reverse coded confusion matrix
+		c.revcolm = colsum(c.revconf)
+		
+		// Computes the row margins from the reverse coded confusion matrix
+		c.revrowm = rowsum(c.revconf)
+		
+	} // End IF Block for binary case
+	
+	// For any multinomial/ordinal case with > 2 distinct levels
+	else {
+		
+		// Return a null matrix for the reverse coded confusion matrix
+		c.revconf = J(0, 0, .)
+		
+		// Return a null vector for the reverse coded column margins
+		c.revcolm = J(1, 0, .)
+		
+		// Return a null vector for the reverse coded row margins
+		c.revrowm = J(0, 1, .)
+		
+	} // End ELSE Block to populate struct elements with null matrices/vectors
 	
 	// Stores the total number of observations in the struct element n
 	c.n = sum(conf)
