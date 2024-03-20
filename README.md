@@ -1,8 +1,15 @@
 ![Stata Crossvalidation](crossvalidate-hex.png)
 # TODO
-- [ ] Implement options for binary metrics using newly added values in the 
-Crosstab struct that reverse code the confusion matrix and the row/column 
-margins.
+- [x] Implement reverse code option for sens
+- [x] Implement reverse code option for spec
+- [x] Implement reverse code option for recall
+- [x] Implement reverse code option for precision
+- [x] Implement reverse code option for jindex
+- [x] Implement reverse code option for f1
+- [x] Implement reverse code option for ppv
+- [x] Implement reverse code option for npv
+- [x] Implement reverse code option for bacc
+- [x] Implement reverse code option for prev (detection prevalence)
 - [ ] Workout how to implement abbreviated option names in cvparse 
 that either replace the abbreviation with the full name and return the value in 
 the fullnamed macro or return the abbreviated option in a macro with the full 

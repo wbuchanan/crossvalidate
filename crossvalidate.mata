@@ -523,7 +523,9 @@ real scalar sens(string scalar pred, string scalar obs, string scalar touse, ///
 	// assert(rows(c.conf) == 2 & cols(c.conf) == 2)
 	
 	// Computes the metric from the confusion matrix
-	result = c.conf[2, 2] / colsum(c.conf[, 2])
+	result = (args() == 4 & opts == 1 ?										 ///   
+			  c.revconf[2, 2] / colsum(c.revconf[, 2]) :					 ///   
+			  c.conf[2, 2] / colsum(c.conf[, 2]))
 	
 	// Returns the metric as a scalar
 	return(result)
@@ -549,8 +551,9 @@ real scalar prec(string scalar pred, string scalar obs, string scalar touse, ///
 	// assert(rows(c.conf) == 2 & cols(c.conf) == 2)
 	
 	// Computes the metric from the confusion matrix
-	result = c.conf[2, 2] / c.rowm[2, ]
-
+	result = (args() == 4 & opts == 1 ?										 ///   
+			  c.revconf[2, 2] / c.revrowm[2, ] :	c.conf[2, 2] / c.rowm[2, ])
+			  
 	// Returns the metric
 	return(result)
 	
@@ -565,7 +568,7 @@ real scalar recall(string scalar pred, string scalar obs, 					 ///
 	real scalar result
 	
 	// Recall is a synonym for sensitivity, so it just calls that function
-	result = sens(pred, obs, touse)
+	result = sens(pred, obs, touse, opts)
 	
 	// Returns the metric
 	return(result)
@@ -591,7 +594,8 @@ real scalar spec(string scalar pred, string scalar obs, string scalar touse, ///
 	// assert(rows(c.conf) == 2 & cols(c.conf) == 2)
 	
 	// Computes the metric from the confusion matrix
-	result = c.conf[1, 1] / c.colm[, 1]
+	result = (args() == 4 & opts == 1 ?										 ///   
+			  c.revconf[1, 1] / c.revcolm[, 1] : c.conf[1, 1] / c.colm[, 1])
 	
 	// Returns the metric
 	return(result)
@@ -617,7 +621,8 @@ real scalar prev(string scalar pred, string scalar obs, string scalar touse, ///
 	// assert(rows(c.conf) == 2 & cols(c.conf) == 2)
 	
 	// Computes the metric from the confusion matrix
-	result = c.colm[, 2] / c.n
+	result = (args() == 4 & opts == 1 ?										 ///   
+			  c.revcolm[, 2] / c.n : c.colm[, 2] / c.n)
 
 	// Returns the metric
 	return(result)
@@ -634,13 +639,13 @@ real scalar ppv(string scalar pred, string scalar obs, string scalar touse,  ///
 	real scalar result, sens, spec, prev
 	
 	// Computes sensitivity 
-	sens = sens(pred, obs, touse)
+	sens = sens(pred, obs, touse, opts)
 	
 	// Computes prevalence
-	prev = prev(pred, obs, touse)
+	prev = prev(pred, obs, touse, opts)
 	
 	// Computes specificity
-	spec = spec(pred, obs, touse)
+	spec = spec(pred, obs, touse, opts)
 	
 	// Computes positive predictive value
 	result = (sens * prev) / ((sens * prev) + ((1 - spec) * (1 - prev)))
@@ -660,13 +665,13 @@ real scalar npv(string scalar pred, string scalar obs, string scalar touse,  ///
 	real scalar result, sens, spec, prev
 	
 	// Computes sensitivity 
-	sens = sens(pred, obs, touse)
+	sens = sens(pred, obs, touse, opts)
 	
 	// Computes prevalence
-	prev = prev(pred, obs, touse)
+	prev = prev(pred, obs, touse, opts)
 	
 	// Computes specificity
-	spec = spec(pred, obs, touse)
+	spec = spec(pred, obs, touse, opts)
 	
 	// Computes negative predictive value
 	result = (spec * (1 - prev)) / (((1 - sens) * prev) + (spec * (1 - prev)))
@@ -707,10 +712,10 @@ real scalar bacc(string scalar pred, string scalar obs, string scalar touse, ///
 	real scalar result, sens, spec
 	
 	// Computes sensitivity 
-	sens = sens(pred, obs, touse)
+	sens = sens(pred, obs, touse, opts)
 	
 	// Computes specificity
-	spec = spec(pred, obs, touse)
+	spec = spec(pred, obs, touse, opts)
 	
 	// Computes "balanced" accuracy as the average of sensitivity and specificity
 	result = (sens + spec) / 2
@@ -722,6 +727,7 @@ real scalar bacc(string scalar pred, string scalar obs, string scalar touse, ///
 
 // Defines function to compute the F1 statistic
 // Based on second equation here: https://www.v7labs.com/blog/f1-score-guide
+//# Bookmark #1
 real scalar f1(string scalar pred, string scalar obs, string scalar touse,   ///   
 					| transmorphic matrix opts) {
 	
@@ -729,13 +735,15 @@ real scalar f1(string scalar pred, string scalar obs, string scalar touse,   ///
 	real scalar result, prec, rec, beta
 	
 	// Determine what value of beta to use
-	beta = (args() == 4 & eltype(opts) == "real" ? opts[1, 1] : 1)
+	beta = (args() == 4 & eltype(opts) == "real" & cols(opts) == 2 ? opts[1, 2] : 1)
 
 	// Computes precision
-	prec = prec(pred, obs, touse)
+	prec = (args() == 4 & eltype(opts) == "real" ?							 ///   
+			prec(pred, obs, touse, opts[1, 1]) : prec(pred, obs, touse))
 
 	// Computes recall
-	rec = recall(pred, obs, touse)
+	rec = (args() == 4 & eltype(opts) == "real" ?							 ///   
+			recall(pred, obs, touse, opts[1, 1]) : recall(pred, obs, touse))
 	
 	// Computes the f1 score 
 	result = ((1 + beta^2) * prec * rec) / ((beta^2 * prec) + rec)
@@ -751,7 +759,7 @@ real scalar jindex(string scalar pred, string scalar obs, 					 ///
 				   string scalar touse, | transmorphic matrix opts) {
 
 	// Return the micro averaged detection prevalence
-	return(sens(pred, obs, touse) + spec(pred, obs, touse) - 1)
+	return(sens(pred, obs, touse, opts) + spec(pred, obs, touse, opts) - 1)
 
 } // End of function definition for j-index
 
