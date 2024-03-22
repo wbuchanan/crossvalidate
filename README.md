@@ -1,19 +1,8 @@
 ![Stata Crossvalidation](crossvalidate-hex.png)
 # TODO
-- [x] Implement reverse code option for sens
-- [x] Implement reverse code option for spec
-- [x] Implement reverse code option for recall
-- [x] Implement reverse code option for precision
-- [x] Implement reverse code option for jindex
-- [x] Implement reverse code option for f1
-- [x] Implement reverse code option for ppv
-- [x] Implement reverse code option for npv
-- [x] Implement reverse code option for bacc
-- [x] Implement reverse code option for prev (detection prevalence)
-- [ ] Workout how to implement abbreviated option names in cvparse 
-that either replace the abbreviation with the full name and return the value in 
-the fullnamed macro or return the abbreviated option in a macro with the full 
-option name
+- [ ] Update help files for xv and xvloo to include abbreviated option names 
+throughout the document
+- [ ] Update the README to indicate support for abbreviated option names.
 
 
 
@@ -299,7 +288,7 @@ cross-validation.
 ## fitit
 ```
 fitit anything(name = cmd), SPLit(passthru) RESults(string asis) 
-						  [ Kfold(integer 1) noall DISplay NAme(string asis) ]
+			[ KFold(integer 1) noall DISplay NAme(string asis) ]
 ```						   
 
 ### Syntax and options
@@ -308,7 +297,7 @@ fitit anything(name = cmd), SPLit(passthru) RESults(string asis)
 identify the train/validate/test or KFold splits in the dataset.
 * <ins>res</ins>ults(string asis) - A name to use to store estimation results 
 `estimates store`.
-* <ins>k</ins>fold(integer 1) - An option used to determine if the model needs 
+* <ins>kf</ins>old(integer 1) - An option used to determine if the model needs 
 to be fitted over k subsets of the data.
 * noall - Is an option to suppress fitting the model to the entire training set 
 when the number of folds in the training set is > 1.
@@ -321,10 +310,10 @@ results; the default is xvfit and only applies to users of Stata 17 and above.
 ## predictit
 ```
 predictit [anything(name = cmd)], PStub(string asis) 
-								[ SPLit(passthru) Classes(integer 0) 
-								  Kfold(integer 1) THReshold(passthru) 
-								  MODifin(string asis) KFIfin(string asis) noall 
-								  PMethod(string asis) POpts(string asis) ]
+			[ SPLit(passthru) Classes(integer 0) 
+			  KFold(integer 1) THReshold(passthru) 
+			  MODifin(string asis) KFIfin(string asis) noall 
+			  PMethod(string asis) POpts(string asis) ]
 ```
 
 ### Syntax and options
@@ -336,7 +325,7 @@ identify the train/validate/test or KFold splits in the dataset.
 * <ins>c</ins>lasses(integer 0) - An option used to determine whether the model 
 is a regression or classification task.  This is subsequently passed to the 
 classify program.
-* <ins>k</ins>fold(integer 1) - An option used to determine the appropriate 
+* <ins>kf</ins>old(integer 1) - An option used to determine the appropriate 
 subset of data to use for predictions.
 * <ins>thr</ins>eshold(passthru) - An option that is passed to the classify 
 program for predicting class membership in classification tasks.

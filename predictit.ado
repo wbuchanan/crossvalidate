@@ -5,8 +5,8 @@
 *******************************************************************************/
 
 *! predictit
-*! v 0.0.9
-*! 11mar2024
+*! v 0.0.10
+*! 22mar2024
 
 // Drop program from memory if already loaded
 cap prog drop predictit
@@ -20,7 +20,7 @@ prog def predictit
 	// Syntax
 	syntax [anything(name = cmd id="estimation command name")],				 ///   
 			PStub(string asis) [ SPLit(varname)  Classes(integer 0) 		 ///   
-			Kfold(integer 1) THReshold(passthru) MODifin(string asis) 		 ///   
+			KFold(integer 1) THReshold(passthru) MODifin(string asis) 		 ///   
 			KFIfin(string asis) noall PMethod(string asis) POpts(string asis)]
 			
 	// Assign estimates global to a local

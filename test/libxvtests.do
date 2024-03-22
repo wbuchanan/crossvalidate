@@ -57,15 +57,15 @@ asserteq(st_local("results"), x)
 
 // Now we'll include an instance with a few options and something that isn't a 
 // valid option
-x = `"results tpoint(td("06feb2024")) kfold(5) garbage"'
+x = `"res tpoint(td("06feb2024")) kf(5) garbage"'
 
 // Parse the string
 cvparse(x)
 
 // Now Test the results
-asserteq(st_local("results"), "results")
+asserteq(st_local("results"), "res")
 asserteq(st_local("tpoint"), `"tpoint(td("06feb2024"))"')
-asserteq(st_local("kfold"), "kfold(5)")
+asserteq(st_local("kfold"), "kf(5)")
 asserteq(st_local("garbage"), "")
 
 // getarg - We'll use the stuff above to check how getarg works
@@ -244,8 +244,8 @@ asserteq(round(fxbinr2, rf), round(binr2("pred", "obs", "touse"), rf))
 asserteq(round(fxmcc, rf), round(mcc("pred", "obs", "touse"), rf))
 
 // Test equality of F1 metrics with new function signature
-asserteq(round(fxf1, rf), round(f1("pred", "obs", "touse", (1, 2, 3)), rf))
-asserteq(round(fxf1, rf), round(f1("pred", "obs", "touse", ("yes", "no")), rf))
+asserteq(round(fxf1, rf), round(f1("pred", "obs", "touse", (0, 1)), rf))
+asserteq(round(fxf1, rf), round(f1("pred", "obs", "touse"), rf))
 
 // End the Mata session
 end

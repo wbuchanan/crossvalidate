@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.7 29feb2024}{...}
+{* *! version 0.0.8 22mar2024}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat_classification"}{...}
 {vieweralsosee "" "--"}{...}
 {viewerjumpto "Syntax" "fitit##syntax"}{...}
@@ -16,7 +16,7 @@
 
 {p 8 32 2}
 {cmd:fitit} {it:"estimation command"} {cmd:,} {cmdab:spl:it(}{it:passthru}{cmd:)} 
-{cmdab:res:ults(}{it:string asis}{cmd:)} [ {cmdab:k:fold(}{it:integer}{cmd:)} 
+{cmdab:res:ults(}{it:string asis}{cmd:)} [ {cmdab:kf:old(}{it:integer}{cmd:)} 
 {cmd:noall} {cmdab:dis:play} {cmdab:na:me(}{it:string asis}{cmd:)}]{p_end}
 
 {synoptset 25 tabbed}{...}
@@ -27,7 +27,7 @@
 {synopt :{opt spl:it}}name of the variable that identifies the training split(s){p_end}
 {synopt :{opt res:ults}}a stub for storing estimation results{p_end}
 {syntab:Optional}
-{synopt :{opt k:fold}}specifies the number of folds in the training set; default is {cmd:kfold(1)}.{p_end}
+{synopt :{opt kf:old}}specifies the number of folds in the training set; default is {cmd:kfold(1)}.{p_end}
 {synopt :{opt noall}}suppresses prediction on entire training set for K-Fold cases{p_end}
 {synopt :{opt dis:play}}display results in window; default is {cmd:off}{p_end}
 {synopt :{opt na:me}}is used to name the collection storing the results; default is {cmd:name(xvfit)}.{p_end}
@@ -64,7 +64,7 @@ of the training folds except number 1.
 {dlgtab:Optional}
 
 {phang}
-{opt k:fold} defines the number of K-Folds used for the training set.  In other 
+{opt kf:old} defines the number of K-Folds used for the training set.  In other 
 places, we reference using K-Fold cross-validation in the more common form, 
 where the training set consists of multiple subsets of data.  However, standard 
 train/test and train/validation/test splits are simply a special case of K-Fold 

@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.6 08mar2024}{...}
+{* *! version 0.0.7 22mar2024}{...}
 {vieweralsosee "[R] predict" "mansection R predict"}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat_classification"}{...}
 {vieweralsosee "[P] creturn" "mansection P creturn"}{...}
@@ -23,20 +23,20 @@
 {title:Syntax}
 
 {p 4 15 8}
-{cmd:xv} {it:# [#]} {cmd:,} {cmd:metric(}{it:string asis}{cmd:)} 
+{cmd:xv} {it:# [#]} {cmd:,} {cmdab:me:tric(}{it:string asis}{cmd:)} 
 [{cmd:seed(}{it:integer}{cmd:)}
-{cmd:uid(}{it:varlist}{cmd:)} 
-{cmd:tpoint(}{it:string asis}{cmd:)} {cmd:kfold(}{it:integer}{cmd:)} 
-{cmd:split(}{it:string asis}{cmd:)}
-{cmd:results(}{it:string asis}{cmd:)}
-{cmd:fitnm(}{it:string asis}{cmd:)} 
-{cmd:classes(}{it:integer}{cmd:)} {cmd:threshold(}{it:real}{cmd:)} 
-{cmd:pstub(}{it:string asis}{cmd:)} 
-{cmd:pmethod(}{it:string asis}{cmd:)}
-{cmd:popts(}{it:string asis}{cmd:)}
-{cmd:noall} {cmd:monitors(}{it:string asis}{cmd:)} 
-{cmd:display} {cmd:retain}
-{cmd:valnm(}{it:string asis}{cmd:)} 
+{cmdab:u:id(}{it:varlist}{cmd:)} 
+{cmdab:tp:oint(}{it:string asis}{cmd:)} {cmdab:kf:old(}{it:integer}{cmd:)} 
+{cmdab:spl:it(}{it:string asis}{cmd:)}
+{cmdab:res:ults(}{it:string asis}{cmd:)}
+{cmdab:fit:nm(}{it:string asis}{cmd:)} 
+{cmdab:c:lasses(}{it:integer}{cmd:)} {cmdab:thr:eshold(}{it:real}{cmd:)} 
+{cmdab:ps:tub(}{it:string asis}{cmd:)} 
+{cmdab:pm:ethod(}{it:string asis}{cmd:)}
+{cmdab:po:pts(}{it:string asis}{cmd:)}
+{cmd:noall} {cmdab:mo:nitors(}{it:string asis}{cmd:)} 
+{cmdab:dis:play} {cmdab:ret:ain}
+{cmdab:val:nm(}{it:string asis}{cmd:)} 
 ] {cmd::} {cmd:{it:estimation command}}{p_end}
 
 

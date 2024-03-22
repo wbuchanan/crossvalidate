@@ -109,7 +109,7 @@ void function cvparse(string scalar cv) {
 	
 	// Declares a string scalar used to build the token and a string scalar that 
 	// stores the token
-	string scalar opt, token
+	string scalar opt, token, fname
 	
 	// Initialize the tokenizer
 	t = tokeninit("", ("(", " ", ")"), (""), 1)
@@ -180,9 +180,13 @@ void function cvparse(string scalar cv) {
 		// Get the name of the option from the stored result
 		getname(opts[i, 1])
 		
-		// If the name is contained in the rowvector above, return the parsed 
-		// option to a local macro using the same name
-		if (anyof(optnms, st_local("fnm"))) st_local(st_local("fnm"), opts[i, 1])
+		// Gets the full name of the function
+		fname = fullnm(st_local("fnm"))
+		
+		// If the full name is contained in the rowvector above, return the 
+		// parsed option to a local macro using the full name (even if it is an 
+		// abbreviated option name)
+		if (anyof(optnms, fname)) st_local(fname, opts[i, 1])
 		
 	} // End Loop to verify and return the valid options
 	
@@ -483,6 +487,53 @@ real matrix kappawgts(real scalar levs, real scalar pow) {
 	return(abs(wgts - wgts'):^pow)
 	
 } // End of function definition for MC Kappa weighting matrix
+
+// Defines a function to convert abbreviated option names to their full names
+string scalar fullnm(string scalar key) {
+	
+	// Declares an associative array
+	class AssociativeArray scalar nm
+	
+	// Reinitialize the associative array
+	nm.reinit("string", 1)
+	
+	// populate the associative array with the key value pairs
+	nm.put("u", "uid")
+	nm.put("tp", "tpoint")
+	nm.put("kf", "kfold")
+	nm.put("spl", "split")
+	nm.put("res", "results")
+	nm.put("noall", "noall")
+	nm.put("dis", "display")
+	nm.put("na", "name")
+	nm.put("fit", "fitnm")
+	nm.put("ps", "pstub")
+	nm.put("c", "classes")
+	nm.put("thr", "threshold")
+	nm.put("mod", "modifin")
+	nm.put("kfi", "kfifin")
+	nm.put("pm", "pmethod")
+	nm.put("po", "popts")
+	nm.put("me", "metric")
+	nm.put("o", "obs")
+	nm.put("mo", "monitors")
+	nm.put("val", "valnm")
+	nm.put("ret", "retain")
+	nm.put("state", "state")
+	nm.put("g", "grid")
+	nm.put("par", "params")
+	nm.put("tun", "tuner")
+	nm.put("seed", "seed")
+	nm.put("rep", "replay")
+	nm.put("loo", "loo")
+	
+	// Sets the not found default to be the value passed to the function
+	nm.notfound(key)
+	
+	// Returns the value based on the key passed to this function
+	return(nm.get(key))
+	
+} // End of function definition to expand available option names
 
 // End Mata interpreter
 end

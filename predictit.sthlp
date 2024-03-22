@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.5 08mar2024}{...}
+{* *! version 0.0.6 22mar2024}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat_classification"}{...}
 {vieweralsosee "" "--"}{...}
 {viewerjumpto "Syntax" "predictit##syntax"}{...}
@@ -16,7 +16,7 @@
 {p 8 32 2}
 {cmd:predictit} {it:"estimation command"} {cmd:,} {cmdab:ps:tub(}{it:string asis}{cmd:)} 
 [{cmdab:spl:it(}{it:varname}{cmd:)} {cmdab:c:lasses(}{it:integer}{cmd:)} 
-{cmdab:k:fold(}{it:integer}{cmd:)} {cmdab:thr:eshold(}{it:real}{cmd:)} 
+{cmdab:kf:old(}{it:integer}{cmd:)} {cmdab:thr:eshold(}{it:real}{cmd:)} 
 {cmdab:mod:ifin(}{it:string asis}{cmd:)} {cmdab:kfi:fin(}{it:string asis}{cmd:)}
 {cmdab:noall} {cmdab:pm:ethod(}{it:string asis}{cmd:)} 
 {cmdab:po:pts(}{it:string asis}{cmd:)}]{p_end}
@@ -30,7 +30,7 @@
 {syntab:Optional}
 {synopt :{opt spl:it}}name of the variable that identifies the training split(s){p_end}
 {synopt :{opt c:lasses}}is used to specify the number of classes for classification models; default is {cmd:classes(0)}.{p_end}
-{synopt :{opt k:fold}}specifies the number of folds in the training set; default is {cmd:kfold(1)}.{p_end}
+{synopt :{opt kf:old}}specifies the number of folds in the training set; default is {cmd:kfold(1)}.{p_end}
 {synopt :{opt thr:eshold}}positive outcome threshold; default is {cmd:threshold(0.5)}{p_end}
 {synopt :{opt mod:ifin}}a modified if expression{p_end}
 {synopt :{opt kfi:fin}}a modified if expression{p_end}
@@ -76,7 +76,7 @@ is used to determine whether to call {help predict} (in the case of
 {opt c:lasses(0)}) or {help classify} (in all other cases).
 
 {phang}
-{opt k:fold} defines the number of K-Folds used for the training set.  In other 
+{opt kf:old} defines the number of K-Folds used for the training set.  In other 
 places, we reference using K-Fold cross-validation in the more common form, 
 where the training set consists of multiple subsets of data.  However, standard 
 train/test and train/validation/test splits are simply a special case of K-Fold 
@@ -146,11 +146,9 @@ you are fitting for more details.
 {p 8 4 2}{stata predictit "logit low age smoke", ps(pred) c(2) spl(touse) kf(5) noall}{p_end}
 {p 8 4 2}{stata predictit "logit low age smoke", ps(pred) c(2) spl(touse) kf(5)}{p_end}
 
-
 {marker additional}{...}
 {title:Additional Information}
 {p 4 4 8}If you have questions, comments, or find bugs, please submit an issue in the {browse "https://github.com/wbuchanan/crossvalidate":crossvalidate GitHub repository}.{p_end}
-
 
 {marker contact}{...}
 {title:Contact}
