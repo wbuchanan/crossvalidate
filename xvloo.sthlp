@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.7 22mar2024}{...}
+{* *! version 0.0.8 25mar2024}{...}
 {vieweralsosee "[R] predict" "mansection R predict"}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat_classification"}{...}
 {vieweralsosee "[P] creturn" "mansection P creturn"}{...}
@@ -52,29 +52,29 @@
 {synopt :{opt #}}The proportion of the data set to allocate to the training set.{p_end}
 {synopt :{it:{opt [#]}}}The proportion of the data set to allocate to the validation set.{p_end}
 {syntab:Required}
-{synopt :{opt metric}}the name of a function from {help libxv} or a user-defined function{p_end}
+{synopt :{opt me:tric}}the name of a function from {help libxv} or a user-defined function{p_end}
 {syntab:Split}
 {synopt :{opt seed}}to set the pseudo-random number generator seed{p_end}
-{synopt :{opt uid}}a variable list for clustered sampling/splitting{p_end}
-{synopt :{opt tpoint}}a numeric, td(), tc(), or tC() value{p_end}
-{synopt :{opt split}}a new variable name; default is {cmd:split(_xvsplit)}{p_end}
+{synopt :{opt u:id}}a variable list for clustered sampling/splitting{p_end}
+{synopt :{opt tp:oint}}a numeric, td(), tc(), or tC() value{p_end}
+{synopt :{opt spl:it}}a new variable name; default is {cmd:split(_xvsplit)}{p_end}
 {syntab:Fit}
-{synopt :{opt results}}a stub for storing estimation results; default is {cmd:results(xvres)}{p_end}
+{synopt :{opt res:ults}}a stub for storing estimation results; default is {cmd:results(xvres)}{p_end}
 {synopt :{opt noall}}suppresses fitting the model to the entire training set{p_end}
 {synopt :{opt fitnm}}is used to name the collection storing the results; default is {cmd:fitnm(xvfit)}.{p_end}
 {syntab:Predict}
-{synopt :{opt pstub}}a new variable name for predicted values; default is {cmd:pstub(_xvpred)}{p_end}
-{synopt :{opt classes}}is used to specify the number of classes for classification models; default is {cmd:classes(0)}.{p_end}
-{synopt :{opt threshold}}positive outcome threshold; default is {cmd:threshold(0.5)}{p_end}
-{synopt :{opt pmethod}}predicted statistic from {help predict}{p_end}
-{synopt :{opt popts}}options passed to {help predict} in addition to the method{p_end}
+{synopt :{opt ps:tub}}a new variable name for predicted values; default is {cmd:pstub(_xvpred)}{p_end}
+{synopt :{opt c:lasses}}is used to specify the number of classes for classification models; default is {cmd:classes(0)}.{p_end}
+{synopt :{opt thr:eshold}}positive outcome threshold; default is {cmd:threshold(0.5)}{p_end}
+{synopt :{opt pm:ethod}}predicted statistic from {help predict}{p_end}
+{synopt :{opt po:pts}}options passed to {help predict} in addition to the method{p_end}
 {synopt :{opt noall}}suppresses prediction on entire training set for K-Fold cases{p_end}
 {syntab:Validate}
-{synopt :{opt monitors}}zero or more function names from {help libxv} or user-defined functions; default is {cmd:monitors()}{p_end}
+{synopt :{opt mo:nitors}}zero or more function names from {help libxv} or user-defined functions; default is {cmd:monitors()}{p_end}
 {synopt :{opt valnm}}is used to name the collection storing the results; default is {cmd:valnm(xvval)}.{p_end}
 {syntab:General}
-{synopt :{opt display}}display results in window; default is off{p_end}
-{synopt :{opt retain}}retains the variables and stored estimation results{p_end}
+{synopt :{opt dis:play}}display results in window; default is off{p_end}
+{synopt :{opt ret:ain}}retains the variables and stored estimation results{p_end}
 {synoptline}
 
 {marker description}{...}
@@ -94,13 +94,9 @@ provided in the {help crossvalidate} suite intended to make the process of using
 cross-validation seemless and easy for Stata users.
 
 {pstd}
-{cmd:IMPORTANT:} you must specify the full name of the options used by 
-{cmd:xvloo}.  If you attempt to pass an abbreviated option name, it will not be 
-recognized by the command and will be ignored. Additionally, immediately 
-following the {cmd:xvloo} command, you must specify the proportion of the 
-dataset to allocate to the training set.  The training proportion can be 1.  
-If this is what you specify, the {opt noall} option will be turned on 
-automatically.
+{cmd:IMPORTANT:} you must specify the proportion of the dataset to allocate to 
+the training set.  The training proportion can be 1.  If this is what you 
+specify, the {opt noall} option will be turned on automatically.
 
 INCLUDE help xvphases
 
@@ -110,7 +106,7 @@ INCLUDE help xvphases
 {dlgtab:Required}
 
 {phang}
-{opt metric} the name of a {help libxv} or user-defined function, with the 
+{opt me:tric} the name of a {help libxv} or user-defined function, with the 
 function signature described in {help libxv:help libxv} used to evaluate the fit 
 of the model on the held-out data.  Only a single metric can be specified.  For 
 user's who may be interested in hyperparameter tuning, this would be the value 
@@ -123,11 +119,11 @@ that you would optimize with your hyperparameter tuning algorithm.
 generator seed value.
 
 {phang}
-{opt uid} accepts a variable list for clustered sampling/splitting.  When an 
+{opt u:id} accepts a variable list for clustered sampling/splitting.  When an 
 argument is passed to this parameter entire clusters will be split into the 
 respective training and validation and/or training sets.  When this option is 
-used with {opt tpoint} for {help xtset} data, the panel variable must be nested 
-within the clusters defined by {opt uid}.
+used with {opt tp:oint} for {help xtset} data, the panel variable must be nested 
+within the clusters defined by {opt u:id}.
 
 {phang}
 {hi:IMPORTANT!!!} the order of the {help varlist} passed to {opt u:id} is 
@@ -136,7 +132,7 @@ assumed to follow the hierarchy of the nesting in the data.  Ensure that the
 commands like {help mixed}.
 
 {phang}
-{opt tpoint} a time point delimiting the training split from it's corresponding 
+{opt tp:oint} a time point delimiting the training split from it's corresponding 
 forecastting split.  This can also be accomplished by passing the appropriate if 
 expression in your estimation command.  Use of this option will result in an 
 additional variable with the suffix {it:xv4} being created to identify the 
@@ -144,22 +140,20 @@ forecasting set associated with each split/K-Fold.  This is to ensure that
 the forecasting period data will not affect the model training.
 
 {phang}
-{opt split} is used to specify the name of a new variable that will store the 
-identifiers for the splits in the data.  If a value is passed to the {opt split}, 
-{opt pstub}, or {opt results} options it will trigger the {opt retain} option 
-to be turned on. The default value in the case where the {opt retain} option is 
-on and no value is passed to {opt split} is _xvsplit.
+{opt spl:it} is used to specify the name of a new variable that will store the 
+identifiers for the splits in the data.  If a value is passed to the {opt spl:it}, 
+{opt ps:tub}, or {opt res:ults} options it will trigger the {opt ret:ain} option 
+to be turned on. The default value in the case where the {opt ret:ain} option is 
+on and no value is passed to {opt spl:it} is _xvsplit.
 
 {dlgtab:Model Fitting}
 
 {phang}
-{opt results} is used to {help estimates_store:estimates store} the estimation 
-results from fitting the model on each fold in the dataset.  When {opt kfold} is 
-> 1 and the {opt noall} option is omitted, an additional result will be stored 
-from fitting the model to the entire training split.  Additionally, if a value 
-is passed to the {opt split}, {opt pstub}, or {opt results} options it will 
-trigger the {opt retain} option to be turned on. The default value in the case 
-where the {opt retain} option is on and no value is passed to {opt results} is 
+{opt res:ults} is used to {help estimates_store:estimates store} the estimation 
+results from fitting the model on each fold in the dataset. If a value 
+is passed to the {opt spl:it}, {opt ps:tub}, or {opt res:ults} options it will 
+trigger the {opt ret:ain} option to be turned on. The default value in the case 
+where the {opt ret:ain} option is on and no value is passed to {opt res:ults} is 
 xvres.
 
 {phang}
@@ -174,43 +168,41 @@ default name is
 {opt noall} is an option to prevent fitting, predicting, and validating a model 
 that is fitted to the entire training set when using K-Fold cross-validation 
 with a train/test or train/validation/test split. If the training set proportion 
-is set to 1, this option will be automatically enabled.
+is equal to 1 this option will be turned off since there will be no validation 
+or test set to use for the out-of-sample prediction.
 
 {dlgtab:Predicting Out-of-Sample Results}
 
 {phang}
-{opt pstub} is used to define a new variable stub name for the predicted values
-generated during the cross-validation process.  When {opt kfold} > 1 and the 
-option {opt noall} is omitted, an additional variable is generated based on the 
-fit of the model to the entire training set, with the predictions made on the 
-validation set, if present, or the test set.  Additionally, if a value 
-is passed to the {opt split}, {opt pstub}, or {opt results} options it will 
-trigger the {opt retain} option to be turned on. The default value in the case 
-where the {opt retain} option is on and no value is passed to {opt pstub} is 
+{opt ps:tub} is used to define a new variable stub name for the predicted values
+generated during the cross-validation process.  If a value 
+is passed to the {opt spl:it}, {opt ps:tub}, or {opt res:ults} options it will 
+trigger the {opt ret:ain} option to be turned on. The default value in the case 
+where the {opt ret:ain} option is on and no value is passed to {opt ps:tub} is 
 _xvpred.  If this variable already exists, a suffix based on the timestamp when 
 the command is executed is added as a suffix.
 
 {phang}
-{opt classes} is used to distinguish between models of non-categorical data (
-{opt classes(0)}), binary data ({opt classes(2)}), and multinomial/ordinal 
-data ({opt classes(>= 3)}).  You will only need to pass an argument to this 
+{opt c:lasses} is used to distinguish between models of non-categorical data (
+{opt c:lasses(0)}), binary data ({opt c:lasses(2)}), and multinomial/ordinal 
+data ({opt c:lasses(>= 3)}).  You will only need to pass an argument to this 
 parameter if you are using some form of a classification model.  Internally, it 
 is used to determine whether to call {help predict} (in the case of 
-{opt classes(0)}) or {help classify} (in all other cases).
+{opt c:lasses(0)}) or {help classify} (in all other cases).
 
 {phang}
-{opt threshold} defines the probability cutoff used to determine a positive 
+{opt thr:eshold} defines the probability cutoff used to determine a positive 
 classification for binary response models.  This value functions the same way 
 as it does in the case of {help estat_classification:estat classification}.
 
 {phang}
-{opt pmethod} is passed internally to Stata's {help predict} command to 
+{opt pm:ethod} is passed internally to Stata's {help predict} command to 
 generate the predicted values of the outcome for the out-of-sample data. When 
-the value of the {opt classes} option is 0, {opt pmethod} will default to xb.  
-If the value of {opt classes} is >= 2, {opt pmethod} will default to pr.
+the value of the {opt c:lasses} option is 0, {opt pm:ethod} will default to xb.  
+If the value of {opt c:lasses} is >= 2, {opt pm:ethod} will default to pr.
 
 {phang}
-{opt popts} is passed internally to Stata's {help predict} command to 
+{opt po:pts} is passed internally to Stata's {help predict} command to 
 generate the predicted values of the outcome for the out-of-sample data. For 
 multivariate outcome models, like {help sureg}, this option can be used to 
 specify which of the equations should be used to predict the outcome of interest.  
@@ -226,7 +218,7 @@ with a train/test or train/validation/test split.
 {dlgtab:Validating the Model}
 
 {phang}
-{opt monitors} the name of zero or more {help libxv} or user-defined functions, 
+{opt mo:nitors} the name of zero or more {help libxv} or user-defined functions, 
 with the function signature described in {help libxv:help libxv} used to 
 evaluate the fit of the model on the held-out data.  These should not be used 
 when attempting to tune hyper parameters, but can still provide useful 
@@ -242,13 +234,13 @@ option.  {it:Note:} this only affects users using Stata 17 or later.
 {dlgtab:General Options}
 
 {phang}
-{opt display} an option to display the metric and monitor values in the results 
+{opt dis:play} an option to display the metric and monitor values in the results 
 window.
 
 {phang}
-{opt retain} is used to retain the variables created, stored estimation results, 
+{opt ret:ain} is used to retain the variables created, stored estimation results, 
 and dataset characteristics that are generated by {cmd:xv}.  If an argument is 
-passed to either the {opt split}, {opt pstub}, or {opt results} options, retain 
+passed to either the {opt spl:it}, {opt ps:tub}, or {opt res:ults} options, retain 
 is automatically turned on and default names will be used for the split 
 variable, predicted outcome variable, and/or estimation results names if they 
 are not provided by the user.

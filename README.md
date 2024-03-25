@@ -1,11 +1,4 @@
 ![Stata Crossvalidation](crossvalidate-hex.png)
-# TODO
-- [ ] Update help files for xv and xvloo to include abbreviated option names 
-throughout the document
-- [ ] Update the README to indicate support for abbreviated option names.
-
-
-
 # crossvalidation
 The crossvalidate package includes several commands and a Mata library that 
 provide a range of possible cross-validation techniques that can be used with 
@@ -114,11 +107,11 @@ lmbuild libxv, replace dir(`"`c(pwd)'"')
 # Prefix Commands
 ## xv
 ```
-xv # [#], metric(string asis) [seed(integer) uid(varlist) tpoint(string asis)
-			 split(string asis) kfold(integer) results(string asis) 
-			 fitnm(string asis) classes(integer) pstub(string asis) noall 
-			 monitors(string asis) display retain valnm(string asis)
-			 pmethod(string asis) popts(string asis)] : 
+xv # [#], MEtric(string asis) [seed(integer) Uid(varlist) TPoint(string asis)
+			 SPLit(string asis) KFold(integer) RESults(string asis) 
+			 fitnm(string asis) Classes(integer) PStub(string asis) noall 
+			 MOnitors(string asis) DISplay RETain valnm(string asis)
+			 PMethod(string asis) POpts(string asis)] : 
 			 estimation command ...
 ```
 
@@ -127,25 +120,25 @@ xv # [#], metric(string asis) [seed(integer) uid(varlist) tpoint(string asis)
 the training allocation is set to unity, it will automatically trigger the 
 `noall` option.
 * [\#] - The proportion of the data set to allocate to the validation set.
-* metric(_string asis_) - the name of a function from libxv or a user-defined 
+* <ins>me</ins>tric(_string asis_) - the name of a function from libxv or a user-defined 
 function.  Optional arguments for the metric function can be passed as a matrix.  
 For example, metric(ccc((1))) or metric(ccc(("y"))).  See help documentation 
 for cases where options are supported, as well as the required format for those 
 options.
-* kfold(_integer_) - An optional parameter that implements K-Fold 
+* <ins>kf</ins>old(_integer_) - An optional parameter that implements K-Fold 
 cross-validation with the number of folds specified by the user.  The default is 
 1, which is the equivalent of simple train/test or train/validation/test splits.
 * seed(_integer_) - to set the pseudo-random number generator seed
-* uid(_varlist_) - a variable list for clustered sampling/splitting.  _Note, the 
+* <ins>u</ins>id(_varlist_) - a variable list for clustered sampling/splitting.  _Note, the 
 variable list must be specified the order from highest to lowest level of 
 nesting of the data; cross-classified sampling is not currently supported._
-* tpoint(_string asis_) - a numeric, td(), tc(), or tC() value. 
-* split(_string asis_) - a new variable name that will store the split 
+* <ins>tp</ins>oint(_string asis_) - a numeric, td(), tc(), or tC() value. 
+* <ins>spl</ins>it(_string asis_) - a new variable name that will store the split 
 identifiers in the data.  If a value is passed to the `split`, `pstub`, or 
 `results` options it will trigger the `retain` option to be turned on. The 
 default value in the case where the `retain` option is on and no value is passed 
 to `split` is _xvsplit.
-* results(_string asis_) - a stubname for storing estimation results.  The name 
+* <ins>res</ins>ults(_string asis_) - a stubname for storing estimation results.  The name 
 provided cannot end in a number. If a value is passed to the `split`, `pstub`, 
 or `results` options it will trigger the `retain` option to be turned on. 
 The default value in the case where the `retain` option is on and no value is 
@@ -154,44 +147,44 @@ passed to `results` is xvres.
 is only applicable to cases where `kfold` > 1 (which includes xvloo)._
 * fitnm(_string asis_) - is used to name the collection storing the results; 
 the default is xvfit and only applies to users of Stata 17 and above.
-* classes(_integer_) - is used to specify the number of classes for 
+* <ins>c</ins>lasses(_integer_) - is used to specify the number of classes for 
 classification models; default is 0 which is used to denote non-classification 
 models.  Additionally, if using a binary outcome, remember that there are two 
 (2) classes.
-* threshold(_real_) - positive outcome threshold for classification in binary 
+* <ins>thr</ins>eshold(_real_) - positive outcome threshold for classification in binary 
 outcome models; default is 0.5.
-* pstub(_string asis_) - a new variable name for predicted values.   If a value 
+* <ins>ps</ins>tub(_string asis_) - a new variable name for predicted values.   If a value 
 is passed to the `split`, `pstub`, or `results` options it will trigger the 
 `retain` option to be turned on. The default value in the case where the 
 `retain` option is on and no value is passed to `pstub` is _xvpred.  If the 
 variable _xvpred already exists a suffix based on the timestamp when the command 
 is executed is used.
-* monitors(_string asis_) - zero or more function names from libxv or 
+* <ins>mo</ins>nitors(_string asis_) - zero or more function names from libxv or 
 user-defined functions.  Optional arguments for the monitors function can be 
 passed as a matrix.  For example, monitors(ccc((1)) mae(("y")) rmse((1, 2, 3))).  
 See help documentation for cases where options are supported, as well as the 
 required format for those options.
 * valnm(_string asis_) - is used to name the collection storing the validation 
 results; default is xvval and only applies to users of Stata 17 and above.
-* pmethod(string asis) - the method (statistic) to predict with the 
+* <ins>pm</ins>ethod(string asis) - the method (statistic) to predict with the 
 out-of-sample/held-out data. Defaults to xb when `classes` == 0 and pr in all 
 other cases.
-* popts(string asis) - an option that allows users to pass options to 
+* <ins>po</ins>pts(string asis) - an option that allows users to pass options to 
 the predict command in addition to the prediction statistic/method.
-* display - display estimation and validation results in the results pane; 
+* <ins>dis</ins>play - display estimation and validation results in the results pane; 
 default is off
-* retain - retains the `split` and `pstub` variables and stored estimation 
+* <ins>ret</ins>ain - retains the `split` and `pstub` variables and stored estimation 
 results after execution.  If this option is specified without arguments passed 
 to the `split`, `pstub`, or `results` options, the default names are used for 
 them.
 
 ## xvloo
 ```
-xvloo # [#], metric(string asis) [ seed(integer) uid(varlist) tpoint(string asis)
-			 split(string asis) results(string asis) fitnm(string asis) 
-			 classes(integer) pstub(string asis) noall monitors(string asis) 
-			 display retain valnm(string asis) pmethod(string asis)
-			 popts(string asis) ] : 
+xvloo # [#], MEtric(string asis) [ seed(integer) Uid(varlist) TPoint(string asis)
+			 SPLit(string asis) RESults(string asis) fitnm(string asis) 
+			 Classes(integer) PStub(string asis) noall MOnitors(string asis) 
+			 DISplay RETain valnm(string asis) PMethod(string asis)
+			 POpts(string asis) ] : 
 			 estimation command ...
 ```
 
@@ -200,22 +193,22 @@ xvloo # [#], metric(string asis) [ seed(integer) uid(varlist) tpoint(string asis
 the training allocation is set to unity, it will automatically trigger the 
 `noall` option.
 * [\#] - The proportion of the data set to allocate to the validation set.
-* metric(_string asis_) - the name of a function from libxv or a user-defined 
+* <ins>me</ins>tric(_string asis_) - the name of a function from libxv or a user-defined 
 function.  Optional arguments for the metric function can be passed as a matrix.  
 For example, metric(ccc((1))) or metric(ccc(("y"))).  See help documentation 
 for cases where options are supported, as well as the required format for those 
 options.
 * seed(_integer_) - to set the pseudo-random number generator seed
-* uid(_varlist_) - a variable list for clustered sampling/splitting.  _Note, the 
+* <ins>u</ins>id(_varlist_) - a variable list for clustered sampling/splitting.  _Note, the 
 variable list must be specified the order from highest to lowest level of 
 nesting of the data; cross-classified sampling is not currently supported._
-* tpoint(_string asis_) - a numeric, td(), tc(), or tC() value. 
-* split(_string asis_) - a new variable name that will store the split 
+* <ins>tp</ins>oint(_string asis_) - a numeric, td(), tc(), or tC() value. 
+* <ins>spl</ins>it(_string asis_) - a new variable name that will store the split 
 identifiers in the data.  If a value is passed to the `split`, `pstub`, or 
 `results` options it will trigger the `retain` option to be turned on. The 
 default value in the case where the `retain` option is on and no value is passed 
 to `split` is _xvsplit.
-* results(_string asis_) - a stubname for storing estimation results.  The name 
+* <ins>res</ins>ults(_string asis_) - a stubname for storing estimation results.  The name 
 provided cannot end in a number. If a value is passed to the `split`, `pstub`, 
 or `results` options it will trigger the `retain` option to be turned on. 
 The default value in the case where the `retain` option is on and no value is 
@@ -224,33 +217,33 @@ passed to `results` is xvres.
 is only applicable to cases where `kfold` > 1 (which includes xvloo)._
 * fitnm(_string asis_) - is used to name the collection storing the results; 
 the default is xvfit and only applies to users of Stata 17 and above.
-* classes(_integer_) - is used to specify the number of classes for 
+* <ins>c</ins>lasses(_integer_) - is used to specify the number of classes for 
 classification models; default is 0 which is used to denote non-classification 
 models.  Additionally, if using a binary outcome, remember that there are two 
 (2) classes.
-* threshold(_real_) - positive outcome threshold for classification in binary 
+* <ins>thr</ins>eshold(_real_) - positive outcome threshold for classification in binary 
 outcome models; default is 0.5.
-* pstub(_string asis_) - a new variable name for predicted values.   If a value 
+* <ins>ps</ins>tub(_string asis_) - a new variable name for predicted values.   If a value 
 is passed to the `split`, `pstub`, or `results` options it will trigger the 
 `retain` option to be turned on. The default value in the case where the 
 `retain` option is on and no value is passed to `pstub` is _xvpred.  If the 
 variable _xvpred already exists a suffix based on the timestamp when the command 
 is executed is used.
-* monitors(_string asis_) - zero or more function names from libxv or 
+* <ins>mo</ins>nitors(_string asis_) - zero or more function names from libxv or 
 user-defined functions.  Optional arguments for the monitors function can be 
 passed as a matrix.  For example, monitors(ccc((1)) mae(("y")) rmse((1, 2, 3))).  
 See help documentation for cases where options are supported, as well as the 
 required format for those options.
 * valnm(_string asis_) - is used to name the collection storing the validation 
 results; default is xvval and only applies to users of Stata 17 and above.
-* pmethod(string asis) - the method (statistic) to predict with the 
+* <ins>pm</ins>ethod(string asis) - the method (statistic) to predict with the 
 out-of-sample/held-out data. Defaults to xb when `classes` == 0 and pr in all 
 other cases.
-* popts(string asis) - an option that allows users to pass options to 
+* <ins>po</ins>pts(string asis) - an option that allows users to pass options to 
 the predict command in addition to the prediction statistic/method.
-* display - display estimation and validation results in the results pane; 
+* <ins>dis</ins>play - display estimation and validation results in the results pane; 
 default is off
-* retain - retains the `split` and `pstub` variables and stored estimation 
+* <ins>ret</ins>ain - retains the `split` and `pstub` variables and stored estimation 
 results after execution.  If this option is specified without arguments passed 
 to the `split`, `pstub`, or `results` options, the default names are used for 
 them.
