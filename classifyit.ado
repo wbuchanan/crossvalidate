@@ -4,15 +4,15 @@
 *                                                                              *
 *******************************************************************************/
 
-*! classify
+*! classifyit
 *! v 0.0.6
 *! 08mar2024
 
 // Drop program from memory if already loaded
-cap prog drop classify
+cap prog drop classifyit
 
 // Define program
-prog def classify, 
+prog def classifyit, 
 
 	// Version statement 
 	version 15

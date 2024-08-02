@@ -53,7 +53,7 @@ individual commands.
 {synopt :{opt {help predictit}}}Predicts the outcome on the appropriate split{p_end}
 {synopt :{opt {help validateit}}}Computes {p_end}
 {syntab:Utility Commands}
-{synopt :{opt {help classify}}}Used to manage {p_end}
+{synopt :{opt {help classifyit}}}Used to manage {p_end}
 {synopt :{opt {help cmdmod}}}Used for metaprogramming tasks in commands above{p_end}
 {synopt :{opt {help state}}}Retrieves current settings and binds to the dataset{p_end}
 {synoptline}
@@ -121,7 +121,7 @@ passing the name of that function to the appropriate option.
 {dlgtab:Utility Commands}
 
 {phang}
-{help classify} is a utility called by the {help predictit} command when fitting 
+{help classifyit} is a utility called by the {help predictit} command when fitting 
 classification models.  This utility ensures that class identifiers are returned 
 as the predicted values for binomial, multinomial, and ordinal outcomes.
 

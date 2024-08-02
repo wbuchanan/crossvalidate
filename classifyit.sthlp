@@ -3,18 +3,18 @@
 {vieweralsosee "[R] predict" "mansection R predict"}{...}
 {vieweralsosee "[R] estat classification" "mansection R estat classification"}{...}
 {vieweralsosee "" "--"}{...}
-{viewerjumpto "Syntax" "classify##syntax"}{...}
-{viewerjumpto "Description" "classify##description"}{...}
-{viewerjumpto "Options" "classify##options"}{...}
-{viewerjumpto "Examples" "classify##examples"}{...}
-{viewerjumpto "Additional Information" "classify##additional"}{...}
-{viewerjumpto "Contact" "classify##contact"}{...}
+{viewerjumpto "Syntax" "classifyit##syntax"}{...}
+{viewerjumpto "Description" "classifyit##description"}{...}
+{viewerjumpto "Options" "classifyit##options"}{...}
+{viewerjumpto "Examples" "classifyit##examples"}{...}
+{viewerjumpto "Additional Information" "classifyit##additional"}{...}
+{viewerjumpto "Contact" "classifyit##contact"}{...}
 
 {marker syntax}{...}
 {title:Syntax}
 
 {p 8 32 2}
-{cmd:classify} # [ if ] {cmd:,} {cmdab:ps:tub(}{it:string asis}{cmd:)} [
+{cmd:classifyit} # [ if ] {cmd:,} {cmdab:ps:tub(}{it:string asis}{cmd:)} [
 {cmdab:thr:eshold(}{it:real}{cmd:)} {cmdab:pm:ethod(}{it:string asis}{cmd:)}
 {cmdab:po:pts(}{it:string asis}{cmd:)}]{p_end}
 
@@ -35,10 +35,10 @@
 {title:Description}
 
 {pstd} 
-{cmd:classify} is part of the {help crossvalidate} suite of tools to implement 
-cross-validation methods with Stata estimation commands. {cmd:classify} is used 
+{cmd:classifyit} is part of the {help crossvalidate} suite of tools to implement 
+cross-validation methods with Stata estimation commands. {cmd:classifyit} is used 
 internally by the {help predictit} command to handle conversion of predicted 
-probabilities into integer valued class memberships.  {cmd:classify} will work 
+probabilities into integer valued class memberships.  {cmd:classifyit} will work 
 with binomial and multinomial (including ordinal) classification models.  For 
 multinomial models, the class membership with the highest predicted probability 
 is selected as the class predicted by the model.
@@ -65,7 +65,7 @@ as it does in the case of {help estat_classification:estat classification}.
 {phang}
 {opt pm:ethod} is passed internally to Stata's {help predict} command to 
 generate the predicted values of the outcome for the out-of-sample data. The 
-default in {cmd:classify} is to generate the predicted probabilities of class 
+default in {cmd:classifyit} is to generate the predicted probabilities of class 
 membership.
 
 {phang}
@@ -86,8 +86,8 @@ you are fitting for more details.
 {p 8 4 2}{stata webuse lbw, clear}{p_end}
 {p 4 4 2}Fit a model to the data{p_end}
 {p 8 4 2}{stata logit low age smoke) c}{p_end}
-{p 4 4 2}Use classify to generate the predicted classes{p_end}
-{p 8 8 2}{stata classify 2 if e(sample), ps(pred)}{p_end}
+{p 4 4 2}Use classifyit to generate the predicted classes{p_end}
+{p 8 8 2}{stata classifyit 2 if e(sample), ps(pred)}{p_end}
 
 {p 4 4 2}Multinomial Classification Example{p_end}
 
@@ -95,8 +95,8 @@ you are fitting for more details.
 {p 8 4 2}{stata webuse sysdsn1, clear}{p_end}
 {p 4 4 2}Fit a model to the data{p_end}
 {p 8 4 2}{stata mlogit insure age male i.site) c}{p_end}
-{p 4 4 2}Use classify to generate the predicted classes{p_end}
-{p 8 8 2}{stata classify 3 if e(sample), ps(pred)}{p_end}
+{p 4 4 2}Use classifyit to generate the predicted classes{p_end}
+{p 8 8 2}{stata classifyit 3 if e(sample), ps(pred)}{p_end}
 
 {p 4 4 2}Ordinal Classification Example{p_end}
 
@@ -104,8 +104,8 @@ you are fitting for more details.
 {p 8 4 2}{stata webuse fullauto, clear}{p_end}
 {p 4 4 2}Fit a model to the data{p_end}
 {p 8 4 2}{stata ologit rep77 price foreign) c}{p_end}
-{p 4 4 2}Use classify to generate the predicted classes{p_end}
-{p 8 8 2}{stata classify 5 if e(sample), ps(pred)}{p_end}
+{p 4 4 2}Use classifyit to generate the predicted classes{p_end}
+{p 8 8 2}{stata classifyit 5 if e(sample), ps(pred)}{p_end}
 
 
 {marker additional}{...}
