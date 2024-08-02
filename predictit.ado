@@ -185,7 +185,7 @@ prog def predictit
 			
 			// Call the classification program
 			// Also need to handle the if statement here as well
-			qui: classify `classes' `modifin', `threshold' ps(`pstub'`k'_)	 ///   
+			qui: classifyit `classes' `modifin', `threshold' ps(`pstub'`k'_)	 ///   
 												po(`popts')
 				
 		} // End ELSE Block for classifcation tasks
@@ -239,7 +239,7 @@ prog def predictit
 			
 			// Call the classification program
 			// Also need to handle the if statement here as well
-			qui: classify `classes' `kfifin', `threshold' ps(`pstub'all) 	 ///   
+			qui: classifyit `classes' `kfifin', `threshold' ps(`pstub'all) 	 ///   
 											  po(`popts')
 				
 		} // End ELSE Block for classifcation tasks

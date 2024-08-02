@@ -203,7 +203,7 @@ the command is executed is added as a suffix.
 data ({opt c:lasses(>= 3)}).  You will only need to pass an argument to this 
 parameter if you are using some form of a classification model.  Internally, it 
 is used to determine whether to call {help predict} (in the case of 
-{opt c:lasses(0)}) or {help classify} (in all other cases).
+{opt c:lasses(0)}) or {help classifyit} (in all other cases).
 
 {phang}
 {opt thr:eshold} defines the probability cutoff used to determine a positive 
