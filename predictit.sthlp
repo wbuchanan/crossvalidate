@@ -63,7 +63,7 @@ fitting the model to all of the training data.
 {phang}
 {opt spl:it} must contain the name of the variable that stores the test, 
 validation, and test splits.  There will only be a single variable if the splits 
-were created using {help splitit}.  Additionally, if you are passing an 
+were created using {help splitit2}.  Additionally, if you are passing an 
 estimation command string as the first argument to this command, you must 
 pass the split variable name to this option.
 

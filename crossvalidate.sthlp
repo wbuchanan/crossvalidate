@@ -48,7 +48,7 @@ individual commands.
 {synopt :{opt {help xv}}}Cross-Validation{p_end}
 {synopt :{opt {help xvloo}}}Leave-One-Out Cross-Validation{p_end}
 {syntab:Lower Level Commands}
-{synopt :{opt {help splitit}}}Splits the dataset into train/test or train/validation/test splits{p_end}
+{synopt :{opt {help splitit2}}}Splits the dataset into train/test or train/validation/test splits{p_end}
 {synopt :{opt {help fitit}}}Calls the estimation command on the appropriate split{p_end}
 {synopt :{opt {help predictit}}}Predicts the outcome on the appropriate split{p_end}
 {synopt :{opt {help validateit}}}Computes {p_end}
@@ -84,7 +84,7 @@ able to use this prefix.
 {dlgtab:Lower Level Commands}
 
 {phang}
-{help splitit} is a command called by the prefix commands to create the splits 
+{help splitit2} is a command called by the prefix commands to create the splits 
 in the data in memory.  As mentioned above, you can create train/test and 
 train/validation/test splits with or without K-Folds, using simple random 
 sampling or clustered sampling (which includes sampling panel units).  This 

@@ -68,7 +68,7 @@ after calling {help predictit}.
 {phang}
 {opt spl:it} must contain the name of the variable that stores the test, 
 validation, and test splits.  There will only be a single variable if the splits 
-were created using {help splitit}.  
+were created using {help splitit2}.  
 
 {dlgtab:Optional}
 

@@ -24,7 +24,7 @@ define how many folds the training set will have, use the {opt kfold} option.
 By default, the {opt kfold} option is set to 1.  {bf:CAUTION:} if you want to 
 use LOO cross-validation, the number of folds must be equal to to number of 
 sampling units in the training set.  Additionally, you need to use the {opt loo} 
-option for {help splitit}; however, the {help xvloo} prefix will manage all of 
+option for {help splitit2}; however, the {help xvloo} prefix will manage all of 
 this for you.  See the note at the end of this section for more information.
 
 {pstd}

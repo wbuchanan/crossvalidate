@@ -279,7 +279,7 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 	} // End IF Block for missing required parameters
 	
 	// Check for uid variable.  If none, create a unique ID as _n in a tempvar
-	// and pass that as uid to splitit
+	// and pass that as uid to splitit2
 	if mi(`"`uid'"') {
 		
 		// Generate the unique identifier if the user is not using clusters for 
@@ -528,7 +528,7 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 	if `dosplit' {
 		
 		// Split the dataset into train/test or train/validation/test splits
-		splitit `props' `ifin', `uid' `tpoint' `kfold' `split' loo
+		splitit2 `props' `ifin', `uid' `tpoint' `kfold' `split' loo
 	
 		// Capture the returned values so they can be returned at the end
 		loc splitter `r(splitter)'
@@ -627,7 +627,7 @@ prog def xvloo, eclass properties(prefix xv) sortpreserve
 		eret loc hostname = "`hostname'"
 		eret loc machinetype = "`machinetype'"
 
-		// Return the macros from splitit
+		// Return the macros from splitit2
 		if `dosplit' eret loc splitter = "`spvar'"
 		else eret loc splitter = "`splitter'"
 		eret loc training = "`training'"

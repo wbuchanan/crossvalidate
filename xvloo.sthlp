@@ -4,7 +4,7 @@
 {vieweralsosee "[R] estat classification" "mansection R estat_classification"}{...}
 {vieweralsosee "[P] creturn" "mansection P creturn"}{...}
 {vieweralsosee "crossvalidate package" "help crossvalidate"}{...}
-{vieweralsosee "crossvalidate splitting" "help splitit"}{...}
+{vieweralsosee "crossvalidate splitting" "help splitit2"}{...}
 {vieweralsosee "crossvalidate fitting" "help fitit"}{...}
 {vieweralsosee "crossvalidate predicting" "help predictit"}{...}
 {vieweralsosee "crossvalidate validating" "help validateit"}{...}
@@ -86,7 +86,7 @@ implement Leave-One-Out (LOO) cross-validation methods with Stata estimation
 commands. The {cmd:xvloo} prefix can be used with arbitrary estimation commands 
 that return results using {help ereturn}.  It handles all four phases of 
 cross-validation work: splitting the data into training, validation, and/or test 
-splits (see {help splitit}); fitting the model you specify with your estimation 
+splits (see {help splitit2}); fitting the model you specify with your estimation 
 command (see {help fitit}); generating out-of-sample/held-out predicted values 
 (see {help predictit}); and computing validation metrics and monitors (see 
 {help validateit}).  {cmd:xvloo} is a prefix that wraps the individual commands 

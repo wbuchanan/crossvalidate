@@ -101,7 +101,7 @@ the classes being predicted cannot be handled.  Functions that might otherwise
 allow the specification of a parameter to adjust the computation are also 
 unable to be accommodated.  If you find the need to use that type of a 
 validation/test metric, you could still avoid having to write an entire 
-cross-validation pipeline by using {help splitit} and {help fitit} to do that 
+cross-validation pipeline by using {help splitit2} and {help fitit} to do that 
 work for you.  Then, predict the values of interest and compute your metric.  If 
 what we've provided in this package already meets your needs, feel free to use 
 the {help xv} prefix instead to let the computer do the work.

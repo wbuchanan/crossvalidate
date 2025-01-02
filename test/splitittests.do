@@ -1,4 +1,4 @@
-cscript "train, validation, and/or test " adofile splitit
+cscript "train, validation, and/or test " adofile splitit2
 
 **# TT Splits
 /*******************************************************************************
@@ -23,16 +23,16 @@ g int id = _n
 g byte touse = rbinomial(1, 0.5)
 
 // Test case with unity proportion and without K-Fold
-rcof "splitit 1, spl(splitvar) kf(1)" == 198
+rcof "splitit2 1, spl(splitvar) kf(1)" == 198
 
 // Test for case where the user requests greater than unity for the training set
-rcof "splitit 1.2, spl(splitvar)" == 198
+rcof "splitit2 1.2, spl(splitvar)" == 198
 
 // Test for case with invalid training split value
-rcof "splitit -.5, spl(splitvar)" == 121
+rcof "splitit2 -.5, spl(splitvar)" == 121
 
 // Create a training split with a 40% test sample and default split variable name
-splitit .6
+splitit2 .6
 
 // Confirm the name of the default split variable
 assert "`r(splitter)'" == "_xvsplit"
@@ -41,7 +41,7 @@ assert "`r(splitter)'" == "_xvsplit"
 confirm v _xvsplit
 
 // Create a training split with a 20% test sample
-splitit .8, spl(splitvar)
+splitit2 .8, spl(splitvar)
 
 // Check the return values
 assert "`r(flavor)'" == "Simple Random Sample"
@@ -58,7 +58,7 @@ count if splitvar == 1
 assert abs((100 * (`r(N)' / `c(N)')) - 80) <= 5
 
 // Test the command with an if expression
-splitit 0.8 if touse == 1, spl(newsplit)
+splitit2 0.8 if touse == 1, spl(newsplit)
 
 // Count the number of cases in the training set
 count if newsplit == 1
@@ -68,7 +68,7 @@ assert abs((100 * (`r(N)' / `c(N)')) - 40) <= 5
 
 // Verify that the command throws error code 110 if the split variable is already
 // defined
-rcof "splitit .8, spl(splitvar)" == 110
+rcof "splitit2 .8, spl(splitvar)" == 110
 
 **# TVT Splits
 /*******************************************************************************
@@ -94,13 +94,13 @@ g byte touse = rbinomial(1, 0.5)
 
 // Test for case where the user requests greater than unity for the training and 
 // validation set
-rcof "splitit .6 .6, spl(splitvar)" == 198
+rcof "splitit2 .6 .6, spl(splitvar)" == 198
 
 // Test for case with invalid training split value
-rcof "splitit .5 a.87, spl(splitvar)" == 121
+rcof "splitit2 .5 a.87, spl(splitvar)" == 121
 
 // Create a training split with a 20% validation and 20% test sample
-splitit .6 .2, spl(splitvar)
+splitit2 .6 .2, spl(splitvar)
 
 // Check the return values
 assert "`r(flavor)'" == "Simple Random Sample"
@@ -129,7 +129,7 @@ count if splitvar == 3
 assert abs((100 * (`r(N)' / `c(N)')) - 20) <= 5
 
 // Call the command using an if expression
-splitit 0.6 0.2 if touse == 1, spl(newsplit)
+splitit2 0.6 0.2 if touse == 1, spl(newsplit)
 
 // Count the number of records with a value of 1 for splitvar (train sample)
 count if newsplit == 1
@@ -151,7 +151,7 @@ assert abs((100 * (`r(N)' / `c(N)')) - 10) <= 5
 
 // Verify that the command throws error code 110 if the split variable is already
 // defined
-rcof "splitit .6 .2, spl(splitvar)" == 110
+rcof "splitit2 .6 .2, spl(splitvar)" == 110
 
 **# K-Fold TT Splits
 /*******************************************************************************
@@ -176,10 +176,10 @@ g int id = _n
 g byte touse = rbinomial(1, 0.5)
 
 // Test invalid number of K-Folds case
-rcof "splitit 0.8, spl(splitvar) kf(-1)" == 198
+rcof "splitit2 0.8, spl(splitvar) kf(-1)" == 198
 
 // Create 4 fold training set with a 20% hold out test set
-splitit 0.8, kf(4) spl(splitvar)
+splitit2 0.8, kf(4) spl(splitvar)
 
 // Check the return values
 assert "`r(flavor)'" == "Simple Random Sample"
@@ -201,7 +201,7 @@ forv i = 1/5 {
 } // End loop over the splits
 
 // Create 4 fold training set with a 20% hold out test set
-splitit 0.8 if touse == 1, kf(4) spl(newsplit)
+splitit2 0.8 if touse == 1, kf(4) spl(newsplit)
 
 // Loop over the values of the split var
 forv i = 1/5 {
@@ -237,7 +237,7 @@ g int id = _n
 g byte touse = rbinomial(1, 0.5)
 
 // Create 3 fold training set with a 20% hold out validation and test sets
-splitit 0.6 .2, kf(3) spl(splitvar)
+splitit2 0.6 .2, kf(3) spl(splitvar)
 
 // Check the return values
 assert "`r(flavor)'" == "Simple Random Sample"
@@ -259,7 +259,7 @@ forv i = 1/5 {
 } // End loop over the splits
 
 // Create 4 fold training set with a 20% hold out test set
-splitit 0.6 0.2 if touse == 1, kf(3) spl(newsplit)
+splitit2 0.6 0.2 if touse == 1, kf(3) spl(newsplit)
 
 // Loop over the values of the split var
 forv i = 1/5 {
@@ -301,10 +301,10 @@ expand 2
 bys id: g byte prepost = _n
 
 // Test for case where the user requests greater than unity for the training set
-rcof "splitit 1.2, uid(id) spl(splitvar)" == 198
+rcof "splitit2 1.2, uid(id) spl(splitvar)" == 198
 
 // Create a training split with a 20% test sample
-splitit .8, spl(splitvar) uid(id)
+splitit2 .8, spl(splitvar) uid(id)
 
 // Check the return values
 assert "`r(flavor)'" == "Clustered Random Sample"
@@ -329,10 +329,10 @@ assert splits == 1
 
 // Verify that the command throws error code 110 if the split variable is already
 // defined
-rcof "splitit .8, uid(id) spl(splitvar)" == 110
+rcof "splitit2 .8, uid(id) spl(splitvar)" == 110
 
 // Create a training split with a 20% test sample
-splitit .8 if touse == 1, spl(newsplit) uid(id)
+splitit2 .8 if touse == 1, spl(newsplit) uid(id)
 
 // Count the number of records with a value of 1 for splitvar (train sample)
 count if newsplit == 1
@@ -377,10 +377,10 @@ bys id: g byte prepost = _n
 
 // Test for case where the user requests greater than unity for the training and 
 // validation set
-rcof "splitit .6 .6, uid(id) spl(splitvar)" == 198
+rcof "splitit2 .6 .6, uid(id) spl(splitvar)" == 198
 
 // Create a training split with a 20% validation and 20% test sample
-splitit .6 .2, uid(id) spl(splitvar)
+splitit2 .6 .2, uid(id) spl(splitvar)
 
 // Check the return values
 assert "`r(flavor)'" == "Clustered Random Sample"
@@ -416,7 +416,7 @@ egen splits = nvals(splitvar), by(id)
 assert splits == 1
 
 // Create a training split with a 20% test sample
-splitit .6 .2 if touse == 1, spl(newsplit) uid(id)
+splitit2 .6 .2 if touse == 1, spl(newsplit) uid(id)
 
 // Count the number of records with a value of 1 for splitvar (train sample)
 count if newsplit == 1
@@ -445,7 +445,7 @@ assert ifsplits == 1 if !mi(ifsplits)
 
 // Verify that the command throws error code 110 if the split variable is already
 // defined
-rcof "splitit .6 .2, uid(id) spl(splitvar)" == 110
+rcof "splitit2 .6 .2, uid(id) spl(splitvar)" == 110
 
 **# Clustered K-Fold TT Splits
 /*******************************************************************************
@@ -476,7 +476,7 @@ expand 2
 bys id: g byte prepost = _n
 
 // Create 4 fold training set with a 20% hold out test set
-splitit 0.8, kf(4) spl(splitvar) uid(id)
+splitit2 0.8, kf(4) spl(splitvar) uid(id)
 
 // Check the return values
 assert "`r(flavor)'" == "Clustered Random Sample"
@@ -498,7 +498,7 @@ forv i = 1/5 {
 } // End loop over the splits
 
 // Call the command using an if expression
-splitit 0.8 if touse == 1, kf(4) spl(newsplit) uid(id)
+splitit2 0.8 if touse == 1, kf(4) spl(newsplit) uid(id)
 
 // Loop over the values of the split var
 forv i = 1/5 {
@@ -554,7 +554,7 @@ expand 2
 bys id: g byte prepost = _n
 
 // Create 3 fold training set with a 20% hold out validation and test sets
-splitit 0.6 .2, kf(3) spl(splitvar) uid(id)
+splitit2 0.6 .2, kf(3) spl(splitvar) uid(id)
 
 // Check the return values
 assert "`r(flavor)'" == "Clustered Random Sample"
@@ -576,7 +576,7 @@ forv i = 1/5 {
 } // End loop over the splits
 
 // Call the command using an if expression
-splitit 0.6 0.2 if touse == 1, kf(3) spl(newsplit) uid(id)
+splitit2 0.6 0.2 if touse == 1, kf(3) spl(newsplit) uid(id)
 
 // Loop over the values of the split var
 forv i = 1/5 {
@@ -638,13 +638,13 @@ bys id: g int time = _n + 23407
 format %td time
 
 // Test for case where the user doesn't have the data xt or ts set
-rcof `"splitit .8, tp(td("04feb2024"))"' == 459
+rcof `"splitit2 .8, tp(td("04feb2024"))"' == 459
 
 // xtset the data
 xtset id time
 
 // Create a training split with a 20% test sample
-splitit .8, spl(splitvar) tp(td("04feb2024"))
+splitit2 .8, spl(splitvar) tp(td("04feb2024"))
 
 // Check the return values
 assert "`r(flavor)'" == "Panel Unit Sample"
@@ -675,10 +675,10 @@ assert splits == 1 if !mi(splits)
 
 // Verify that the command throws error code 110 if the split variable is already
 // defined
-rcof "splitit .8, uid(id) spl(splitvar)" == 110
+rcof "splitit2 .8, uid(id) spl(splitvar)" == 110
 
 // Create a training split with a 20% test sample
-splitit .8 if touse == 1, spl(newsplit) tp(td("04feb2024"))
+splitit2 .8 if touse == 1, spl(newsplit) tp(td("04feb2024"))
 
 ******   
 ******   This should be 0.25 * the size of the splits defined due to the value 
@@ -730,13 +730,13 @@ bys id: g int time = _n + 23407
 format %td time
 
 // Test for unspecified splitvar name
-rcof `"splitit .6 .2, tp(td("04feb2024"))"' == 459
+rcof `"splitit2 .6 .2, tp(td("04feb2024"))"' == 459
 
 // xtset the data
 xtset id time
 
 // Create a training split with a 20% test sample
-splitit .6 .2, spl(splitvar) tp(td("04feb2024"))
+splitit2 .6 .2, spl(splitvar) tp(td("04feb2024"))
 
 // Check the return values
 assert "`r(flavor)'" == "Panel Unit Sample"
@@ -778,7 +778,7 @@ egen splits = nvals(splitvar), by(id)
 assert splits == 1 if !mi(splits)
 
 // Create a training split with a 20% test sample
-splitit .6 .2 if touse == 1, spl(newsplit) tp(td("04feb2024"))
+splitit2 .6 .2 if touse == 1, spl(newsplit) tp(td("04feb2024"))
 
 ******   
 ******   These should be 0.25 * the size of the splits defined due to the value 
@@ -842,14 +842,14 @@ bys id: g int time = _n + 23407
 format %td time
 
 // Test for case where the user doesn't have the data xt or ts set
-rcof `"splitit .8, tp(td("04feb2024"))"' == 459
+rcof `"splitit2 .8, tp(td("04feb2024"))"' == 459
 
 // xtset the data
 xtset id time
 
 // Create a training split with a 20% test sample 
 // This date should retain five time periods in the training sample
-splitit .8, kf(4) spl(splitvar) tp(td("06feb2024"))
+splitit2 .8, kf(4) spl(splitvar) tp(td("06feb2024"))
 
 // Check the return values
 assert "`r(flavor)'" == "Panel Unit Sample"
@@ -902,7 +902,7 @@ egen splits = nvals(splitvar), by(id)
 assert splits == 1 if !mi(splits)
 
 // Create a training split with a 20% test sample on half of the data
-splitit .8 if touse == 1, kf(4) spl(newsplit) tp(td("06feb2024"))
+splitit2 .8 if touse == 1, kf(4) spl(newsplit) tp(td("06feb2024"))
 
 ******   
 ******   Each split should have 10% of the respective time sample or 1/12th of  
@@ -981,7 +981,7 @@ xtset id time
 
 // Create a training split with a 20% test sample and 20% validation sample
 // This date should retain five time periods in the training sample
-splitit .6 .2, kf(3) spl(splitvar) tp(td("06feb2024"))
+splitit2 .6 .2, kf(3) spl(splitvar) tp(td("06feb2024"))
 
 // Check the return values
 assert "`r(flavor)'" == "Panel Unit Sample"
@@ -1034,7 +1034,7 @@ egen splits = nvals(splitvar), by(id)
 assert splits == 1 if !mi(splits)
 
 // Create a training split with a 20% test sample on half of the data
-splitit .8 if touse == 1, kf(4) spl(newsplit) tp(td("06feb2024"))
+splitit2 .8 if touse == 1, kf(4) spl(newsplit) tp(td("06feb2024"))
 
 ******   
 ******   Each split should have 10% of the respective time sample or 1/12th of  
@@ -1123,12 +1123,12 @@ xtset id time
 if `c(stata_version)' >= 16 {
 	
 	// Test for case where the user specifies non-nested panels with clusters.
-	rcof `"splitit .8, uid(badgroups) tp(td("04feb2024"))"' == 459
+	rcof `"splitit2 .8, uid(badgroups) tp(td("04feb2024"))"' == 459
 	
 } // End IF Block for all but least recent stata
 
 // Create a training split with a 20% test sample
-splitit .8, uid(ingroup id) spl(splitvar) tp(td("04feb2024"))
+splitit2 .8, uid(ingroup id) spl(splitvar) tp(td("04feb2024"))
 
 // Check the return values
 assert "`r(flavor)'" == "Clustered & Panel Sample"
@@ -1164,7 +1164,7 @@ egen clsplits = nvals(splitvar), by(ingroup)
 assert clsplits == 2 if !mi(splits)
 
 // Create a training split with a 20% test sample
-splitit .8 if touse == 1, uid(ingroup) spl(newsplit) tp(td("04feb2024"))
+splitit2 .8 if touse == 1, uid(ingroup) spl(newsplit) tp(td("04feb2024"))
 
 ******   
 ******   This should be 0.25 * the size of the splits defined due to the value 
@@ -1231,7 +1231,7 @@ format %td time
 xtset id time
 
 // Create a training split with 20% test and validation samples
-splitit .6 .2, uid(ingroup) spl(splitvar) tp(td("04feb2024"))
+splitit2 .6 .2, uid(ingroup) spl(splitvar) tp(td("04feb2024"))
 
 // Check the return values
 assert "`r(flavor)'" == "Clustered & Panel Sample"
@@ -1279,7 +1279,7 @@ egen clsplits = nvals(splitvar), by(ingroup)
 assert clsplits == 3 if !mi(splits)
 
 // Create a training split with a 20% test sample
-splitit .6 .2 if touse == 1, uid(ingroup) spl(newsplit) tp(td("04feb2024"))
+splitit2 .6 .2 if touse == 1, uid(ingroup) spl(newsplit) tp(td("04feb2024"))
 
 ******   
 ******   These should be 0.25 * the size of the splits defined due to the value 
@@ -1356,7 +1356,7 @@ xtset id time
 
 // Create a training split with a 20% test sample 
 // This date should retain five time periods in the training sample
-splitit .8, kf(4) uid(ingroup) spl(splitvar) tp(td("06feb2024"))
+splitit2 .8, kf(4) uid(ingroup) spl(splitvar) tp(td("06feb2024"))
 
 // Check the return values
 assert "`r(flavor)'" == "Clustered & Panel Sample"
@@ -1414,7 +1414,7 @@ egen clsplits = nvals(splitvar), by(ingroup)
 assert clsplits == 5 if !mi(splits)
 
 // Create a training split with a 20% test sample on half of the data
-splitit .8 if touse == 1, kf(4) spl(newsplit) tp(td("06feb2024"))
+splitit2 .8 if touse == 1, kf(4) spl(newsplit) tp(td("06feb2024"))
 
 ******   
 ******   Each split should have 10% of the respective time sample due to the if  
@@ -1502,7 +1502,7 @@ xtset id time
 
 // Create a training split with a 20% test sample and 20% validation sample
 // This date should retain five time periods in the training sample
-splitit .6 .2, kf(3) uid(ingroup) spl(splitvar) tp(td("06feb2024"))
+splitit2 .6 .2, kf(3) uid(ingroup) spl(splitvar) tp(td("06feb2024"))
 
 // Check the return values
 assert "`r(flavor)'" == "Clustered & Panel Sample"
@@ -1561,7 +1561,7 @@ egen clsplits = nvals(splitvar), by(ingroup)
 assert clsplits == 5 if !mi(splits)
 
 // Create a training split with a 20% test sample on half of the data
-splitit .8 if touse == 1, kf(4) uid(ingroup) spl(newsplit) tp(td("06feb2024"))
+splitit2 .8 if touse == 1, kf(4) uid(ingroup) spl(newsplit) tp(td("06feb2024"))
 
 ******   
 ******   Each split should have 10% of the respective time sample or 1/12th of  

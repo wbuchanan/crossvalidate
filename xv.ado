@@ -396,7 +396,7 @@ prog def xv, eclass properties(prefix xv)
 	if `dosplit' {
 
 		// Split the dataset into train/test or train/validation/test splits
-		splitit `props' `ifin', `uid' `tpoint' `kfold' `split'
+		splitit2 `props' `ifin', `uid' `tpoint' `kfold' `split'
 		
 		// Capture the returned values so they can be returned at the end
 		loc splitter `r(splitter)'
@@ -495,7 +495,7 @@ prog def xv, eclass properties(prefix xv)
 		eret loc hostname = "`hostname'"
 		eret loc machinetype = "`machinetype'"
 
-		// Return the macros from splitit
+		// Return the macros from splitit2
 		if `dosplit' eret loc splitter = "`spvar'"
 		else eret loc splitter = "`splitter'"
 		eret loc training = "`training'"
