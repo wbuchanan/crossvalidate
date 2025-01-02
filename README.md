@@ -8,7 +8,7 @@ your needs.  If, however, you need to implement something a bit different from
 generic use cases, the package also includes lower level commands that can save 
 you time from having to code the entire cross-validation process.  These 
 commands are named after the four-steps found in all cross-validation work:
-`splitit`, `fitit`, `predictit`, and `validateit`.  There are also a few utility 
+`splitit2`, `fitit`, `predictit`, and `validateit`.  There are also a few utility 
 commands that take care of the metaprogramming tasks needed to allow these 
 commands to be applied to the correct fold/split of the data.
 
@@ -250,9 +250,9 @@ them.
 
 # Phase Specific Commands 
 
-## splitit
+## splitit2
 ```
-splitit # [#] [if] [in] [, Uid(varlist) TPoint(string asis) KFold(integer 1) 
+splitit2 # [#] [if] [in] [, Uid(varlist) TPoint(string asis) KFold(integer 1) 
 						   SPLit(string asis) loo ]
 ```						   
 

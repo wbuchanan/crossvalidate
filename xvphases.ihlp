@@ -42,7 +42,7 @@ complexity/sensitivity (e.g., the number of quadrature points
 
 {pstd}
 For users interested in hyperparameter tuning, at this time, you will need to 
-call the commands {help splitit}, {help fitit}, {help predictit}, and 
+call the commands {help splitit2}, {help fitit}, {help predictit}, and 
 {help validateit} on your own to implement the updates to the model you are 
 attempting to tune.  Since {help fitit} and {help predictit} both allow you to 
 pass the estimation command (quoted appropriately), it should not require a 

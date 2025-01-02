@@ -100,7 +100,10 @@ assert !mi(`e(mae)')
 assert !mi(`e(mape)')
 assert !mi(`e(smape)')
 assert !mi(`e(metric)')
-assert !mi(`e(xv)')
+assert !mi("`e(xv)'")       //Since this is a matrix I think it needs to be in double quotes
+
+// Remove the prediction variables
+drop pred*
 
 // Simple test with k-fold cv
 xv .8, metric(mse) pstub(pred) monitors(rmse huber phl mae mape smape)		 ///   

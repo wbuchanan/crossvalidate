@@ -5,15 +5,16 @@
 *                                                                              *
 *******************************************************************************/
 
-*! splitit
+*! splitit2
+*! splitit -> splitit2 to prevent collision with existing SSC routine
 *! v 0.0.11
 *! 28FEB2024
 
 // Drop program from memory if already loaded
-cap prog drop splitit
+cap prog drop splitit2
 
 // Define program
-prog def splitit, rclass sortpreserve
+prog def splitit2, rclass sortpreserve
 
 	// Version statement 
 	version 15

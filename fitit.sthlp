@@ -47,7 +47,7 @@ INCLUDE help xvphase-fit
 {phang}
 {opt spl:it} must contain the name of the variable that stores the test, 
 validation, and test splits.  There will only be a single variable if the splits 
-were created using {help splitit}.  
+were created using {help splitit2}.  
 
 {phang}
 {opt res:ults} is used to {help estimates_store:estimates store} the estimation 

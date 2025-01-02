@@ -1,19 +1,19 @@
 {smcl}
 {* *! version 0.0.7 06mar2024}{...}
-{viewerjumpto "Syntax" "splitit##syntax"}{...}
-{viewerjumpto "Description" "splitit##description"}{...}
-{viewerjumpto "Options" "splitit##options"}{...}
-{viewerjumpto "Examples" "splitit##examples"}{...}
-{viewerjumpto "Returned Values" "splitit##retvals"}{...}
-{viewerjumpto "Additional Information" "splitit##additional"}{...}
-{viewerjumpto "Contact" "splitit##contact"}{...}
+{viewerjumpto "Syntax" "splitit2##syntax"}{...}
+{viewerjumpto "Description" "splitit2##description"}{...}
+{viewerjumpto "Options" "splitit2##options"}{...}
+{viewerjumpto "Examples" "splitit2##examples"}{...}
+{viewerjumpto "Returned Values" "splitit2##retvals"}{...}
+{viewerjumpto "Additional Information" "splitit2##additional"}{...}
+{viewerjumpto "Contact" "splitit2##contact"}{...}
 {title:Dataset Splitting and Folding for Cross-Validation in Stata}
 
 {marker syntax}{...}
 {title:Syntax}
 
 {p 8 32 2}
-{cmd:splitit} # [#] {ifin} [{cmd:,} {cmdab:u:id(}{it:varlist}{cmd:)} 
+{cmd:splitit2} # [#] {ifin} [{cmd:,} {cmdab:u:id(}{it:varlist}{cmd:)} 
 {cmdab:tp:oint(}{it:string asis}{cmd:)} {cmdab:k:fold(}{it:integer}{cmd:)} 
 {cmdab:spl:it(}{it:string asis}{cmd:)} {cmd:loo}]{p_end}
 
@@ -68,7 +68,7 @@ set.
 {phang}
 {opt spl:it} is used to specify the name of a new variable that will store the 
 identifiers for the splits in the data.  If no argument is passed to this option 
-{cmd splitit} will store the result in a variable named {it:_xvsplit}.
+{cmd splitit2} will store the result in a variable named {it:_xvsplit}.
 
 {phang}
 {opt loo} is an option used to alter the underlying logic used to compute the 
@@ -87,27 +87,27 @@ the predicted and observed values for all of the training set units in aggregate
 
 {p 4 4 2}Simple Random Sampling{p_end}
 {p 6 4 2}Test/Train Split{p_end}
-{p 8 4 2}{stata splitit .8, ret(splitvar)}{p_end}
+{p 8 4 2}{stata splitit2 .8, ret(splitvar)}{p_end}
 {p 6 4 2}Train/Validation/Test Split{p_end}
-{p 8 4 2}{stata splitit .6 .2, ret(splitvar)}{p_end}
+{p 8 4 2}{stata splitit2 .6 .2, ret(splitvar)}{p_end}
 
 {p 4 4 2}K-Fold Simple Random Sampling{p_end}
 {p 6 4 2}Test/Train Split{p_end}
-{p 8 4 2}{stata splitit .8, ret(splitvar) k(5)}{p_end}
+{p 8 4 2}{stata splitit2 .8, ret(splitvar) k(5)}{p_end}
 {p 6 4 2}Train/Validation/Test Split{p_end}
-{p 8 4 2}{stata splitit .6 .2, ret(splitvar) k(5)}{p_end}
+{p 8 4 2}{stata splitit2 .6 .2, ret(splitvar) k(5)}{p_end}
 
 {p 4 4 2}Clustered Random Sampling{p_end}
 {p 6 4 2}Test/Train Split{p_end}
-{p 8 4 2}{stata splitit .8, ret(splitvar) uid(foreign)}{p_end}
+{p 8 4 2}{stata splitit2 .8, ret(splitvar) uid(foreign)}{p_end}
 {p 6 4 2}Train/Validation/Test Split{p_end}
-{p 8 4 2}{stata splitit .6 .2, ret(splitvar) uid(foreign)}{p_end}
+{p 8 4 2}{stata splitit2 .6 .2, ret(splitvar) uid(foreign)}{p_end}
 
 {p 4 4 2}K-Fold Clustered Random Sampling{p_end}
 {p 6 4 2}Test/Train Split{p_end}
-{p 8 4 2}{stata splitit .8, ret(splitvar) k(5) uid(foreign)}{p_end}
+{p 8 4 2}{stata splitit2 .8, ret(splitvar) k(5) uid(foreign)}{p_end}
 {p 6 4 2}Train/Validation/Test Split{p_end}
-{p 8 4 2}{stata splitit .6 .2, ret(splitvar) k(5) uid(foreign)}{p_end}
+{p 8 4 2}{stata splitit2 .6 .2, ret(splitvar) k(5) uid(foreign)}{p_end}
 
 
 {marker retvals}{...}
